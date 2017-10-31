@@ -2,9 +2,9 @@ package com.simple.gradle.testlab.tasks
 
 import com.google.testing.model.AndroidInstrumentationTest
 import com.google.testing.model.TestSpecification
+import com.simple.gradle.testlab.model.TestTargetsBuilder
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
-import com.simple.gradle.testlab.model.TestTargetsBuilder
 
 class InstrumentationTest : AbstractTestLabTask() {
     var testPackageId: String? = null
@@ -23,7 +23,11 @@ class InstrumentationTest : AbstractTestLabTask() {
     }
 
     override fun buildTestSpecification(): TestSpecification = TestSpecification()
-            .setAndroidInstrumentationTest(AndroidInstrumentationTest())
+            .setAndroidInstrumentationTest(AndroidInstrumentationTest()
+                    .setTestPackageId(testPackageId)
+                    .setTestRunnerClass(testRunnerClass)
+                    .setTestTargets(testTargets.build())
+                    .setOrchestratorOption(if (useOrchestrator) "true" else null))
 
     private fun build(): AndroidInstrumentationTest = AndroidInstrumentationTest()
             .setTestPackageId(testPackageId)

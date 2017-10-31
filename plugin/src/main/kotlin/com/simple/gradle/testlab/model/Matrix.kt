@@ -1,6 +1,6 @@
 package com.simple.gradle.testlab.model
 
-class Matrix(val name: String) {
+class Matrix {
     var locales: List<String> = listOf("en")
     var orientations: List<Orientation> = listOf(Orientation.portrait)
     var androidApiLevels: List<Int> = emptyList()

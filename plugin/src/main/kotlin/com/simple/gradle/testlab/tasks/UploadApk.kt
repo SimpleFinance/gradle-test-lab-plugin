@@ -1,11 +1,14 @@
 package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
+import com.google.api.services.storage.model.Bucket
 import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskExecutionException
@@ -14,33 +17,32 @@ import java.io.FileInputStream
 import java.io.IOException
 
 open class UploadApk : DefaultTask() {
-    @Input val file = project.objects.property(File::class.java)
-    @Input val google = project.objects.property(GoogleApiConfig::class.java)
-    @OutputFile val output = project.objects.property(File::class.java)
+    @Input val key: Property<String> = project.objects.property(String::class.java)
+    @Input val file: Property<File> = project.objects.property(File::class.java)
+    @Input val prefix: Property<String> = project.objects.property(String::class.java)
+    @Input val google: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
+    @OutputFile var output: File = project.file("${project.buildDir}/test-lab/upload.properties")
 
     @TaskAction
-    fun upload() {
-        val file = file.get()
+    fun uploadApk() {
+        val apk = file.get()
         val googleConfig = google.get()
         val googleApi = GoogleApi(googleConfig)
+        val bucketName = googleConfig.bucketName ?: googleApi.defaultBucketName()
 
-        val bucketName = googleConfig.bucketName ?: try {
-            googleApi.defaultBucketName()
-        } catch (e: IOException) {
-            throw GradleException("Failed to fetch default bucket name", e)
-        }
-
-        project.logger.lifecycle("Uploading ${file.name} to $bucketName")
+        project.logger.lifecycle("Uploading ${apk.name} to $bucketName...")
         val storageObject = try {
-            InputStreamContent("application/octet-stream", FileInputStream(file))
-                    .setLength(file.length())
+            InputStreamContent("application/octet-stream", FileInputStream(apk))
+                    .setLength(apk.length())
                     .let { content -> googleApi.storage.objects().insert(bucketName, null, content) }
-                    .setName(file.name)
+                    .setName("${prefix.get()}/${apk.name}")
                     .execute()
         } catch (e: IOException) {
             throw TaskExecutionException(this, e)
         }
 
-        output.get().appendText("${file.path} = ${storageObject.selfLink}")
+        project.logger.lifecycle("Uploaded: ${apk.name} -> ${storageObject.selfLink}")
+
+        output.appendText("${key.get()}=${storageObject.selfLink}")
     }
 }

@@ -32,4 +32,3 @@ class TestTargetsBuilder {
 
     internal fun build(): List<String> = targets.toList()
 }
-

@@ -20,7 +20,7 @@ class GoogleApi(private val config: GoogleApiConfig) {
     private val httpTransport by lazy { GoogleNetHttpTransport.newTrustedTransport() }
     private val jsonFactory by lazy { JacksonFactory.getDefaultInstance() }
 
-    private val credential by lazy {
+    val credential by lazy {
         (config.credentialPath?.let { path -> GoogleCredential.fromStream(FileInputStream(path)) }
                 ?: GoogleCredential.getApplicationDefault())
                 .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
