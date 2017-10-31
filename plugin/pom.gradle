@@ -1,0 +1,14 @@
+model {
+    tasks.generatePomFileForPluginMavenPublication {
+        pom.withXml {
+            def dependencies = asElement().getElementsByTagName("dependencies").item(0)
+            def artifacts = asElement().getElementsByTagName("artifactId")
+            for (i in 0..artifacts.length-1) {
+                def artifact = artifacts.item(i)
+                if (artifact.textContent == "testing-api") {
+                    dependencies.removeChild(artifact.parentNode)
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,96 @@
+{
+    ":": {
+        "conventions": {
+            
+        },
+        "configurations": [
+            
+        ],
+        "extensions": {
+            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension"
+        }
+    },
+    ":plugin": {
+        "conventions": {
+            "base": "org.gradle.api.plugins.BasePluginConvention",
+            "java": "org.gradle.api.plugins.JavaPluginConvention"
+        },
+        "configurations": [
+            "apiElements",
+            "archives",
+            "compile",
+            "compileClasspath",
+            "compileOnly",
+            "default",
+            "embeddedKotlin",
+            "funcTestCompile",
+            "funcTestCompileClasspath",
+            "funcTestCompileOnly",
+            "funcTestImplementation",
+            "funcTestRuntime",
+            "funcTestRuntimeClasspath",
+            "funcTestRuntimeOnly",
+            "implementation",
+            "kapt",
+            "kaptFuncTest",
+            "kaptTest",
+            "runtime",
+            "runtimeClasspath",
+            "runtimeElements",
+            "runtimeOnly",
+            "testCompile",
+            "testCompileClasspath",
+            "testCompileOnly",
+            "testImplementation",
+            "testRuntime",
+            "testRuntimeClasspath",
+            "testRuntimeOnly"
+        ],
+        "extensions": {
+            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension",
+            "kotlin": "org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension",
+            "kapt": "org.jetbrains.kotlin.gradle.plugin.KaptExtension",
+            "defaultArtifacts": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
+            "reporting": "org.gradle.api.reporting.ReportingExtension",
+            "samWithReceiver": "org.jetbrains.kotlin.samWithReceiver.gradle.SamWithReceiverExtension",
+            "pluginBundle": "com.gradle.publish.PluginBundleExtension",
+            "publishing": "org.gradle.api.publish.PublishingExtension",
+            "gradlePlugin": "org.gradle.plugin.devel.GradlePluginDevelopmentExtension",
+            "idea": "org.gradle.plugins.ide.idea.model.IdeaModel"
+        }
+    },
+    ":testing-api": {
+        "conventions": {
+            "base": "org.gradle.api.plugins.BasePluginConvention",
+            "java": "org.gradle.api.plugins.JavaPluginConvention"
+        },
+        "configurations": [
+            "api",
+            "apiElements",
+            "archives",
+            "compile",
+            "compileClasspath",
+            "compileOnly",
+            "default",
+            "implementation",
+            "jython",
+            "runtime",
+            "runtimeClasspath",
+            "runtimeElements",
+            "runtimeOnly",
+            "testCompile",
+            "testCompileClasspath",
+            "testCompileOnly",
+            "testImplementation",
+            "testRuntime",
+            "testRuntimeClasspath",
+            "testRuntimeOnly"
+        ],
+        "extensions": {
+            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension",
+            "envs": "com.jetbrains.python.envs.PythonEnvsExtension",
+            "defaultArtifacts": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
+            "reporting": "org.gradle.api.reporting.ReportingExtension"
+        }
+    }
+}
