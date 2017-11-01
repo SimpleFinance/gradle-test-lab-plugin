@@ -1,6 +1,5 @@
 package com.simple.gradle.testlab.model
 
-import org.gradle.api.Project
 import java.io.File
 import java.io.Serializable
 

@@ -4,7 +4,9 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
+import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.model.TestLabConfig
+import com.simple.gradle.testlab.tasks.TestLabTask
 import com.simple.gradle.testlab.tasks.UploadApk
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,13 +14,9 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.Internal
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.withType
-import org.gradle.internal.impldep.com.fasterxml.jackson.databind.util.ISO8601DateFormat
-import org.gradle.internal.impldep.org.joda.time.DateTime
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 import java.util.Random
 
 class TestLabPlugin : Plugin<Project> {
@@ -27,48 +25,80 @@ class TestLabPlugin : Plugin<Project> {
             val extension = TestLabExtension(project)
             extensions.add("testLab", extension)
 
-            addAndroidTasks(project, extension)
-        }
-    }
-
-    private fun addAndroidTasks(project: Project, extension: TestLabExtension) {
-        project.afterEvaluate {
-            plugins.withType<AppPlugin> {
-                val android = extensions.getByType(AppExtension::class.java)
-                android.testVariants
-                        .forEach { variant ->
-                            val uploadTasks = addUploadTasks(project, extension, variant)
-                        }
+            afterEvaluate {
+                plugins.withType<AppPlugin> {
+                    extensions.getByType(AppExtension::class.java).testVariants.forEach { variant ->
+                        addTestLabTask(project, extension, variant)
+                    }
+                }
             }
         }
     }
 
-    private fun addUploadTasks(project: Project, extension: TestLabExtension, variant: TestVariant): List<Task> {
-        project.run {
-            val created = mutableListOf<Task>()
+    private fun addTestLabTask(project: Project, extension: TestLabExtension, variant: TestVariant) = project.run {
+        val uploadResults = UploadResults()
+        val uploadApp = project.addUploadTask(
+                "upload${variant.taskName()}AppApk", extension, variant.testedVariant, uploadResults)
+        val uploadTest = addUploadTask(
+                "upload${variant.taskName()}TestApk", extension, variant, uploadResults)
+
+        tasks {
+            "${variant.testedVariant.name}TestLabTest"(TestLabTask::class) {
+                dependsOn(uploadApp)
+                dependsOn(uploadTest)
+                appApk.set(variant.testedVariant.outputs.first().outputFile)
+                testApk.set(variant.outputs.first().outputFile)
+                google.set(extension.googleApi)
+                testConfig.set(extension.testConfig)
+                devices.set(extension.devices)
+                prefix = extension.prefix
+                this.uploadResults = uploadResults
+            }
+        }
+    }
+
+    private fun Project.addUploadTask(
+            name: String,
+            extension: TestLabExtension,
+            variant: BaseVariant,
+            uploadResults: UploadResults
+    ): Task = tasks.create(name, UploadApk::class.java) {
+        dependsOn(variant.assemble)
+        file.set(variant.outputs.first().outputFile)
+        prefix.set(extension.prefix)
+        google.set(extension.googleApi)
+        results = uploadResults
+    }
+
+    private fun addUploadTasks(
+            project: Project,
+            extension: TestLabExtension,
+            variant: TestVariant,
+            uploadResults: UploadResults
+    ): List<Task> = project.run {
+        mutableListOf<Task>().let { created ->
             val appApk = provider { variant.testedVariant.outputs.first().outputFile }
+            val testApk = variant.outputs.first().outputFile
+
             tasks {
-                created.add("upload${variant.taskName()}AppApk"(type = UploadApk::class) {
-                    key.set("${variant.name}App")
+                created.add("upload${variant.taskName()}AppApk"(UploadApk::class) {
+                    dependsOn(variant.testedVariant.assemble)
                     file.set(appApk)
                     prefix.set(extension.prefix)
                     google.set(extension.googleApi)
+                    results = uploadResults
                 })
-            }
 
-            if (!extension.instrumentation.isPresent) return created
-
-            val testApk = variant.outputs.first().outputFile
-            tasks {
-                created.add("upload${variant.taskName()}TestApk"(type = UploadApk::class) {
-                    key.set("${variant.name}Test")
+                created.add("upload${variant.taskName()}TestApk"(UploadApk::class) {
+                    dependsOn(variant.assemble)
                     file.set(testApk)
                     prefix.set(extension.prefix)
                     google.set(extension.googleApi)
+                    results = uploadResults
                 })
             }
 
-            return created
+            created
         }
     }
 }
