@@ -3,12 +3,16 @@ package com.simple.gradle.testlab.tasks
 import com.google.testing.model.AndroidDevice
 import com.google.testing.model.AndroidDeviceList
 import com.google.testing.model.ClientInfo
+import com.google.testing.model.ClientInfoDetail
 import com.google.testing.model.EnvironmentMatrix
 import com.google.testing.model.GoogleCloudStorage
 import com.google.testing.model.ResultStorage
 import com.google.testing.model.TestMatrix
 import com.simple.gradle.testlab.internal.GoogleApi
+import com.simple.gradle.testlab.internal.MatrixMonitor
 import com.simple.gradle.testlab.internal.UploadResults
+import com.simple.gradle.testlab.internal.createToolResultsUiUrl
+import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import com.simple.gradle.testlab.model.TestConfig
@@ -35,10 +39,9 @@ open class TestLabTask : DefaultTask() {
     }
 
     @get:Internal val googleConfig by lazy { google.get() }
-
     @get:Internal val googleApi by lazy { GoogleApi(googleConfig) }
-
     @get:Internal val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
+    @get:Internal val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
 
     @TaskAction
     fun runTest() {
@@ -53,23 +56,48 @@ open class TestLabTask : DefaultTask() {
                 .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
                 .setTestSpecification(testConfig.get().testSpecification(appApkReference, testApkReference))
 
+        logger.info("Test matrix: ${testMatrix.toPrettyString()}")
+
         val triggeredTestMatrix = googleApi.testing.projects().testMatrices()
                 .create(googleConfig.projectId, testMatrix)
                 .execute()
+
+        val projectId = triggeredTestMatrix.projectId
+        val matrixId = triggeredTestMatrix.testMatrixId
+
+        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.get().testType, logger)
+
+        val canceler = Thread { monitor.cancelTestMatrix() }
+        Runtime.getRuntime().addShutdownHook(canceler)
+
+        val supportedExecutions = monitor.handleUnsupportedExecutions(triggeredTestMatrix)
+        val toolResultsIds = getToolResultsIds(triggeredTestMatrix, monitor)
+        val url = createToolResultsUiUrl(projectId, toolResultsIds)
+        logger.lifecycle("Test results will be streamed to [$url].")
+
+        if (supportedExecutions.size == 1) {
+            monitor.monitorTestExecutionProgress(supportedExecutions[0].id)
+        } else {
+            monitor.monitorTestMatrixProgress()
+        }
+
+        Runtime.getRuntime().removeShutdownHook(canceler)
+
+        logger.lifecycle("More results are available at [$url].")
     }
 
     private fun clientInfo(): ClientInfo = ClientInfo()
             .setName("Gradle Test Lab Plugin ${project.version}")
 
     private fun resultStorage(): ResultStorage = ResultStorage()
-            .setGoogleCloudStorage(GoogleCloudStorage().setGcsPath("gs://$bucketName/$prefix"))
+            .setGoogleCloudStorage(GoogleCloudStorage().setGcsPath(gcsBucketPath))
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
             .setAndroidDevices(devices.get().map {
                 AndroidDevice()
                         .setAndroidModelId(it.model)
-                        .setAndroidVersionId(it.version?.toString())
+                        .setAndroidVersionId(it.version.toString())
                         .setLocale(it.locale)
-                        .setOrientation(it.orientation?.name?.toLowerCase())
+                        .setOrientation(it.orientation.name.toLowerCase())
             })
 }

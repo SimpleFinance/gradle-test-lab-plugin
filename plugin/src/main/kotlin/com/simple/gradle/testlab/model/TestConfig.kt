@@ -9,9 +9,10 @@ import com.google.testing.model.TestSetup
 import com.google.testing.model.TestSpecification
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
-import java.io.File
 
-abstract class TestConfig {
+enum class TestType { INSTRUMENTATION, ROBO }
+
+abstract class TestConfig(val testType: TestType) {
     var autoGoogleLogin: Boolean = false
     var disablePerformanceMetrics: Boolean = false
     var disableVideoRecording: Boolean = false
@@ -39,7 +40,7 @@ abstract class TestConfig {
     internal abstract fun buildTestSpecification(appApk: FileReference, testApk: FileReference): TestSpecification
 }
 
-class InstrumentationTestConfig : TestConfig() {
+class InstrumentationTestConfig : TestConfig(TestType.INSTRUMENTATION) {
     var testRunnerClass: String? = null
     var useOrchestrator: Boolean? = null
     val testTargets = TestTargetsBuilder()
@@ -87,7 +88,7 @@ class TestTargetsBuilder {
     internal fun build(): List<String> = targets.toList()
 }
 
-class RoboTestConfig : TestConfig() {
+class RoboTestConfig : TestConfig(TestType.ROBO) {
     var appInitialActivity: String? = null
     var maxDepth: Int? = null
     var maxSteps: Int? = null

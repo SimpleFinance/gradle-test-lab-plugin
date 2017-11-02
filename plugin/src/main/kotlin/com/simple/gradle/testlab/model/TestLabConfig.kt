@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import java.io.File
 
 open class TestLabConfig(private val project: Project) {
     @Input val googleApi: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
