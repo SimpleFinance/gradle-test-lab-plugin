@@ -3,16 +3,17 @@ package com.simple.gradle.testlab.tasks
 import com.google.testing.model.AndroidDevice
 import com.google.testing.model.AndroidDeviceList
 import com.google.testing.model.ClientInfo
-import com.google.testing.model.ClientInfoDetail
 import com.google.testing.model.EnvironmentMatrix
 import com.google.testing.model.GoogleCloudStorage
 import com.google.testing.model.ResultStorage
 import com.google.testing.model.TestMatrix
+import com.simple.gradle.testlab.internal.ArtifactFetcher
 import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.MatrixMonitor
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
+import com.simple.gradle.testlab.model.Artifacts
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import com.simple.gradle.testlab.model.TestConfig
@@ -22,6 +23,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -31,6 +33,10 @@ open class TestLabTask : DefaultTask() {
     @Input val google: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
     @Input val testConfig: Property<TestConfig> = project.objects.property(TestConfig::class.java)
     @Input val devices: ListProperty<Device> = project.objects.listProperty(Device::class.java)
+    @Input @Optional val artifacts: Property<Artifacts> = project.objects.property(Artifacts::class.java)
+
+    val outputDir: Property<File> = project.objects.property(File::class.java)
+
     @Internal lateinit var prefix: String
     @Internal lateinit var uploadResults: UploadResults
 
@@ -38,10 +44,10 @@ open class TestLabTask : DefaultTask() {
         group = "verification"
     }
 
-    @get:Internal val googleConfig by lazy { google.get() }
-    @get:Internal val googleApi by lazy { GoogleApi(googleConfig) }
-    @get:Internal val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
-    @get:Internal val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
+    @get:Internal private val googleConfig by lazy { google.get() }
+    @get:Internal private val googleApi by lazy { GoogleApi(googleConfig) }
+    @get:Internal private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
+    @get:Internal private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
 
     @TaskAction
     fun runTest() {
@@ -84,6 +90,13 @@ open class TestLabTask : DefaultTask() {
         Runtime.getRuntime().removeShutdownHook(canceler)
 
         logger.lifecycle("More results are available at [$url].")
+
+        if (artifacts.isPresent) {
+            val fetcher = ArtifactFetcher(googleApi, bucketName, prefix, outputDir.get(), logger)
+            for (test in supportedExecutions) {
+                fetcher.fetch(test.environment.androidDevice, artifacts.get())
+            }
+        }
     }
 
     private fun clientInfo(): ClientInfo = ClientInfo()

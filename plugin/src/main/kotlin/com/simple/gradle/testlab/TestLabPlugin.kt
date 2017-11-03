@@ -51,6 +51,8 @@ class TestLabPlugin : Plugin<Project> {
                 google.set(extension.googleApi)
                 testConfig.set(extension.testConfig)
                 devices.set(extension.devices)
+                artifacts.set(extension.artifacts)
+                outputDir.set(file("$buildDir/test-results/$name"))
                 prefix = extension.prefix
                 this.uploadResults = uploadResults
             }
