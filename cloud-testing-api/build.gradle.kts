@@ -50,7 +50,7 @@ task("installPackages", type = Exec::class) {
     dependsOn("generateApiEnv")
     inputs.file("requirements.txt")
     outputs.file(genApiBin)
-    commandLine("$genApiEnv/bin/pip", "install", "-r", "requirements.txt")
+    commandLine("$genApiEnv/bin/python", "-m", "pip", "install", "-r", "requirements.txt")
 }
 
 task("generateTestingApi", type = Exec::class) {
@@ -59,7 +59,7 @@ task("generateTestingApi", type = Exec::class) {
     inputs.file(file("$projectDir/src/testing_v1.json"))
     outputs.dir("$buildDir/generated/source/testing-api")
 
-    commandLine("$genApiBin",
+    commandLine("$genApiEnv/bin/python", "$genApiBin",
             "--input=$projectDir/src/testing_v1.json",
             "--language=java",
             "--output_dir=$buildDir/generated/source/testing-api")
