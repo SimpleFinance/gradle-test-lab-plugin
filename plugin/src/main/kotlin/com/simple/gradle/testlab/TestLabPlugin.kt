@@ -106,13 +106,7 @@ class TestLabPlugin : Plugin<Project> {
 }
 
 open class TestLabExtension(project: Project) : TestLabConfig(project) {
-    internal val variants = project.objects.listProperty(String::class.java)
-
     @get:Internal internal val prefix by lazy { getUniquePathPrefix() }
-
-    fun setVariants(names: List<String>) {
-        variants.set(names)
-    }
 }
 
 internal fun BaseVariant.taskName(): String = name.capitalize()
