@@ -12,8 +12,8 @@ plugins {
     id("com.gradle.plugin-publish") version "0.9.9"
 }
 
-group = "com.simple.gradle.testlab"
-version = "0.1"
+group = rootProject.group
+version = rootProject.version
 description = "Run Android application tests on Firebase Test Lab"
 
 repositories {
@@ -31,7 +31,7 @@ dependencies {
     }
     implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev284-1.23.0")
     implementation("com.google.apis:google-api-services-storage:v1-rev114-1.23.0")
-    implementation(project(":testing-api"))
+    implementation(project(":cloud-testing-api"))
 
     testRuntimeOnly("com.android.tools.build:gradle:3.0.0")
     testImplementation("junit:junit:4.12")
@@ -61,10 +61,10 @@ pluginBundle {
     }
 }
 
-evaluationDependsOn(":testing-api")
+evaluationDependsOn(":cloud-testing-api")
 
 val jar: Jar by tasks
-project(":testing-api").let {
+project(":cloud-testing-api").let {
     jar.dependsOn(it.tasks["classes"])
     jar.from(it.java.sourceSets["main"].java.outputDir)
 }
