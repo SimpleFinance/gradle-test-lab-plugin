@@ -16,10 +16,18 @@ subprojects {
             maven {
                 name = "releases"
                 url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
+                credentials {
+                    username = properties["nexusUsername"]?.toString()
+                    password = properties["nexusPassword"]?.toString()
+                }
             }
             maven {
                 name = "snapshots"
                 url = uri("https://nexus-build.banksimple.com/repository/simple-maven-snapshots/")
+                credentials {
+                    username = properties["nexusUsername"]?.toString()
+                    password = properties["nexusPassword"]?.toString()
+                }
             }
         }
     }
