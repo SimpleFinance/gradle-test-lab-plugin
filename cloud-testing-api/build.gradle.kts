@@ -3,6 +3,9 @@ plugins {
     id("com.jetbrains.python.envs") version "0.0.19"
 }
 
+group = rootProject.group
+version = rootProject.version
+
 repositories {
     mavenCentral()
 }
