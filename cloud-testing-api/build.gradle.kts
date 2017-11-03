@@ -1,4 +1,5 @@
 plugins {
+    `maven-publish`
     `java-library`
 }
 
@@ -23,6 +24,14 @@ repositories {
 dependencies {
     compileOnly("com.google.api-client:google-api-client:1.23.0")
     "virtualenv"("virtualenv:virtualenv:15.1.0@tar.gz")
+}
+
+publishing {
+    publications {
+        create("cloudTestingApi", MavenPublication::class.java) {
+            artifact(tasks["jar"])
+        }
+    }
 }
 
 val venv = file("$buildDir/virtualenv")
@@ -78,14 +87,3 @@ java {
         }
     }
 }
-
-//afterEvaluate {
-//    tasks {
-//        "generateTestingApi" {
-//            dependsOn(tasks["installVirtualenv"])
-//        }
-//        "compileJava" {
-//            dependsOn(tasks["generateTestingApi"])
-//        }
-//    }
-//}

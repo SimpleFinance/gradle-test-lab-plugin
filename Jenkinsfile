@@ -21,7 +21,11 @@ pipeline {
                 NEXUS = credentials('simple-nexus')
             }
             steps {
-                sh './gradlew publishPluginMavenPublicationToSnapshotsRepository -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW'
+                sh '''
+                  ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
+                      publishCloudTestingApiPublicationToSnapshotsRepository \
+                      publishPluginMavenPublicationToSnapshotsRepository
+                '''.stripIndent()
             }
         }
     }
