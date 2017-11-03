@@ -51,6 +51,8 @@ class TestLabPlugin : Plugin<Project> {
                 google.set(extension.googleApi)
                 testConfig.set(extension.testConfig)
                 devices.set(extension.devices)
+                artifacts.set(extension.artifacts)
+                outputDir.set(file("$buildDir/test-results/$name"))
                 prefix = extension.prefix
                 this.uploadResults = uploadResults
             }
@@ -104,13 +106,7 @@ class TestLabPlugin : Plugin<Project> {
 }
 
 open class TestLabExtension(project: Project) : TestLabConfig(project) {
-    internal val variants = project.objects.listProperty(String::class.java)
-
     @get:Internal internal val prefix by lazy { getUniquePathPrefix() }
-
-    fun setVariants(names: List<String>) {
-        variants.set(names)
-    }
 }
 
 internal fun BaseVariant.taskName(): String = name.capitalize()
