@@ -37,7 +37,7 @@ internal enum class InvalidMatrixDetails(val message: String) {
 internal fun createToolResultsUiUrl(projectId: String, toolResultsIds: ToolResultsIds) =
         UriTemplate.expand(
                 "https://console.firebase.google.com",
-                "project/{project}/testlab/histories/{history}/matrices/{execution}",
+                "/project/{project}/testlab/histories/{history}/matrices/{execution}",
                 linkedMapOf(
                         "project" to projectId,
                         "history" to toolResultsIds.historyId,
