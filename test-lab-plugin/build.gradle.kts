@@ -23,17 +23,16 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jre8", version = "1.1.51"))
-    implementation(kotlin("reflect", version = "1.1.51"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3")
     implementation("com.android.tools.build:gradle:3.0.0")
     implementation("com.google.api-client:google-api-client:1.23.0") {
         exclude(group = "com.google.guava", module = "guava-jdk5")
     }
     implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev284-1.23.0")
-    implementation("com.google.apis:google-api-services-storage:v1-rev114-1.23.0")
+    implementation("com.google.apis:google-api-services-storage:v1-rev115-1.23.0")
     implementation(project(":cloud-testing-api"))
 
     testRuntimeOnly("com.android.tools.build:gradle:3.0.0")
+    testImplementation(kotlin("reflect", version = "1.1.51"))
     testImplementation("junit:junit:4.12")
     testImplementation("com.natpryce:hamkrest:1.4.2.2")
 }
@@ -67,10 +66,6 @@ val jar: Jar by tasks
 project(":cloud-testing-api").let {
     jar.dependsOn(it.tasks["classes"])
     jar.from(it.java.sourceSets["main"].java.outputDir)
-}
-
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
 }
 
 tasks.withType<KotlinCompile> {
