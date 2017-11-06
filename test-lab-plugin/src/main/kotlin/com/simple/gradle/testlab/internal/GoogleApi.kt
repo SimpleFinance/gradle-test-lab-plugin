@@ -4,9 +4,9 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.storage.Storage
+import com.google.api.services.testing.Testing
+import com.google.api.services.testing.TestingScopes
 import com.google.api.services.toolresults.ToolResults
-import com.google.testing.Testing
-import com.google.testing.TestingScopes
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import java.io.FileInputStream
 

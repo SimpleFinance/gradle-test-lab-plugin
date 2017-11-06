@@ -1,12 +1,14 @@
 package com.simple.gradle.testlab.internal
 
 import com.google.api.services.storage.model.StorageObject
-import com.google.testing.model.AndroidDevice
+import com.google.api.services.testing.model.AndroidDevice
 import com.simple.gradle.testlab.model.Artifacts
+import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.File
 
 class ArtifactFetcher(
+        private val project: Project,
         private val googleApi: GoogleApi,
         private val bucketName: String,
         private val prefix: String,
@@ -58,7 +60,7 @@ class ArtifactFetcher(
     }
 
     private fun fetch(object_: String, destDir: File, filename: String) {
-        logger.lifecycle("$object_ => $outputDir/$filename")
+        logger.lifecycle("$object_ => ${destDir.toRelativeString(project.projectDir)}/$filename")
         try {
             googleApi.storage.objects().get(bucketName, object_)
                     .executeMediaAndDownloadTo(File(destDir, filename).apply { createNewFile() }.outputStream())

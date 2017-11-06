@@ -1,7 +1,7 @@
 package com.simple.gradle.testlab.internal
 
 import com.google.api.client.http.UriTemplate
-import com.google.testing.model.TestMatrix
+import com.google.api.services.testing.model.TestMatrix
 import org.gradle.api.GradleException
 
 internal data class ToolResultsIds(val historyId: String, val executionId: String)

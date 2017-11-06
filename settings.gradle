@@ -1,2 +1,1 @@
-include ':cloud-testing-api'
 include ':test-lab-plugin'

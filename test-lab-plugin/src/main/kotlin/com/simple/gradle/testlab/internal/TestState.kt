@@ -1,7 +1,7 @@
 package com.simple.gradle.testlab.internal
 
-import com.google.testing.model.TestExecution
-import com.google.testing.model.TestMatrix
+import com.google.api.services.testing.model.TestExecution
+import com.google.api.services.testing.model.TestMatrix
 
 internal enum class TestState(val terminal: Boolean, val error: Boolean, val description: String) {
     TEST_STATE_UNSPECIFIED(false, true, "Do not use.  For proto versioning only."),

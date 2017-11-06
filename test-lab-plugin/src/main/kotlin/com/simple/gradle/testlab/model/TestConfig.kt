@@ -1,12 +1,12 @@
 package com.simple.gradle.testlab.model
 
-import com.google.testing.model.AndroidInstrumentationTest
-import com.google.testing.model.AndroidRoboTest
-import com.google.testing.model.EnvironmentVariable
-import com.google.testing.model.FileReference
-import com.google.testing.model.RoboDirective
-import com.google.testing.model.TestSetup
-import com.google.testing.model.TestSpecification
+import com.google.api.services.testing.model.AndroidInstrumentationTest
+import com.google.api.services.testing.model.AndroidRoboTest
+import com.google.api.services.testing.model.EnvironmentVariable
+import com.google.api.services.testing.model.FileReference
+import com.google.api.services.testing.model.RoboDirective
+import com.google.api.services.testing.model.TestSetup
+import com.google.api.services.testing.model.TestSpecification
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
 
