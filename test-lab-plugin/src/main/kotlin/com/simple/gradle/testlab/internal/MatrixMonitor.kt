@@ -1,9 +1,9 @@
 package com.simple.gradle.testlab.internal
 
-import com.google.testing.model.CancelTestMatrixResponse
-import com.google.testing.model.Environment
-import com.google.testing.model.TestExecution
-import com.google.testing.model.TestMatrix
+import com.google.api.services.testing.model.CancelTestMatrixResponse
+import com.google.api.services.testing.model.Environment
+import com.google.api.services.testing.model.TestExecution
+import com.google.api.services.testing.model.TestMatrix
 import com.simple.gradle.testlab.model.TestType
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger

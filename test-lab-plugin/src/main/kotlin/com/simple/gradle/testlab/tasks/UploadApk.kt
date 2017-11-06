@@ -1,7 +1,7 @@
 package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
-import com.google.testing.model.FileReference
+import com.google.api.services.testing.model.FileReference
 import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.model.GoogleApiConfig

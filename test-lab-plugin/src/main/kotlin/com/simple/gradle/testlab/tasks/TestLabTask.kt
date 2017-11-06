@@ -1,12 +1,12 @@
 package com.simple.gradle.testlab.tasks
 
-import com.google.testing.model.AndroidDevice
-import com.google.testing.model.AndroidDeviceList
-import com.google.testing.model.ClientInfo
-import com.google.testing.model.EnvironmentMatrix
-import com.google.testing.model.GoogleCloudStorage
-import com.google.testing.model.ResultStorage
-import com.google.testing.model.TestMatrix
+import com.google.api.services.testing.model.AndroidDevice
+import com.google.api.services.testing.model.AndroidDeviceList
+import com.google.api.services.testing.model.ClientInfo
+import com.google.api.services.testing.model.EnvironmentMatrix
+import com.google.api.services.testing.model.GoogleCloudStorage
+import com.google.api.services.testing.model.ResultStorage
+import com.google.api.services.testing.model.TestMatrix
 import com.simple.gradle.testlab.internal.ArtifactFetcher
 import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.MatrixMonitor
@@ -92,7 +92,7 @@ open class TestLabTask : DefaultTask() {
         logger.lifecycle("More results are available at [$url].")
 
         if (artifacts.isPresent) {
-            val fetcher = ArtifactFetcher(googleApi, bucketName, prefix, outputDir.get(), logger)
+            val fetcher = ArtifactFetcher(project, googleApi, bucketName, prefix, outputDir.get(), logger)
             for (test in supportedExecutions) {
                 fetcher.fetch(test.environment.androidDevice, artifacts.get())
             }
