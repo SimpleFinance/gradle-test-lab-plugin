@@ -1,9 +1,11 @@
 package com.simple.gradle.testlab.model
 
+import com.google.api.services.testing.model.Account
 import com.google.api.services.testing.model.AndroidInstrumentationTest
 import com.google.api.services.testing.model.AndroidRoboTest
 import com.google.api.services.testing.model.EnvironmentVariable
 import com.google.api.services.testing.model.FileReference
+import com.google.api.services.testing.model.GoogleAuto
 import com.google.api.services.testing.model.RoboDirective
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
@@ -13,12 +15,13 @@ import org.gradle.util.ConfigureUtil
 enum class TestType { INSTRUMENTATION, ROBO }
 
 abstract class TestConfig(val testType: TestType) {
-    var autoGoogleLogin: Boolean = false
     var disablePerformanceMetrics: Boolean = false
     var disableVideoRecording: Boolean = false
-    var testTimeout: String? = null
+    var resultsHistoryName: String? = null
+    var testTimeout: String = "900s"
 
     // For TestSetup
+    val autoGoogleAccount: Boolean = true
     val directoriesToPull = mutableListOf<String>()
     val environmentVariables = mutableMapOf<String, String>()
     // TODO filesToPush
@@ -26,11 +29,11 @@ abstract class TestConfig(val testType: TestType) {
 
     fun testSpecification(appApk: FileReference, testApk: FileReference): TestSpecification =
             buildTestSpecification(appApk, testApk)
-                    .setAutoGoogleLogin(autoGoogleLogin)
                     .setDisablePerformanceMetrics(disablePerformanceMetrics)
                     .setDisableVideoRecording(disableVideoRecording)
                     .setTestTimeout(testTimeout)
                     .setTestSetup(TestSetup()
+                            .setAccount(autoGoogleAccount.toAccount())
                             .setDirectoriesToPull(directoriesToPull.toList())
                             .setEnvironmentVariables(environmentVariables.map { (key, value) ->
                                 EnvironmentVariable().setKey(key).setValue(value)
@@ -39,6 +42,9 @@ abstract class TestConfig(val testType: TestType) {
 
     internal abstract fun buildTestSpecification(appApk: FileReference, testApk: FileReference): TestSpecification
 }
+
+private fun Boolean?.toAccount(): Account? =
+        this?.takeIf { it }?.let { Account().setGoogleAuto(GoogleAuto()) }
 
 class InstrumentationTestConfig : TestConfig(TestType.INSTRUMENTATION) {
     var testRunnerClass: String? = null
@@ -60,22 +66,13 @@ class InstrumentationTestConfig : TestConfig(TestType.INSTRUMENTATION) {
                             .setTestApk(testApk)
                             .setTestRunnerClass(testRunnerClass)
                             .setTestTargets(testTargets.build())
-                            .setOrchestratorOption(OrchestratorOption.map(useOrchestrator)))
+                            .setOrchestratorOption(useOrchestrator.toOrchestratorOption()))
 }
 
-enum class OrchestratorOption {
-    ORCHESTRATOR_OPTION_UNSPECIFIED,
-    USE_ORCHESTRATOR,
-    DO_NOT_USE_ORCHESTRATOR;
-
-    companion object {
-        fun map(option: Boolean?): String =
-                when (option) {
-                    null -> ORCHESTRATOR_OPTION_UNSPECIFIED
-                    true -> USE_ORCHESTRATOR
-                    false -> DO_NOT_USE_ORCHESTRATOR
-                }.name
-    }
+private fun Boolean?.toOrchestratorOption(): String = when (this) {
+    null -> "ORCHESTRATOR_OPTION_UNSPECIFIED"
+    false -> "DO_NOT_USE_ORCHESTRATOR"
+    true -> "USE_ORCHESTRATOR"
 }
 
 class TestTargetsBuilder {
