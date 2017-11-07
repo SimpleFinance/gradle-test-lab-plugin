@@ -5,8 +5,11 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 open class TestLabConfig(private val project: Project) {
+    @Input @Optional val appPackageId: Property<String> = project.objects.property(String::class.java)
+    @Input @Optional val testPackageId: Property<String> = project.objects.property(String::class.java)
     @Input val googleApi: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
     @Input val testConfig: Property<TestConfig> = project.objects.property(TestConfig::class.java)
     @Input val devices: ListProperty<Device> = project.objects.listProperty(Device::class.java)
