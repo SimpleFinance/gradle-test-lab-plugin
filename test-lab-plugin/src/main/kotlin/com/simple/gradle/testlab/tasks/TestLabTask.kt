@@ -122,6 +122,7 @@ open class TestLabTask : DefaultTask() {
                 }
             }
 
+    // Mimic the `gcloud` tool; useOrchestrator does not work without this.
     private fun clientInfo(): ClientInfo = ClientInfo()
             .setName("gcloud")
             .setClientInfoDetails(listOf(
