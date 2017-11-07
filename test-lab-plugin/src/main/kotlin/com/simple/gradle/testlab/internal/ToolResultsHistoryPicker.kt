@@ -6,8 +6,8 @@ internal class ToolResultsHistoryPicker(
         val projectId: String,
         val googleApi: GoogleApi
 ) {
-    fun pickHistoryName(name: String?, appPackageId: String?) =
-            name ?: appPackageId?.let { it + " (gradle)" }
+    fun pickHistoryName(name: String?, appPackageId: String?): String? =
+            name ?: appPackageId?.let { "$it (gradle)" }
 
     fun getToolResultsHistoryId(name: String?): String? = name?.let {
         getHistoriesByName(name)?.takeUnless { it.isEmpty() }?.get(0)?.historyId
