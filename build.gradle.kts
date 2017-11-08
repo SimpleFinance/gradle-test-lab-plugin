@@ -17,14 +17,21 @@ subprojects {
             maven {
                 name = "releases"
                 url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
-                credentials {
-                    username = properties["nexusUsername"]?.toString()
-                    password = properties["nexusPassword"]?.toString()
-                }
             }
             maven {
                 name = "snapshots"
                 url = uri("https://nexus-build.banksimple.com/repository/simple-maven-snapshots/")
+            }
+            // TODO Remove these
+            maven {
+                name = "oldReleases"
+                url = uri("http://nexus.banksimple.com/content/repositories/releases/")
+            }
+            maven {
+                name = "oldSnapshots"
+                url = uri("http://nexus.banksimple.com/content/repositories/snapshots/")
+            }
+            withType<MavenArtifactRepository> {
                 credentials {
                     username = properties["nexusUsername"]?.toString()
                     password = properties["nexusPassword"]?.toString()

@@ -23,7 +23,8 @@ pipeline {
             steps {
                 sh '''
                   ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
-                      publishPluginMavenPublicationToSnapshotsRepository
+                      publishPluginMavenPublicationToSnapshotsRepository \
+                      publishPluginMavenPublicationToOldSnapshotsRepository
                 '''.stripIndent()
             }
         }
