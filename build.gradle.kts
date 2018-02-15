@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.simple.gradle.testlab"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 
 subprojects {
     apply { plugin("maven-publish") }
@@ -34,8 +34,7 @@ subprojects {
     }
 }
 
-task("wrapper", type = Wrapper::class) {
-    group = "build setup"
-    gradleVersion = "4.3"
+tasks.withType<Wrapper> {
+    gradleVersion = "4.5"
     distributionType = Wrapper.DistributionType.ALL
 }

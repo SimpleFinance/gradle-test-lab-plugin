@@ -8,8 +8,8 @@ plugins {
     `maven-publish`
     `java-gradle-plugin`
     `kotlin-dsl`
-    kotlin("jvm") version "1.1.51"
-    id("com.gradle.plugin-publish") version "0.9.9"
+    kotlin("jvm") version "1.2.21"
+    id("com.gradle.plugin-publish") version "0.9.10"
 }
 
 group = rootProject.group
@@ -22,17 +22,17 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jre8", version = "1.1.51"))
-    implementation("com.android.tools.build:gradle:3.0.0")
+    implementation(kotlin("stdlib-jre8", version = "1.2.21"))
+    implementation("com.android.tools.build:gradle:3.0.1")
     implementation("com.google.api-client:google-api-client:1.23.0") {
         exclude(group = "com.google.guava", module = "guava-jdk5")
     }
-    implementation("com.google.apis:google-api-services-storage:v1-rev115-1.23.0")
-    implementation("com.google.apis:google-api-services-testing:v1-rev10-1.23.0")
-    implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev284-1.23.0")
+    implementation("com.google.apis:google-api-services-storage:v1-rev120-1.23.0")
+    implementation("com.google.apis:google-api-services-testing:v1-rev28-1.23.0")
+    implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev359-1.23.0")
 
-    testRuntimeOnly("com.android.tools.build:gradle:3.0.0")
-    testImplementation(kotlin("reflect", version = "1.1.51"))
+    testRuntimeOnly("com.android.tools.build:gradle:3.0.1")
+    testImplementation(kotlin("reflect", version = "1.2.21"))
     testImplementation("junit:junit:4.12")
     testImplementation("com.natpryce:hamkrest:1.4.2.2")
 }
