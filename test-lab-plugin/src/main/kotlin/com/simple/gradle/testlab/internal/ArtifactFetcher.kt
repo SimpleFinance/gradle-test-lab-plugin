@@ -9,7 +9,7 @@ import java.io.File
 
 class ArtifactFetcher(
         private val project: Project,
-        private val googleApi: GoogleApi,
+        private val googleApi: GoogleApiInternal,
         private val bucketName: String,
         private val prefix: String,
         private val outputDir: File,

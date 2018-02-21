@@ -4,14 +4,13 @@ import com.google.api.services.testing.model.CancelTestMatrixResponse
 import com.google.api.services.testing.model.Environment
 import com.google.api.services.testing.model.TestExecution
 import com.google.api.services.testing.model.TestMatrix
-import com.simple.gradle.testlab.model.TestType
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 internal class MatrixMonitor(
-        val googleApi: GoogleApi,
+        val googleApi: GoogleApiInternal,
         val projectId: String,
         val matrixId: String,
         val testType: TestType,

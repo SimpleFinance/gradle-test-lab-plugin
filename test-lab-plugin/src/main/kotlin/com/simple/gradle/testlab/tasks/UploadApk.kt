@@ -2,9 +2,9 @@ package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.testing.model.FileReference
-import com.simple.gradle.testlab.internal.GoogleApi
+import com.simple.gradle.testlab.internal.DefaultGoogleApi
+import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.UploadResults
-import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -18,14 +18,18 @@ import java.io.IOException
 open class UploadApk : DefaultTask() {
     @Input val file: Property<File> = project.objects.property(File::class.java)
     @Input val prefix: Property<String> = project.objects.property(String::class.java)
-    @Input val google: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
+    @Input val google: Property<DefaultGoogleApi> = project.objects.property(DefaultGoogleApi::class.java)
     @Internal var results: UploadResults? = null
+
+    init {
+        description = "Upload APK to Firebase."
+    }
 
     @TaskAction
     fun uploadApk() {
         val apk = file.get()
         val googleConfig = google.get()
-        val googleApi = GoogleApi(googleConfig)
+        val googleApi = GoogleApiInternal(googleConfig)
         val bucketName = googleConfig.bucketName ?: googleApi.defaultBucketName()
         val prefix = prefix.get()
 

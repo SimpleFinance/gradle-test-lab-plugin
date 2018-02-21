@@ -35,6 +35,7 @@ dependencies {
     testImplementation(kotlin("reflect", version = "1.2.21"))
     testImplementation("junit:junit:4.12")
     testImplementation("com.natpryce:hamkrest:1.4.2.2")
+    testImplementation(gradleKotlinDsl())
 }
 
 gradlePlugin {
@@ -56,6 +57,22 @@ pluginBundle {
         "testLab" {
             id = project.group as String
             displayName = "Gradle Firebase Test Lab plugin"
+        }
+    }
+}
+
+val sourcesJar = task("sourcesJar", Jar::class) {
+    from(java.sourceSets["main"].allSource)
+}
+
+publishing {
+    publications {
+        create("sourcesMaven", MavenPublication::class.java) {
+            artifacts {
+                artifact(sourcesJar) {
+                    classifier = "sources"
+                }
+            }
         }
     }
 }

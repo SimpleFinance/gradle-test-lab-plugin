@@ -10,58 +10,63 @@ import com.google.api.services.testing.model.ResultStorage
 import com.google.api.services.testing.model.TestMatrix
 import com.google.api.services.testing.model.ToolResultsHistory
 import com.simple.gradle.testlab.internal.ArtifactFetcher
-import com.simple.gradle.testlab.internal.GoogleApi
+import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.MatrixMonitor
+import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
-import com.simple.gradle.testlab.model.Artifacts
-import com.simple.gradle.testlab.model.Device
-import com.simple.gradle.testlab.model.GoogleApiConfig
-import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import kotlin.reflect.KProperty
 
-open class TestLabTask : DefaultTask() {
-    @Input val appApk: Property<File> = project.objects.property(File::class.java)
-    @Input @Optional val appPackageId: Property<String> = project.objects.property(String::class.java)
-    @Input val testApk: Property<File> = project.objects.property(File::class.java)
-    @Input @Optional val testPackageId: Property<String> = project.objects.property(String::class.java)
-    @Input val google: Property<GoogleApiConfig> = project.objects.property(GoogleApiConfig::class.java)
-    @Input val testConfig: Property<TestConfig> = project.objects.property(TestConfig::class.java)
-    @Input val devices: ListProperty<Device> = project.objects.listProperty(Device::class.java)
-    @Input @Optional val artifacts: Property<Artifacts> = project.objects.property(Artifacts::class.java)
+open class TestLabTest : DefaultTask() {
+    private val objects = project.objects
 
-    val outputDir: Property<File> = project.objects.property(File::class.java)
+    @delegate:InputFile val appApk: Property<File> by objects
+    @delegate:InputFile @delegate:Optional val testApk: Property<File> by objects
+    @delegate:Input @delegate:Optional val appPackageId: Property<String?> by objects
+    @delegate:Input @delegate:Optional val testPackageId: Property<String?> by objects
+    @delegate:Input val google: Property<GoogleApi> by objects
+    @delegate:Input internal val testConfig: Property<TestConfigInternal> by objects
+
+    @delegate:OutputDirectory val outputDir: Property<File> by project.objects
 
     @Internal lateinit var prefix: String
     @Internal lateinit var uploadResults: UploadResults
 
     init {
         group = "verification"
+        description = "Run tests on Firebase Test Lab."
     }
 
-    @get:Internal private val googleConfig by lazy { google.get() }
-    @get:Internal private val googleApi by lazy { GoogleApi(googleConfig) }
-    @get:Internal private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
-    @get:Internal private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
+    @delegate:Internal private val googleConfig by lazy { google.get() }
+    @delegate:Internal private val googleApi by lazy { GoogleApiInternal(googleConfig) }
+    @delegate:Internal private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
+    @delegate:Internal private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
 
     @TaskAction
     fun runTest() {
         val testConfig = testConfig.get()
-
         val appApkReference = uploadResults.references[appApk.get()]
                 ?: throw GradleException("App APK not found: ${appApk.get()}")
-        val testApkReference = uploadResults.references[testApk.get()]
+        val testApkReference = if (testConfig.requiresTestApk) {
+            uploadResults.references[testApk.get()]
                 ?: throw GradleException("Test APK not found: ${testApk.get()}")
+        } else {
+            null
+        }
 
         val historyPicker = ToolResultsHistoryPicker(googleConfig.projectId!!, googleApi)
         val historyName = historyPicker.pickHistoryName(testConfig.resultsHistoryName, appPackageId.orNull)
@@ -104,10 +109,10 @@ open class TestLabTask : DefaultTask() {
 
         logger.lifecycle("More results are available at [$url].")
 
-        if (artifacts.isPresent) {
+        if (testConfig.hasArtifacts) {
             val fetcher = ArtifactFetcher(project, googleApi, bucketName, prefix, outputDir.get(), logger)
             for (test in supportedExecutions) {
-                fetcher.fetch(test.environment.androidDevice, artifacts.get())
+                fetcher.fetch(test.environment.androidDevice, testConfig.artifacts)
             }
         }
     }
@@ -131,11 +136,14 @@ open class TestLabTask : DefaultTask() {
             ))
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
-            .setAndroidDevices(devices.get().map {
+            .setAndroidDevices(testConfig.get().devices.map {
                 AndroidDevice()
-                        .setAndroidModelId(it.model)
+                        .setAndroidModelId(it.modelId)
                         .setAndroidVersionId(it.version.toString())
                         .setLocale(it.locale)
                         .setOrientation(it.orientation.name.toLowerCase())
             })
+
+    private inline operator fun <reified T> ObjectFactory.getValue(thisRef: Any?, property: KProperty<*>): Property<T> =
+        property(T::class.java)
 }

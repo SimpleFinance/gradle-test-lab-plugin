@@ -1,12 +1,20 @@
 plugins {
-    `maven-publish`
-      id("com.github.ben-manes.versions") version "0.17.0"
+    id("com.github.ben-manes.versions") version "0.17.0"
 }
 
 group = "com.simple.gradle.testlab"
 version = "0.2-SNAPSHOT"
 
 subprojects {
+    System.out.println(name)
+    if (name == "sample") {
+        buildscript {
+            dependencies {
+                classpath(project(":test-lab-plugin"))
+            }
+        }
+    }
+
     apply { plugin("maven-publish") }
 
     group = rootProject.group
@@ -35,6 +43,6 @@ subprojects {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "4.5"
+    gradleVersion = "4.6-rc-1"
     distributionType = Wrapper.DistributionType.ALL
 }
