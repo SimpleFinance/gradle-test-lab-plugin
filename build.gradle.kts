@@ -1,10 +1,9 @@
 plugins {
-    `maven-publish`
-      id("com.github.ben-manes.versions") version "0.17.0"
+    id("com.github.ben-manes.versions") version "0.17.0"
 }
 
 group = "com.simple.gradle.testlab"
-version = "0.1-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 
 subprojects {
     apply { plugin("maven-publish") }
@@ -34,8 +33,31 @@ subprojects {
     }
 }
 
-task("wrapper", type = Wrapper::class) {
-    group = "build setup"
-    gradleVersion = "4.3"
+val customInstallationDir = file("$buildDir/custom/gradle-${gradle.gradleVersion}")
+
+val customInstallation by task<Copy> {
+    description = "Copies the current Gradle distro into '$customInstallationDir'."
+
+    from(gradle.gradleHomeDir)
+    into(customInstallationDir)
+
+    // preserve last modified date on each file to make it easier
+    // to check which files were patched by next step
+    val copyDetails = mutableListOf<FileCopyDetails>()
+    eachFile { copyDetails.add(this) }
+    doLast {
+        copyDetails.forEach { details ->
+            File(customInstallationDir, details.path).setLastModified(details.lastModified)
+        }
+    }
+
+    // don't bother recreating it
+    onlyIf { !customInstallationDir.exists() }
+}
+
+tasks.withType<Wrapper> {
+    gradleVersion = "4.5.1"
     distributionType = Wrapper.DistributionType.ALL
 }
+
+inline fun <reified T : Task> task(noinline configuration: T.() -> Unit) = tasks.creating(T::class, configuration)

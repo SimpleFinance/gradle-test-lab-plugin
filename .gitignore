@@ -1,6 +1,7 @@
 *.iml
 .idea
 build
+out
 .gradle
 .DS_Store
 local.properties

@@ -1,129 +1,157 @@
 package com.simple.gradle.testlab
 
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
+import com.simple.gradle.testlab.internal.DefaultInstrumentationTest
+import com.simple.gradle.testlab.internal.DefaultRoboTest
+import com.simple.gradle.testlab.internal.DefaultTestConfigContainer
+import com.simple.gradle.testlab.internal.DefaultTestLabExtension
+import com.simple.gradle.testlab.internal.TestConfigInternal
+import com.simple.gradle.testlab.internal.TestLabExtensionInternal
 import com.simple.gradle.testlab.internal.UploadResults
-import com.simple.gradle.testlab.model.TestLabConfig
-import com.simple.gradle.testlab.tasks.TestLabTask
+import com.simple.gradle.testlab.model.InstrumentationTest
+import com.simple.gradle.testlab.model.RoboTest
+import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.TestLabExtension
+import com.simple.gradle.testlab.tasks.TestLabTest
 import com.simple.gradle.testlab.tasks.UploadApk
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.tasks.Internal
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.withType
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Random
+import org.gradle.internal.reflect.Instantiator
+import org.gradle.kotlin.dsl.configure
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class TestLabPlugin : Plugin<Project> {
+class TestLabPlugin @Inject constructor(
+    private val instantiator: Instantiator
+): Plugin<Project> {
     override fun apply(project: Project) {
         project.run {
-            val extension = TestLabExtension(project)
-            extensions.add("testLab", extension)
+            pluginManager.withPlugin("com.android.application") {
+                val testsContainer = instantiator.newInstance(DefaultTestConfigContainer::class.java, instantiator)
+                testsContainer.registerBinding(InstrumentationTest::class.java, DefaultInstrumentationTest::class.java)
+                testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
 
-            afterEvaluate {
-                plugins.withType<AppPlugin> {
-                    extensions.getByType(AppExtension::class.java).testVariants.forEach { variant ->
-                        addTestLabTask(project, extension, variant)
+                val extension = DefaultTestLabExtension(testsContainer)
+                extensions.add(TestLabExtension::class.java, "testLab", extension)
+
+                configure<AppExtension> {
+                    applicationVariants.all {
+                        project.addTestLabTasksForApplicationVariant(extension, this)
+                    }
+                    testVariants.all {
+                        project.addTestLabTasksForTestVariant(extension, this)
                     }
                 }
             }
         }
     }
+}
 
-    private fun addTestLabTask(project: Project, extension: TestLabExtension, variant: TestVariant) = project.run {
+private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExtensionInternal, variant: ApplicationVariant) {
+    variant.onFirstOutput { output ->
         val uploadResults = UploadResults()
-        val uploadApp = project.addUploadTask(
-                "upload${variant.taskName()}AppApk", extension, variant.testedVariant, uploadResults)
-        val uploadTest = addUploadTask(
-                "upload${variant.taskName()}TestApk", extension, variant, uploadResults)
+        val uploadApp = maybeCreateUploadTask(
+            "testLabUpload${variant.taskName()}AppApk", extension, variant, output, uploadResults)
 
-        tasks {
-            "${variant.testedVariant.name}TestLabTest"(TestLabTask::class) {
-                dependsOn(uploadApp)
-                dependsOn(uploadTest)
-                appApk.set(variant.testedVariant.outputs.first().outputFile)
-                appPackageId.set(variant.testedVariant.applicationId)
-                testApk.set(variant.outputs.first().outputFile)
-                testPackageId.set(variant.applicationId)
-                google.set(extension.googleApi)
-                testConfig.set(extension.testConfig)
-                devices.set(extension.devices)
-                artifacts.set(extension.artifacts)
-                outputDir.set(file("$buildDir/test-results/$name"))
-                prefix = extension.prefix
-                this.uploadResults = uploadResults
+        extension.tests
+            .map { it as TestConfigInternal }
+            .filterNot { it.requiresTestApk }
+            .forEach { testConfig ->
+                createDefaultTestLabTask(extension, testConfig, variant, output, uploadResults) {
+                    dependsOn(uploadApp)
+                }
             }
+    }
+}
+
+private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtensionInternal, variant: TestVariant) {
+    variant.onFirstOutput { testOutput ->
+        val uploadResults = UploadResults()
+        val uploadTest = maybeCreateUploadTask(
+            "testLabUpload${variant.taskName()}TestApk", extension, variant, testOutput, uploadResults)
+
+        variant.testedVariant.onFirstOutput { appOutput ->
+            val uploadApp = maybeCreateUploadTask(
+                "testLabUpload${variant.taskName()}AppApk", extension, variant.testedVariant, appOutput, uploadResults)
+
+            extension.tests
+                .map { it as TestConfigInternal }
+                .filter { it.requiresTestApk }
+                .forEach { testConfig ->
+                    createDefaultTestLabTask(extension, testConfig, variant.testedVariant, appOutput, uploadResults) {
+                        dependsOn(uploadApp)
+                        dependsOn(uploadTest)
+                        testApk.set(testOutput.outputFile)
+                        testPackageId.set(variant.applicationId)
+                    }
+                }
         }
     }
+}
 
-    private fun Project.addUploadTask(
-            name: String,
-            extension: TestLabExtension,
-            variant: BaseVariant,
-            uploadResults: UploadResults
-    ): Task = tasks.create(name, UploadApk::class.java) {
+private fun Project.maybeCreateUploadTask(
+    name: String,
+    extension: TestLabExtensionInternal,
+    variant: BaseVariant,
+    output: BaseVariantOutput,
+    uploadResults: UploadResults
+): Task =
+    tasks.findByName(name) ?: tasks.create(name, UploadApk::class.java) {
+        val outputType = if (variant is TestVariant) "test" else "app"
+        description = "Upload the ${variant.name} $outputType APK to Firebase Test Lab."
         dependsOn(variant.assemble)
-        file.set(variant.outputs.first().outputFile)
+        file.set(output.outputFile)
         prefix.set(extension.prefix)
         google.set(extension.googleApi)
         results = uploadResults
     }
 
-    private fun addUploadTasks(
-            project: Project,
-            extension: TestLabExtension,
-            variant: TestVariant,
-            uploadResults: UploadResults
-    ): List<Task> = project.run {
-        mutableListOf<Task>().let { created ->
-            val appApk = provider { variant.testedVariant.outputs.first().outputFile }
-            val testApk = variant.outputs.first().outputFile
-
-            tasks {
-                created.add("upload${variant.taskName()}AppApk"(UploadApk::class) {
-                    dependsOn(variant.testedVariant.assemble)
-                    file.set(appApk)
-                    prefix.set(extension.prefix)
-                    google.set(extension.googleApi)
-                    results = uploadResults
-                })
-
-                created.add("upload${variant.taskName()}TestApk"(UploadApk::class) {
-                    dependsOn(variant.assemble)
-                    file.set(testApk)
-                    prefix.set(extension.prefix)
-                    google.set(extension.googleApi)
-                    results = uploadResults
-                })
-            }
-
-            created
-        }
+private fun Project.createDefaultTestLabTask(
+    extension: TestLabExtensionInternal,
+    testConfig: TestConfigInternal,
+    variant: BaseVariant,
+    output: BaseVariantOutput,
+    uploadResults: UploadResults,
+    configure: TestLabTest.() -> Unit
+): TestLabTest {
+    val taskName = "testLab${variant.taskName()}${testConfig.taskName()}Test"
+    return tasks.create(taskName, TestLabTest::class.java) {
+        description =
+            "Runs the ${testConfig.testType.name.toLowerCase()} test '${testConfig.name}' for the ${variant.name} build on Firebase Test Lab."
+        appApk.set(output.outputFile)
+        appPackageId.set(variant.applicationId)
+        google.set(extension.googleApi)
+        this.testConfig.set(testConfig)
+        outputDir.set(file("$buildDir/test-results/$name"))
+        prefix = extension.prefix
+        this.uploadResults = uploadResults
+        configure(this)
     }
-}
-
-open class TestLabExtension(project: Project) : TestLabConfig(project) {
-    @get:Internal internal val prefix by lazy { getUniquePathPrefix() }
 }
 
 internal fun BaseVariant.taskName(): String = name.capitalize()
 internal fun TestVariant.taskName(): String = testedVariant.taskName()
+internal fun TestConfig.taskName(): String = name.asValidTaskName().capitalize()
 
-internal fun getUniquePathPrefix(): String {
-    val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    val suffixLength = 4
-    val randomGenerator = Random()
-
-    val suffix = StringBuilder(suffixLength)
-    for (i in 0 until suffixLength) {
-        suffix.append(characters[randomGenerator.nextInt(characters.length)])
+internal fun BaseVariant.onFirstOutput(configure: (BaseVariantOutput) -> Unit) {
+    val done = AtomicBoolean()
+    outputs.all {
+        if (done.getAndSet(true)) return@all
+        configure(this)
     }
+}
 
-    val creationTime = ZonedDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ISO_DATE_TIME)
-    return "gradle-build_" + creationTime.replace(' ', '_').replace(',', '.') + "_" + suffix
+private fun String.asValidTaskName(): String =
+    replace(Regex("[-_.]"), " ")
+        .replace(Regex("\\s+(\\S)"), { result: MatchResult -> result.groups[1]!!.value.capitalize() })
+        .let { Constants.FORBIDDEN_CHARACTERS.fold(it, { name, c -> name.replace(c, Constants.REPLACEMENT_CHARACTER) })}
+
+private object Constants {
+    val FORBIDDEN_CHARACTERS = charArrayOf(' ', '/', '\\', ':', '<', '>', '"', '?', '*', '|')
+    const val REPLACEMENT_CHARACTER = '_'
 }

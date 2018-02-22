@@ -1,6 +1,10 @@
 pipeline {
     agent { label 'android' }
 
+    environment {
+        ANDROID_HOME = '/home/services/.android/sdk'
+    }
+
     stages {
         stage('Build') {
             steps {

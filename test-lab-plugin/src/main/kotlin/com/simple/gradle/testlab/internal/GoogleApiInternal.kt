@@ -7,10 +7,10 @@ import com.google.api.services.storage.Storage
 import com.google.api.services.testing.Testing
 import com.google.api.services.testing.TestingScopes
 import com.google.api.services.toolresults.ToolResults
-import com.simple.gradle.testlab.model.GoogleApiConfig
+import com.simple.gradle.testlab.model.GoogleApi
 import java.io.FileInputStream
 
-class GoogleApi(private val config: GoogleApiConfig) {
+internal class GoogleApiInternal(private val config: GoogleApi) {
     companion object {
         private const val APPLICATION_NAME = "gradle-test-lab-plugin"
     }

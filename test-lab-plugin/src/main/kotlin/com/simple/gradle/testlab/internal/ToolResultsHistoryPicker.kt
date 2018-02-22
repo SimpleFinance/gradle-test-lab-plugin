@@ -4,7 +4,7 @@ import com.google.api.services.toolresults.model.History
 
 internal class ToolResultsHistoryPicker(
         val projectId: String,
-        val googleApi: GoogleApi
+        val googleApi: GoogleApiInternal
 ) {
     fun pickHistoryName(name: String?, appPackageId: String?): String? =
             name ?: appPackageId?.let { "$it (gradle)" }

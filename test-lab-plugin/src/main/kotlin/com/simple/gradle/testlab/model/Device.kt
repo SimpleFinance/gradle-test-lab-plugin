@@ -1,10 +1,8 @@
 package com.simple.gradle.testlab.model
 
-class Device {
-    var model: String = "hammerhead"
-    var version: Int = 21
-    var locale: String = "en"
-    var orientation: Orientation = Orientation.PORTRAIT
+interface Device {
+    var modelId: String
+    var version: Int
+    var locale: String
+    var orientation: Orientation
 }
-
-enum class Orientation { LANDSCAPE, PORTRAIT }

@@ -1,19 +1,14 @@
 package com.simple.gradle.testlab.model
 
-class Artifacts {
-    internal var instrumentation: Boolean = false
-    internal var junit: Boolean = false
-    internal var logcat: Boolean = false
-    internal var video: Boolean = false
+interface Artifacts {
+    var instrumentation: Boolean
+    var junit: Boolean
+    var logcat: Boolean
+    var video: Boolean
 
-    fun all(): Artifacts = apply {
-        instrumentation()
-        junit()
-        logcat()
-        video()
-    }
-    fun instrumentation(): Artifacts = apply { instrumentation = true }
-    fun junit(): Artifacts = apply { junit = true }
-    fun logcat(): Artifacts = apply { logcat = true }
-    fun video(): Artifacts = apply { video = true }
+    fun all()
+    fun instrumentation()
+    fun junit()
+    fun logcat()
+    fun video()
 }
