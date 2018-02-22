@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Random
 
-class DefaultTestLabExtension(
+internal class DefaultTestLabExtension(
     override val tests: TestConfigContainer
 ) : TestLabExtensionInternal {
     override val googleApi: DefaultGoogleApi = DefaultGoogleApi()

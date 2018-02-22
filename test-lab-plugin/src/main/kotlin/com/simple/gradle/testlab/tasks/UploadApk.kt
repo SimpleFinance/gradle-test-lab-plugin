@@ -19,7 +19,7 @@ open class UploadApk : DefaultTask() {
     @Input val file: Property<File> = project.objects.property(File::class.java)
     @Input val prefix: Property<String> = project.objects.property(String::class.java)
     @Input val google: Property<GoogleApi> = project.objects.property(GoogleApi::class.java)
-    @Internal var results: UploadResults? = null
+    @Internal internal var results: UploadResults? = null
 
     init {
         description = "Upload APK to Firebase."

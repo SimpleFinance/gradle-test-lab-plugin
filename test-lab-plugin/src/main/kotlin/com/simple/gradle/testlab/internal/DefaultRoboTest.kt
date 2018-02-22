@@ -11,7 +11,7 @@ import org.gradle.util.ConfigureUtil
 import javax.inject.Inject
 import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirective
 
-open class DefaultRoboTest @Inject constructor(name: String = "robo")
+internal open class DefaultRoboTest @Inject constructor(name: String = "robo")
     : AbstractTestConfig(name, TestType.ROBO), RoboTest {
 
     override var appInitialActivity: String? = null

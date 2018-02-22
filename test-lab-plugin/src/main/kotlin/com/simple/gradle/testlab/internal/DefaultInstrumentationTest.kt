@@ -9,7 +9,7 @@ import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
 import javax.inject.Inject
 
-open class DefaultInstrumentationTest @Inject constructor(name: String = "instrumentation")
+internal open class DefaultInstrumentationTest @Inject constructor(name: String = "instrumentation")
     : AbstractTestConfig(name, TestType.INSTRUMENTATION), InstrumentationTest {
 
     override var testRunnerClass: String? = null

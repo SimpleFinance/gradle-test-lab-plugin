@@ -11,7 +11,7 @@ import com.simple.gradle.testlab.model.Device
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
 
-abstract class AbstractTestConfig(
+internal abstract class AbstractTestConfig(
     private var myName: String,
     override val testType: TestType
 ) : TestConfigInternal {

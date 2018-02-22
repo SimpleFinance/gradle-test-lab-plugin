@@ -2,7 +2,7 @@ package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.RoboDirectives
 
-class DefaultRoboDirectives : RoboDirectives {
+internal class DefaultRoboDirectives : RoboDirectives {
     override val directives = mutableListOf<DefaultRoboDirective>()
 
     override fun click(resourceName: String) {

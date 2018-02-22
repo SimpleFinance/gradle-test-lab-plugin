@@ -43,8 +43,8 @@ open class TestLabTest : DefaultTask() {
 
     @delegate:OutputDirectory val outputDir: Property<File> by project.objects
 
-    @Internal lateinit var prefix: String
-    @Internal lateinit var uploadResults: UploadResults
+    @Internal internal lateinit var prefix: String
+    @Internal internal lateinit var uploadResults: UploadResults
 
     init {
         group = "verification"

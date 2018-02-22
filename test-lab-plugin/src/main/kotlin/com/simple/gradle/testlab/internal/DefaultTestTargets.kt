@@ -2,7 +2,7 @@ package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.TestTargets
 
-class DefaultTestTargets : TestTargets {
+internal class DefaultTestTargets : TestTargets {
     override val targets = mutableListOf<String>()
 
     override fun addPackage(packageName: String) = targets.add("package $packageName")

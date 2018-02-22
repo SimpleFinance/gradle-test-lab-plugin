@@ -31,21 +31,21 @@ class TestLabPlugin @Inject constructor(
 ): Plugin<Project> {
     override fun apply(project: Project) {
         project.run {
-            pluginManager.apply("com.android.application")
+            pluginManager.withPlugin("com.android.application") {
+                val testsContainer = instantiator.newInstance(DefaultTestConfigContainer::class.java, instantiator)
+                testsContainer.registerBinding(InstrumentationTest::class.java, DefaultInstrumentationTest::class.java)
+                testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
 
-            val testsContainer = instantiator.newInstance(DefaultTestConfigContainer::class.java, instantiator)
-            testsContainer.registerBinding(InstrumentationTest::class.java, DefaultInstrumentationTest::class.java)
-            testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
+                val extension = DefaultTestLabExtension(testsContainer)
+                extensions.add(TestLabExtension::class.java, "testLab", extension)
 
-            val extension = DefaultTestLabExtension(testsContainer)
-            extensions.add(TestLabExtension::class.java, "testLab", extension)
-
-            configure<AppExtension> {
-                applicationVariants.all {
-                    project.addTestLabTasksForApplicationVariant(extension, this)
-                }
-                testVariants.all {
-                    project.addTestLabTasksForTestVariant(extension, this)
+                configure<AppExtension> {
+                    applicationVariants.all {
+                        project.addTestLabTasksForApplicationVariant(extension, this)
+                    }
+                    testVariants.all {
+                        project.addTestLabTasksForTestVariant(extension, this)
+                    }
                 }
             }
         }

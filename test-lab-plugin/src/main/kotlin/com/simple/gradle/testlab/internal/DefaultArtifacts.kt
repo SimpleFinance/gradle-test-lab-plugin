@@ -2,7 +2,7 @@ package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.Artifacts
 
-class DefaultArtifacts : Artifacts {
+internal class DefaultArtifacts : Artifacts {
     override var instrumentation: Boolean = false
     override var junit: Boolean = false
     override var logcat: Boolean = false

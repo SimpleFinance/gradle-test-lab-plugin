@@ -10,7 +10,7 @@ import org.gradle.api.internal.DefaultPolymorphicDomainObjectContainer
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.ConfigureUtil
 
-open class DefaultTestConfigContainer(instantiator: Instantiator) :
+internal open class DefaultTestConfigContainer(instantiator: Instantiator) :
     DefaultPolymorphicDomainObjectContainer<TestConfig>(TestConfig::class.java, instantiator),
     TestConfigContainer {
 

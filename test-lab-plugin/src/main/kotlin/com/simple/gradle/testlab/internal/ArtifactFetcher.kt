@@ -7,7 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.File
 
-class ArtifactFetcher(
+internal class ArtifactFetcher(
         private val project: Project,
         private val googleApi: GoogleApiInternal,
         private val bucketName: String,
