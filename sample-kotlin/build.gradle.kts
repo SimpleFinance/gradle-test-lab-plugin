@@ -5,10 +5,7 @@ plugins {
 
 android {
     compileSdkVersion(27)
-    buildToolsVersion("27.0.2")
-    defaultConfig {
-        testInstrumentationRunner = "android.support.test.runner.AndroidJunitRunner"
-    }
+    buildToolsVersion("27.0.3")
 }
 
 repositories {
