@@ -61,26 +61,14 @@ pluginBundle {
     }
 }
 
-val sourcesJar = task("sourcesJar", Jar::class) {
-    from(java.sourceSets["main"].allSource)
-}
-
-publishing {
-    publications {
-        create("sourcesMaven", MavenPublication::class.java) {
-            artifacts {
-                artifact(sourcesJar) {
-                    classifier = "sources"
-                }
-            }
-        }
-    }
-}
-
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+tasks.withType<Test> {
+    dependsOn(rootProject.tasks["customInstallation"])
 }
 
 val SourceSet.kotlin: SourceDirectorySet

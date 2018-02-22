@@ -6,22 +6,28 @@ import com.natpryce.hamkrest.equalTo
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.Ignore
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class IntegrationTest {
-    @get:Rule val projectDir = TemporaryFolder()
+
+    private val rootProjectDir = File("..").canonicalFile!!
+    private val customInstallationBuildDir = File(rootProjectDir, "build/custom")
+    private val customInstallation by lazy {
+        customInstallationBuildDir.listFiles()?.let {
+            it.singleOrNull { it.name.startsWith("gradle") }
+                ?: throw IllegalStateException(
+                    "Expected 1 custom installation but found ${it.size}. Run `./gradlew clean customInstallation`.")
+        } ?: throw IllegalStateException("Custom installation not found. Run `./gradlew customInstallation`.")
+    }
 
     @Test
     fun `groovy integration test`() {
-        File("../sample").copyRecursively(projectDir.root)
         val result = GradleRunner.create()
             .withDebug(true)
-            .withProjectDir(projectDir.root)
-            .withArguments(":tasks", "--all", "--stacktrace")
-            .withPluginClasspath()
+            .withGradleInstallation(customInstallation)
+            .withProjectDir(File("../sample"))
+            .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
             .build()
         assert.that(result.task(":tasks")?.outcome, equalTo(SUCCESS))
         assert.that(result.output, containsSubstring("testLabUploadDebugAppApk"))
@@ -35,12 +41,11 @@ class IntegrationTest {
     @Test
     @Ignore("The sample works, but this doesn't. Figure out why.")
     fun `kotlin integration test`() {
-        File("../sample-kotlin").copyRecursively(projectDir.root)
         val result = GradleRunner.create()
             .withDebug(true)
-            .withProjectDir(projectDir.root)
-            .withArguments(":tasks", "--all", "--stacktrace")
-            .withPluginClasspath()
+            .withGradleInstallation(customInstallation)
+            .withProjectDir(File("../sample-kotlin"))
+            .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
             .build()
 
         assert.that(result.task(":tasks")?.outcome, equalTo(SUCCESS))
