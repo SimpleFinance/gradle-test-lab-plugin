@@ -8,7 +8,8 @@ import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.Artifacts
 import com.simple.gradle.testlab.model.Device
-import org.gradle.api.Action
+import groovy.lang.Closure
+import org.gradle.util.ConfigureUtil
 
 abstract class AbstractTestConfig(
     private var myName: String,
@@ -30,15 +31,23 @@ abstract class AbstractTestConfig(
     override val environmentVariables = mutableMapOf<String, String>()
     override var networkProfile: String? = null
 
-    override fun device(configure: Action<in Device>) {
-        val device = DefaultDevice()
-        configure.execute(device)
-        devices.add(device)
-    }
+    override fun device(configure: Closure<*>): Device =
+        DefaultDevice().apply {
+            ConfigureUtil.configure(configure, this)
+            devices.add(this)
+        }
 
-    override fun artifacts(configure: Action<in Artifacts>) {
-        configure.execute(artifacts)
-    }
+    override fun device(configure: Device.() -> Unit): Device =
+        DefaultDevice().apply {
+            configure()
+            devices.add(this)
+        }
+
+    override fun artifacts(configure: Closure<*>): Artifacts =
+        ConfigureUtil.configure(configure, artifacts)
+
+    override fun artifacts(configure: Artifacts.() -> Unit): Artifacts =
+        artifacts.apply(configure)
 
     override val hasArtifacts: Boolean
         get() = with (artifacts) {

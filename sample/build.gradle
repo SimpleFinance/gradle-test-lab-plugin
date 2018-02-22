@@ -1,0 +1,30 @@
+plugins {
+    id 'com.android.application' version '3.0.1'
+    id 'com.simple.gradle.testlab'
+}
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.2'
+}
+
+testLab {
+    tests {
+        robo {
+            name = 'foo'
+            device {
+                modelId = 'sailfish'
+                version = 26
+            }
+            artifacts { all() }
+        }
+        instrumentation {
+            name = 'instrumented'
+            device {
+                modelId = 'sailfish'
+                version = 26
+            }
+            artifacts { junit() }
+        }
+    }
+}

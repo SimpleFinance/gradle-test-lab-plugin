@@ -5,7 +5,8 @@ import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.InstrumentationTest
 import com.simple.gradle.testlab.model.TestTargets
-import org.gradle.api.Action
+import groovy.lang.Closure
+import org.gradle.util.ConfigureUtil
 import javax.inject.Inject
 
 open class DefaultInstrumentationTest @Inject constructor(name: String = "instrumentation")
@@ -17,9 +18,11 @@ open class DefaultInstrumentationTest @Inject constructor(name: String = "instru
 
     override val requiresTestApk: Boolean = true
 
-    override fun targets(configure: Action<in TestTargets>) {
-        testTargets.apply { configure.execute(this) }
-    }
+    override fun targets(configure: Closure<*>): TestTargets =
+        testTargets.apply { ConfigureUtil.configure(configure, this) }
+
+    override fun targets(configure: TestTargets.() -> Unit): TestTargets =
+        testTargets.apply(configure)
 
     override fun buildTestSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification =
             TestSpecification().setAndroidInstrumentationTest(

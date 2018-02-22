@@ -1,6 +1,6 @@
 package com.simple.gradle.testlab.model
 
-import org.gradle.api.Action
+import groovy.lang.Closure
 import org.gradle.api.Named
 
 interface TestConfig : Named {
@@ -17,6 +17,8 @@ interface TestConfig : Named {
     val environmentVariables: MutableMap<String, String>
     var networkProfile: String?
 
-    fun device(configure: Action<in Device>)
-    fun artifacts(configure: Action<in Artifacts>)
+    fun device(configure: Closure<*>): Device
+    fun device(configure: Device.() -> Unit): Device
+    fun artifacts(configure: Closure<*>): Artifacts
+    fun artifacts(configure: Artifacts.() -> Unit): Artifacts
 }

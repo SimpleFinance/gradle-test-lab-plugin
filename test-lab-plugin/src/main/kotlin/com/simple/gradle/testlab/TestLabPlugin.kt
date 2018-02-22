@@ -8,11 +8,14 @@ import com.android.build.gradle.api.TestVariant
 import com.simple.gradle.testlab.internal.DefaultInstrumentationTest
 import com.simple.gradle.testlab.internal.DefaultRoboTest
 import com.simple.gradle.testlab.internal.DefaultTestConfigContainer
+import com.simple.gradle.testlab.internal.DefaultTestLabExtension
 import com.simple.gradle.testlab.internal.TestConfigInternal
+import com.simple.gradle.testlab.internal.TestLabExtensionInternal
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.model.InstrumentationTest
 import com.simple.gradle.testlab.model.RoboTest
 import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.TestLabExtension
 import com.simple.gradle.testlab.tasks.TestLabTest
 import com.simple.gradle.testlab.tasks.UploadApk
 import org.gradle.api.Plugin
@@ -34,8 +37,8 @@ class TestLabPlugin @Inject constructor(
             testsContainer.registerBinding(InstrumentationTest::class.java, DefaultInstrumentationTest::class.java)
             testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
 
-            val extension = instantiator.newInstance(TestLabExtension::class.java, testsContainer)
-            extensions.add("testLab", extension)
+            val extension = DefaultTestLabExtension(testsContainer)
+            extensions.add(TestLabExtension::class.java, "testLab", extension)
 
             configure<AppExtension> {
                 applicationVariants.all {
@@ -49,7 +52,7 @@ class TestLabPlugin @Inject constructor(
     }
 }
 
-private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExtension, variant: ApplicationVariant) {
+private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExtensionInternal, variant: ApplicationVariant) {
     variant.onFirstOutput { output ->
         val uploadResults = UploadResults()
         val uploadApp = maybeCreateUploadTask(
@@ -66,7 +69,7 @@ private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExten
     }
 }
 
-private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtension, variant: TestVariant) {
+private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtensionInternal, variant: TestVariant) {
     variant.onFirstOutput { testOutput ->
         val uploadResults = UploadResults()
         val uploadTest = maybeCreateUploadTask(
@@ -93,7 +96,7 @@ private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtension, v
 
 private fun Project.maybeCreateUploadTask(
     name: String,
-    extension: TestLabExtension,
+    extension: TestLabExtensionInternal,
     variant: BaseVariant,
     output: BaseVariantOutput,
     uploadResults: UploadResults
@@ -109,7 +112,7 @@ private fun Project.maybeCreateUploadTask(
     }
 
 private fun Project.createDefaultTestLabTask(
-    extension: TestLabExtension,
+    extension: TestLabExtensionInternal,
     testConfig: TestConfigInternal,
     variant: BaseVariant,
     output: BaseVariantOutput,

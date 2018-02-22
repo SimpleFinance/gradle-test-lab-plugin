@@ -6,15 +6,6 @@ group = "com.simple.gradle.testlab"
 version = "0.2-SNAPSHOT"
 
 subprojects {
-    System.out.println(name)
-    if (name == "sample") {
-        buildscript {
-            dependencies {
-                classpath(project(":test-lab-plugin"))
-            }
-        }
-    }
-
     apply { plugin("maven-publish") }
 
     group = rootProject.group

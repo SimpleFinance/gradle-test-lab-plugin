@@ -2,9 +2,9 @@ package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
 import com.google.api.services.testing.model.FileReference
-import com.simple.gradle.testlab.internal.DefaultGoogleApi
 import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.UploadResults
+import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -18,7 +18,7 @@ import java.io.IOException
 open class UploadApk : DefaultTask() {
     @Input val file: Property<File> = project.objects.property(File::class.java)
     @Input val prefix: Property<String> = project.objects.property(String::class.java)
-    @Input val google: Property<DefaultGoogleApi> = project.objects.property(DefaultGoogleApi::class.java)
+    @Input val google: Property<GoogleApi> = project.objects.property(GoogleApi::class.java)
     @Internal var results: UploadResults? = null
 
     init {

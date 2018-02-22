@@ -6,9 +6,8 @@ import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectives
 import com.simple.gradle.testlab.model.RoboTest
-import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectFactory
-import org.gradle.internal.reflect.Instantiator
+import groovy.lang.Closure
+import org.gradle.util.ConfigureUtil
 import javax.inject.Inject
 import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirective
 
@@ -22,9 +21,11 @@ open class DefaultRoboTest @Inject constructor(name: String = "robo")
 
     override val requiresTestApk: Boolean = false
 
-    override fun roboDirectives(configure: Action<in RoboDirectives>) {
-        configure.execute(roboDirectives)
-    }
+    override fun roboDirectives(configure: Closure<*>): RoboDirectives =
+        roboDirectives.apply { ConfigureUtil.configure(configure, this) }
+
+    override fun roboDirectives(configure: RoboDirectives.() -> Unit): RoboDirectives =
+        roboDirectives.apply(configure)
 
     override fun buildTestSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification =
             TestSpecification().setAndroidRoboTest(

@@ -1,6 +1,6 @@
 package com.simple.gradle.testlab.model
 
-import org.gradle.api.Action
+import groovy.lang.Closure
 
 interface RoboTest : TestConfig {
     var appInitialActivity: String?
@@ -8,5 +8,6 @@ interface RoboTest : TestConfig {
     var maxSteps: Int?
     val roboDirectives: RoboDirectives
 
-    fun roboDirectives(configure: Action<in RoboDirectives>)
+    fun roboDirectives(configure: Closure<*>): RoboDirectives
+    fun roboDirectives(configure: RoboDirectives.() -> Unit): RoboDirectives
 }
