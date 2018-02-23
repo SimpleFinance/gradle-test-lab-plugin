@@ -11,15 +11,18 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskExecutionException
+import org.gradle.kotlin.dsl.property
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
 open class UploadApk : DefaultTask() {
-    @Input val file: Property<File> = project.objects.property(File::class.java)
-    @Input val prefix: Property<String> = project.objects.property(String::class.java)
-    @Input val google: Property<GoogleApi> = project.objects.property(GoogleApi::class.java)
-    @Internal internal var results: UploadResults? = null
+    @get:Internal val objects = project.objects
+
+    @get:Input val file: Property<File> = objects.property()
+    @get:Input val prefix: Property<String> = objects.property()
+    @get:Input val google: Property<GoogleApi> = objects.property()
+    @get:Internal internal var results: UploadResults? = null
 
     init {
         description = "Upload APK to Firebase."
