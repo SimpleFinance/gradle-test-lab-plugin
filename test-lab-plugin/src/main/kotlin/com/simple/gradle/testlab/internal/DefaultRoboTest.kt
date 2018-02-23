@@ -8,11 +8,16 @@ import com.simple.gradle.testlab.model.RoboDirectives
 import com.simple.gradle.testlab.model.RoboTest
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
+import java.io.Serializable
 import javax.inject.Inject
 import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirective
 
 internal open class DefaultRoboTest @Inject constructor(name: String = "robo")
-    : AbstractTestConfig(name, TestType.ROBO), RoboTest {
+    : AbstractTestConfig(name, TestType.ROBO), RoboTest, Serializable {
+
+    companion object {
+        @JvmStatic val serialVersionUID: Long = 1L
+    }
 
     override var appInitialActivity: String? = null
     override var maxDepth: Int? = null

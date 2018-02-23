@@ -20,7 +20,6 @@ import com.simple.gradle.testlab.tasks.TestLabTest
 import com.simple.gradle.testlab.tasks.UploadApk
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.kotlin.dsl.configure
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,12 +38,14 @@ class TestLabPlugin @Inject constructor(
                 val extension = DefaultTestLabExtension(testsContainer)
                 extensions.add(TestLabExtension::class.java, "testLab", extension)
 
+                val uploadResults = UploadResults()
+
                 configure<AppExtension> {
                     applicationVariants.all {
-                        project.addTestLabTasksForApplicationVariant(extension, this)
+                        project.addTestLabTasksForApplicationVariant(extension, this, uploadResults)
                     }
                     testVariants.all {
-                        project.addTestLabTasksForTestVariant(extension, this)
+                        project.addTestLabTasksForTestVariant(extension, this, uploadResults)
                     }
                 }
             }
@@ -52,9 +53,12 @@ class TestLabPlugin @Inject constructor(
     }
 }
 
-private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExtensionInternal, variant: ApplicationVariant) {
+private fun Project.addTestLabTasksForApplicationVariant(
+    extension: TestLabExtensionInternal,
+    variant: ApplicationVariant,
+    uploadResults: UploadResults
+) {
     variant.onFirstOutput { output ->
-        val uploadResults = UploadResults()
         val uploadApp = maybeCreateUploadTask(
             "testLabUpload${variant.taskName()}AppApk", extension, variant, output, uploadResults)
 
@@ -62,16 +66,19 @@ private fun Project.addTestLabTasksForApplicationVariant(extension: TestLabExten
             .map { it as TestConfigInternal }
             .filterNot { it.requiresTestApk }
             .forEach { testConfig ->
-                createDefaultTestLabTask(extension, testConfig, variant, output, uploadResults) {
+                createDefaultTestLabTask(extension, testConfig, variant, output, uploadResults).apply {
                     dependsOn(uploadApp)
                 }
             }
     }
 }
 
-private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtensionInternal, variant: TestVariant) {
+private fun Project.addTestLabTasksForTestVariant(
+    extension: TestLabExtensionInternal,
+    variant: TestVariant,
+    uploadResults: UploadResults
+) {
     variant.onFirstOutput { testOutput ->
-        val uploadResults = UploadResults()
         val uploadTest = maybeCreateUploadTask(
             "testLabUpload${variant.taskName()}TestApk", extension, variant, testOutput, uploadResults)
 
@@ -83,12 +90,13 @@ private fun Project.addTestLabTasksForTestVariant(extension: TestLabExtensionInt
                 .map { it as TestConfigInternal }
                 .filter { it.requiresTestApk }
                 .forEach { testConfig ->
-                    createDefaultTestLabTask(extension, testConfig, variant.testedVariant, appOutput, uploadResults) {
-                        dependsOn(uploadApp)
-                        dependsOn(uploadTest)
-                        testApk.set(testOutput.outputFile)
-                        testPackageId.set(variant.applicationId)
-                    }
+                    createDefaultTestLabTask(extension, testConfig, variant.testedVariant, appOutput, uploadResults)
+                        .apply {
+                            dependsOn(uploadApp)
+                            dependsOn(uploadTest)
+                            testApk.set(testOutput.outputFile)
+                            testPackageId.set(variant.applicationId)
+                        }
                 }
         }
     }
@@ -100,8 +108,8 @@ private fun Project.maybeCreateUploadTask(
     variant: BaseVariant,
     output: BaseVariantOutput,
     uploadResults: UploadResults
-): Task =
-    tasks.findByName(name) ?: tasks.create(name, UploadApk::class.java) {
+): UploadApk =
+    tasks.findByName(name) as? UploadApk ?: tasks.create(name, UploadApk::class.java) {
         val outputType = if (variant is TestVariant) "test" else "app"
         description = "Upload the ${variant.name} $outputType APK to Firebase Test Lab."
         dependsOn(variant.assemble)
@@ -116,11 +124,10 @@ private fun Project.createDefaultTestLabTask(
     testConfig: TestConfigInternal,
     variant: BaseVariant,
     output: BaseVariantOutput,
-    uploadResults: UploadResults,
-    configure: TestLabTest.() -> Unit
+    uploadResults: UploadResults
 ): TestLabTest {
     val taskName = "testLab${variant.taskName()}${testConfig.taskName()}Test"
-    return tasks.create(taskName, TestLabTest::class.java) {
+    return tasks.create(taskName, TestLabTest::class.java).apply {
         description =
             "Runs the ${testConfig.testType.name.toLowerCase()} test '${testConfig.name}' for the ${variant.name} build on Firebase Test Lab."
         appApk.set(output.outputFile)
@@ -130,7 +137,6 @@ private fun Project.createDefaultTestLabTask(
         outputDir.set(file("$buildDir/test-results/$name"))
         prefix = extension.prefix
         this.uploadResults = uploadResults
-        configure(this)
     }
 }
 

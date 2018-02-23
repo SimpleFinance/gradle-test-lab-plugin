@@ -1,8 +1,14 @@
 package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.RoboDirectives
+import java.io.Serializable
 
-internal class DefaultRoboDirectives : RoboDirectives {
+internal class DefaultRoboDirectives : RoboDirectives, Serializable {
+
+    companion object {
+        @JvmStatic val serialVersionUID: Long = 1L
+    }
+
     override val directives = mutableListOf<DefaultRoboDirective>()
 
     override fun click(resourceName: String) {

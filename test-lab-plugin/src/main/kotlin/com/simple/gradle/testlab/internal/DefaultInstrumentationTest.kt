@@ -7,10 +7,15 @@ import com.simple.gradle.testlab.model.InstrumentationTest
 import com.simple.gradle.testlab.model.TestTargets
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
+import java.io.Serializable
 import javax.inject.Inject
 
 internal open class DefaultInstrumentationTest @Inject constructor(name: String = "instrumentation")
-    : AbstractTestConfig(name, TestType.INSTRUMENTATION), InstrumentationTest {
+    : AbstractTestConfig(name, TestType.INSTRUMENTATION), InstrumentationTest, Serializable {
+
+    companion object {
+        @JvmStatic val serialVersionUID: Long = 1L
+    }
 
     override var testRunnerClass: String? = null
     override var useOrchestrator: Boolean? = null

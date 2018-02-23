@@ -20,7 +20,6 @@ import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -28,33 +27,34 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.property
 import java.io.File
-import kotlin.reflect.KProperty
 
 open class TestLabTest : DefaultTask() {
-    private val objects = project.objects
+    @Internal private val objects = project.objects
 
-    @delegate:InputFile val appApk: Property<File> by objects
-    @delegate:InputFile @delegate:Optional val testApk: Property<File> by objects
-    @delegate:Input @delegate:Optional val appPackageId: Property<String?> by objects
-    @delegate:Input @delegate:Optional val testPackageId: Property<String?> by objects
-    @delegate:Input val google: Property<GoogleApi> by objects
-    @delegate:Input internal val testConfig: Property<TestConfigInternal> by objects
+    @get:InputFile val appApk: Property<File> = objects.property()
+    @get:InputFile @get:Optional val testApk: Property<File> = objects.property()
+    @get:Input @get:Optional val appPackageId: Property<String?> = objects.property()
+    @get:Input @get:Optional val testPackageId: Property<String?> = objects.property()
+    @get:Input val google: Property<GoogleApi> = objects.property()
 
-    @delegate:OutputDirectory val outputDir: Property<File> by project.objects
+    @get:Input internal val testConfig: Property<TestConfigInternal> = objects.property()
 
-    @Internal internal lateinit var prefix: String
-    @Internal internal lateinit var uploadResults: UploadResults
+    @get:OutputDirectory val outputDir: Property<File> = objects.property()
+
+    @get:Internal internal lateinit var prefix: String
+    @get:Internal internal lateinit var uploadResults: UploadResults
 
     init {
         group = "verification"
         description = "Run tests on Firebase Test Lab."
     }
 
-    @delegate:Internal private val googleConfig by lazy { google.get() }
-    @delegate:Internal private val googleApi by lazy { GoogleApiInternal(googleConfig) }
-    @delegate:Internal private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
-    @delegate:Internal private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
+    private val googleConfig by lazy { google.get() }
+    private val googleApi by lazy { GoogleApiInternal(googleConfig) }
+    private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
+    private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
 
     @TaskAction
     fun runTest() {
@@ -143,7 +143,4 @@ open class TestLabTest : DefaultTask() {
                         .setLocale(it.locale)
                         .setOrientation(it.orientation.name.toLowerCase())
             })
-
-    private inline operator fun <reified T> ObjectFactory.getValue(thisRef: Any?, property: KProperty<*>): Property<T> =
-        property(T::class.java)
 }
