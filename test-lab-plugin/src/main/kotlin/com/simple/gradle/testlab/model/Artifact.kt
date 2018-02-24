@@ -4,5 +4,6 @@ enum class Artifact {
     INSTRUMENTATION,
     JUNIT,
     LOGCAT,
+    SCREENSHOTS,
     VIDEO
 }

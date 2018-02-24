@@ -21,6 +21,8 @@ internal class ArtifactFetcherFactory(
                 JunitFetcher(objects, bucketName, destDir, srcPath)
             Artifact.LOGCAT ->
                 SingleObjectFetcher(objects, bucketName, destDir, srcPath, "logcat", "logcat")
+            Artifact.SCREENSHOTS ->
+                ScreenshotFetcher(objects, bucketName, destDir, srcPath)
             Artifact.VIDEO ->
                 SingleObjectFetcher(objects, bucketName, destDir, srcPath, "video", "video.mp4")
         }
