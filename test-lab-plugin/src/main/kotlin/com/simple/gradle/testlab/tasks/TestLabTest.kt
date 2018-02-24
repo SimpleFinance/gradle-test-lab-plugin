@@ -9,14 +9,15 @@ import com.google.api.services.testing.model.GoogleCloudStorage
 import com.google.api.services.testing.model.ResultStorage
 import com.google.api.services.testing.model.TestMatrix
 import com.google.api.services.testing.model.ToolResultsHistory
-import com.simple.gradle.testlab.internal.ArtifactFetcher
 import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.MatrixMonitor
 import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
 import com.simple.gradle.testlab.internal.UploadResults
+import com.simple.gradle.testlab.internal.artifacts.ArtifactFetcherFactory
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
+import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -78,18 +79,18 @@ open class TestLabTest : DefaultTask() {
                 .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
                 .setTestSpecification(testConfig.testSpecification(appApkReference, testApkReference))
 
-        logger.info("Test matrix: ${testMatrix.toPrettyString()}")
+        log.info("Test matrix: ${testMatrix.toPrettyString()}")
 
         val triggeredTestMatrix = googleApi.testing.projects().testMatrices()
                 .create(googleConfig.projectId, testMatrix)
                 .execute()
 
-        logger.info("Triggered matrix: ${triggeredTestMatrix.toPrettyString()}")
+        log.info("Triggered matrix: ${triggeredTestMatrix.toPrettyString()}")
 
         val projectId = triggeredTestMatrix.projectId
         val matrixId = triggeredTestMatrix.testMatrixId
 
-        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.testType, logger)
+        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.testType)
 
         val canceler = Thread { monitor.cancelTestMatrix() }
         Runtime.getRuntime().addShutdownHook(canceler)
@@ -97,7 +98,7 @@ open class TestLabTest : DefaultTask() {
         val supportedExecutions = monitor.handleUnsupportedExecutions(triggeredTestMatrix)
         val toolResultsIds = getToolResultsIds(triggeredTestMatrix, monitor)
         val url = createToolResultsUiUrl(projectId, toolResultsIds)
-        logger.lifecycle("Test results will be streamed to [$url].")
+        log.lifecycle("Test results will be streamed to [$url].")
 
         if (supportedExecutions.size == 1) {
             monitor.monitorTestExecutionProgress(supportedExecutions[0].id)
@@ -107,12 +108,18 @@ open class TestLabTest : DefaultTask() {
 
         Runtime.getRuntime().removeShutdownHook(canceler)
 
-        logger.lifecycle("More results are available at [$url].")
+        log.lifecycle("More results are available at [$url].")
 
-        if (testConfig.hasArtifacts) {
-            val fetcher = ArtifactFetcher(project, googleApi, bucketName, prefix, outputDir.get(), logger)
-            for (test in supportedExecutions) {
-                fetcher.fetch(test.environment.androidDevice, testConfig.artifacts)
+        if (testConfig.artifacts.isNotEmpty()) {
+            with (ArtifactFetcherFactory(googleApi.storage.objects(), bucketName, prefix, outputDir.get())) {
+                for (test in supportedExecutions) {
+                    val suffix = with (test.environment.androidDevice) {
+                        "$androidModelId-$androidVersionId-$locale-$orientation"
+                    }
+                    log.lifecycle("Fetching result artifacts for $suffix...")
+                    testConfig.artifacts
+                        .forEach { createFetcher(suffix, it).fetch() }
+                }
             }
         }
     }

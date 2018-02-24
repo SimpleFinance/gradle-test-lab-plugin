@@ -6,7 +6,7 @@ import java.io.Serializable
 
 internal class DefaultGoogleApi : GoogleApi, Serializable {
     companion object {
-        @JvmStatic val serialVersionUID: Long = 1L
+        private const val serialVersionUID: Long = 1L
     }
 
     override var bucketName: String? = null

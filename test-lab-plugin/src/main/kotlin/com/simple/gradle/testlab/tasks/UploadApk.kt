@@ -4,6 +4,7 @@ import com.google.api.client.http.InputStreamContent
 import com.google.api.services.testing.model.FileReference
 import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.UploadResults
+import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -36,7 +37,7 @@ open class UploadApk : DefaultTask() {
         val bucketName = googleConfig.bucketName ?: googleApi.defaultBucketName()
         val prefix = prefix.get()
 
-        project.logger.lifecycle("Uploading ${apk.name} to $bucketName...")
+        log.lifecycle("Uploading ${apk.name} to $bucketName...")
         val storageObject = try {
             InputStreamContent("application/octet-stream", FileInputStream(apk))
                     .setLength(apk.length())
@@ -47,7 +48,7 @@ open class UploadApk : DefaultTask() {
             throw TaskExecutionException(this, e)
         }
 
-        project.logger.lifecycle("Uploaded: ${apk.name} -> ${storageObject.selfLink}")
+        log.lifecycle("Uploaded: ${apk.name} -> ${storageObject.selfLink}")
         results?.references?.put(apk, FileReference().setGcsPath("gs://$bucketName/$prefix/${apk.name}"))
     }
 }

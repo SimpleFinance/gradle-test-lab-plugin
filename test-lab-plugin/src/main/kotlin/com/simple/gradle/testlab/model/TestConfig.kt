@@ -19,6 +19,4 @@ interface TestConfig : Named {
 
     fun device(configure: Closure<*>): Device
     fun device(configure: Device.() -> Unit): Device
-    fun artifacts(configure: Closure<*>): Artifacts
-    fun artifacts(configure: Artifacts.() -> Unit): Artifacts
 }

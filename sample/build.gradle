@@ -27,7 +27,9 @@ testLab {
                 modelId = 'sailfish'
                 version = 26
             }
-            artifacts { all() }
+            artifacts {
+                all()
+            }
         }
         instrumentation {
             name = 'instrumented'
@@ -35,7 +37,9 @@ testLab {
                 modelId = 'sailfish'
                 version = 26
             }
-            artifacts { junit() }
+            artifacts {
+                junit = true
+            }
         }
     }
 }

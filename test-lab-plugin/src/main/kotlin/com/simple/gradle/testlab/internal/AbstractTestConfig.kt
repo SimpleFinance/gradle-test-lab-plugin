@@ -6,7 +6,6 @@ import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.GoogleAuto
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
-import com.simple.gradle.testlab.model.Artifacts
 import com.simple.gradle.testlab.model.Device
 import groovy.lang.Closure
 import org.gradle.util.ConfigureUtil
@@ -19,7 +18,6 @@ internal abstract class AbstractTestConfig(
     fun setName(name: String) { myName = name }
 
     override val devices = mutableListOf<DefaultDevice>()
-    override var artifacts = DefaultArtifacts()
 
     override var disablePerformanceMetrics: Boolean = false
     override var disableVideoRecording: Boolean = false
@@ -41,17 +39,6 @@ internal abstract class AbstractTestConfig(
         DefaultDevice().apply {
             configure()
             devices.add(this)
-        }
-
-    override fun artifacts(configure: Closure<*>): Artifacts =
-        ConfigureUtil.configure(configure, artifacts)
-
-    override fun artifacts(configure: Artifacts.() -> Unit): Artifacts =
-        artifacts.apply(configure)
-
-    override val hasArtifacts: Boolean
-        get() = with (artifacts) {
-            instrumentation || junit || logcat || video
         }
 
     override fun testSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification =

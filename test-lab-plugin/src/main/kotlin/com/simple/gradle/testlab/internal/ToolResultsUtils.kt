@@ -57,7 +57,7 @@ internal fun getToolResultsIds(
             }
         }
 
-        if (status.testState in monitor.completedMatrixStates) {
+        if (status.testState in MatrixMonitor.completedMatrixStates) {
             throw GradleException(formatInvalidMatrixError(matrix))
         }
 
