@@ -6,7 +6,7 @@ import java.io.Serializable
 internal class DefaultRoboDirectives : RoboDirectives, Serializable {
 
     companion object {
-        @JvmStatic val serialVersionUID: Long = 1L
+        private const val serialVersionUID: Long = 1L
     }
 
     override val directives = mutableListOf<DefaultRoboDirective>()

@@ -35,7 +35,9 @@ testLab {
                 modelId = "sailfish"
                 version = 26
             }
-            artifacts { junit() }
+            artifacts {
+                junit = true
+            }
         }
     }
 }

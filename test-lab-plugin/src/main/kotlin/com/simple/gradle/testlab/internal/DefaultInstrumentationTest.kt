@@ -3,6 +3,8 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.testing.model.AndroidInstrumentationTest
 import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSpecification
+import com.simple.gradle.testlab.internal.artifacts.DefaultInstrumentationArtifacts
+import com.simple.gradle.testlab.model.InstrumentationArtifacts
 import com.simple.gradle.testlab.model.InstrumentationTest
 import com.simple.gradle.testlab.model.TestTargets
 import groovy.lang.Closure
@@ -14,14 +16,21 @@ internal open class DefaultInstrumentationTest @Inject constructor(name: String 
     : AbstractTestConfig(name, TestType.INSTRUMENTATION), InstrumentationTest, Serializable {
 
     companion object {
-        @JvmStatic val serialVersionUID: Long = 1L
+        private const val serialVersionUID: Long = 1L
     }
 
+    override val artifacts = DefaultInstrumentationArtifacts()
     override var testRunnerClass: String? = null
     override var useOrchestrator: Boolean? = null
     override val testTargets: TestTargets = DefaultTestTargets()
 
     override val requiresTestApk: Boolean = true
+
+    override fun artifacts(configure: Closure<*>): InstrumentationArtifacts =
+        artifacts.apply { ConfigureUtil.configure(configure, this) }
+
+    override fun artifacts(configure: InstrumentationArtifacts.() -> Unit): InstrumentationArtifacts =
+        artifacts.apply(configure)
 
     override fun targets(configure: Closure<*>): TestTargets =
         testTargets.apply { ConfigureUtil.configure(configure, this) }

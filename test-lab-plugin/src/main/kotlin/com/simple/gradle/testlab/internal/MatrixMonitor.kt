@@ -5,22 +5,19 @@ import com.google.api.services.testing.model.Environment
 import com.google.api.services.testing.model.TestExecution
 import com.google.api.services.testing.model.TestMatrix
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 internal class MatrixMonitor(
-        val googleApi: GoogleApiInternal,
-        val projectId: String,
-        val matrixId: String,
-        val testType: TestType,
-        val logger: Logger
+        private val googleApi: GoogleApiInternal,
+        private val projectId: String,
+        private val matrixId: String,
+        private val testType: TestType
 ) {
     companion object {
         private const val statusInterval = 10000L
-    }
 
-    val completedExecutionStates = setOf(
+        private val completedExecutionStates = setOf(
             TestState.FINISHED,
             TestState.ERROR,
             TestState.UNSUPPORTED_ENVIRONMENT,
@@ -29,11 +26,12 @@ internal class MatrixMonitor(
             TestState.CANCELLED,
             TestState.INVALID)
 
-    val completedMatrixStates = setOf(
+        val completedMatrixStates = setOf(
             TestState.FINISHED,
             TestState.ERROR,
             TestState.CANCELLED,
             TestState.INVALID)
+    }
 
     private var maxStatusLength = 0
 
@@ -50,12 +48,12 @@ internal class MatrixMonitor(
         }
 
         if (unsupportedDimensions.isNotEmpty()) {
-            logger.warn("Some device dimensions are not compatible and will be skipped:\n  "
+            log.warn("Some device dimensions are not compatible and will be skipped:\n  "
                     + unsupportedDimensions.joinToString("\n  "))
         }
 
         val type = testType.name.toLowerCase()
-        logger.lifecycle("Firebase Test Lab will execute your $type test on ${supportedTests.size} devices.")
+        log.lifecycle("Firebase Test Lab will execute your $type test on ${supportedTests.size} devices.")
 
         return supportedTests
     }
@@ -82,7 +80,7 @@ internal class MatrixMonitor(
             }
 
             for (msg in progress.takeLast(progress.size - lastProgressSize)) {
-                logger.lifecycle("$timestamp ${msg.trimEnd()}")
+                log.info("$timestamp ${msg.trimEnd()}")
             }
             lastProgressSize = progress.size
 
@@ -97,7 +95,7 @@ internal class MatrixMonitor(
 
             if (status.testState != lastState) {
                 lastState = status.testState
-                logger.lifecycle("$timestamp Test is ${lastState.name.toLowerCase()}")
+                log.info("$timestamp Test is ${lastState.name.toLowerCase()}")
             }
 
             if (status.testState in completedExecutionStates) break
@@ -107,7 +105,7 @@ internal class MatrixMonitor(
 
         var matrix = getTestMatrixStatus()
         while (matrix.testState !in completedMatrixStates) {
-            logger.debug("Matrix not yet complete, still in state: ${matrix.testState}")
+            log.info("Matrix not yet complete, still in state: ${matrix.testState}")
             Thread.sleep(statusInterval)
             matrix = getTestMatrixStatus()
         }
@@ -144,16 +142,16 @@ internal class MatrixMonitor(
         status.sort()
         val out = "\r$timestamp Test matrix status: ${status.joinToString(" ")} "
         maxStatusLength = Math.max(out.length, maxStatusLength)
-        logger.lifecycle(out.padEnd(maxStatusLength, ' '))
+        log.info(out.padEnd(maxStatusLength, ' '))
     }
 
     private fun getTestExecutionStatus(testId: String) =
         getTestMatrixStatus().testExecutions.firstOrNull { it.id == testId }
                 ?: throw GradleException("Test execution not found: matrix $matrixId, test $testId")
 
-    private fun logTestComplete(state: TestState) = with (logger) {
-        info("Test matrix completed in state: $state")
-        lifecycle("${testType.name.toLowerCase().capitalize()} testing complete.")
+    private fun logTestComplete(state: TestState) {
+        log.info("Test matrix completed in state: $state")
+        log.lifecycle("${testType.name.toLowerCase().capitalize()} testing complete.")
     }
 
     private fun formatInvalidDimension(environment: Environment): String =

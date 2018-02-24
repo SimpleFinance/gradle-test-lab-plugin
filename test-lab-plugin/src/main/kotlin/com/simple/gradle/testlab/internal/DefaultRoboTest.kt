@@ -3,6 +3,8 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.testing.model.AndroidRoboTest
 import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSpecification
+import com.simple.gradle.testlab.internal.artifacts.DefaultRoboArtifacts
+import com.simple.gradle.testlab.model.RoboArtifacts
 import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectives
 import com.simple.gradle.testlab.model.RoboTest
@@ -16,15 +18,22 @@ internal open class DefaultRoboTest @Inject constructor(name: String = "robo")
     : AbstractTestConfig(name, TestType.ROBO), RoboTest, Serializable {
 
     companion object {
-        @JvmStatic val serialVersionUID: Long = 1L
+        private const val serialVersionUID: Long = 1L
     }
 
     override var appInitialActivity: String? = null
+    override val artifacts = DefaultRoboArtifacts()
     override var maxDepth: Int? = null
     override var maxSteps: Int? = null
-    override val roboDirectives: RoboDirectives = DefaultRoboDirectives()
+    override val roboDirectives = DefaultRoboDirectives()
 
     override val requiresTestApk: Boolean = false
+
+    override fun artifacts(configure: Closure<*>): RoboArtifacts =
+        artifacts.apply { ConfigureUtil.configure(configure, this) }
+
+    override fun artifacts(configure: RoboArtifacts.() -> Unit): RoboArtifacts =
+        artifacts.apply(configure)
 
     override fun roboDirectives(configure: Closure<*>): RoboDirectives =
         roboDirectives.apply { ConfigureUtil.configure(configure, this) }
