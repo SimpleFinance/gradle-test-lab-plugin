@@ -16,7 +16,7 @@ internal class ArtifactFetcherFactory(
 
         return when (artifact) {
             Artifact.INSTRUMENTATION ->
-                SingleObjectFetcher(objects, bucketName, destDir, srcPath, "instrumentation logs", "instrumentation")
+                SingleObjectFetcher(objects, bucketName, destDir, srcPath, "instrumentation logs", "instrumentation.results")
             Artifact.JUNIT ->
                 JunitFetcher(objects, bucketName, destDir, srcPath)
             Artifact.LOGCAT ->
