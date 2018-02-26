@@ -4,13 +4,140 @@ import groovy.lang.Closure
 import org.gradle.internal.HasInternalProtocol
 
 @HasInternalProtocol
+/**
+ * The configuration of Firebase Test Lab tests for this project.
+ *
+ * Tests require a valid [Google API configuration][googleApi] and a []
+ */
 interface TestLabExtension {
+    companion object {
+        /** The name of this extension when installed by the [TestLabPlugin] ("testLab"). */
+        const val NAME: String = "testLab"
+    }
+
+    /**
+     * The Google API configuration to use for this project.
+     *
+     * @see googleApi
+     */
     val googleApi: GoogleApi
+
+    /**
+     * The container of test configurations for this project.
+     *
+     * @see tests
+     */
     val tests: TestConfigContainer
 
+    /**
+     * Configures the Google API configuration for this project.
+     *
+     *     apply plugin: 'com.simple.gradle.testlab'
+     *
+     *     testLab {
+     *       googleApi {
+     *         bucketName = 'bucket-name'
+     *         credentialPath = file('/path/to/credentials.json')
+     *         projectId = 'example.com:api-project-1234567890'
+     *       }
+     *     }
+     */
     fun googleApi(configure: Closure<*>): GoogleApi
+
+    /**
+     * Configures the Google API configuration for this project.
+     *
+     *     plugins {
+     *       id("com.simple.gradle.testlab") version "$pluginVersion"
+     *     }
+     *
+     *     testLab {
+     *       googleApi {
+     *         bucketName = "bucket-name"
+     *         credentialPath = file("/path/to/credentials.json")
+     *         projectId = "example.com:api-project-1234567890"
+     *       }
+     *     }
+     */
     fun googleApi(configure: GoogleApi.() -> Unit): GoogleApi
 
+    /**
+     * Configures the test configurations for this project.
+     *
+     * The tests container defines the possible tests available to run for the project.
+     * Two types of tests are currently supported: [instrumentation][InstrumentationTest]
+     * and [robo][RoboTest].
+     *
+     * To add an instrumentation test:
+     *
+     *     apply plugin: 'com.simple.gradle.testlab'
+     *
+     *     testLab {
+     *       tests {
+     *         instrumentation {
+     *           name = 'test-name'
+     *           // Configure the test here
+     *         }
+     *       }
+     *     }
+     *
+     * To add a robo test:
+     *
+     *     apply plugin: 'com.simple.gradle.testlab'
+     *
+     *     testLab {
+     *       tests {
+     *         robo {
+     *           name = 'test-name'
+     *           // Configure the test here
+     *         }
+     *       }
+     *     }
+     *
+     * @see InstrumentationTest
+     * @see RoboTest
+     * @see TestConfig
+     */
     fun tests(configure: Closure<*>): TestConfigContainer
+
+    /**
+     * Configures the test configurations for this project.
+     *
+     * The tests container defines the possible tests available to run for the project.
+     * Two types of tests are currently supported: [instrumentation][InstrumentationTest]
+     * and [robo][RoboTest].
+     *
+     * To add an instrumentation test:
+     *
+     *     plugins {
+     *       id("com.simple.gradle.testlab") version "$pluginVersion"
+     *     }
+     *
+     *     testLab {
+     *       tests {
+     *         instrumentation("test-name") {
+     *           // Configure the test here
+     *         }
+     *       }
+     *     }
+     *
+     * To add a robo test:
+     *
+     *     plugins {
+     *       id("com.simple.gradle.testlab") version "$pluginVersion"
+     *     }
+     *
+     *     testLab {
+     *       tests {
+     *         robo("test-name") {
+     *           // Configure the test here
+     *         }
+     *       }
+     *     }
+     *
+     * @see InstrumentationTest
+     * @see RoboTest
+     * @see TestConfig
+     */
     fun tests(configure: TestConfigContainer.() -> Unit): TestConfigContainer
 }

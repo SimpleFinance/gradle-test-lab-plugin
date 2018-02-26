@@ -36,7 +36,7 @@ class TestLabPlugin @Inject constructor(
                 testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
 
                 val extension = DefaultTestLabExtension(testsContainer)
-                extensions.add(TestLabExtension::class.java, "testLab", extension)
+                extensions.add(TestLabExtension::class.java, TestLabExtension.NAME, extension)
 
                 val uploadResults = UploadResults()
 
