@@ -1,21 +1,34 @@
 {
     ":": {
-        "conventions": {
+        "conventions": [
             
-        },
+        ],
         "configurations": [
             
         ],
-        "extensions": {
-            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension"
-        }
+        "extensions": [
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.Project",
+                "name": "ext"
+            }
+        ]
     },
-    ":plugin": {
-        "conventions": {
-            "base": "org.gradle.api.plugins.BasePluginConvention",
-            "java": "org.gradle.api.plugins.JavaPluginConvention"
-        },
+    ":test-lab-plugin": {
+        "conventions": [
+            {
+                "type": "org.gradle.api.plugins.BasePluginConvention",
+                "target": "org.gradle.api.Project",
+                "name": "base"
+            },
+            {
+                "type": "org.gradle.api.plugins.JavaPluginConvention",
+                "target": "org.gradle.api.Project",
+                "name": "java"
+            }
+        ],
         "configurations": [
+            "annotationProcessor",
             "apiElements",
             "archives",
             "compile",
@@ -23,21 +36,14 @@
             "compileOnly",
             "default",
             "embeddedKotlin",
-            "funcTestCompile",
-            "funcTestCompileClasspath",
-            "funcTestCompileOnly",
-            "funcTestImplementation",
-            "funcTestRuntime",
-            "funcTestRuntimeClasspath",
-            "funcTestRuntimeOnly",
             "implementation",
             "kapt",
-            "kaptFuncTest",
             "kaptTest",
             "runtime",
             "runtimeClasspath",
             "runtimeElements",
             "runtimeOnly",
+            "testAnnotationProcessor",
             "testCompile",
             "testCompileClasspath",
             "testCompileOnly",
@@ -46,51 +52,112 @@
             "testRuntimeClasspath",
             "testRuntimeOnly"
         ],
-        "extensions": {
-            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension",
-            "kotlin": "org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension",
-            "kapt": "org.jetbrains.kotlin.gradle.plugin.KaptExtension",
-            "defaultArtifacts": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
-            "reporting": "org.gradle.api.reporting.ReportingExtension",
-            "samWithReceiver": "org.jetbrains.kotlin.samWithReceiver.gradle.SamWithReceiverExtension",
-            "pluginBundle": "com.gradle.publish.PluginBundleExtension",
-            "publishing": "org.gradle.api.publish.PublishingExtension",
-            "gradlePlugin": "org.gradle.plugin.devel.GradlePluginDevelopmentExtension",
-            "idea": "org.gradle.plugins.ide.idea.model.IdeaModel"
-        }
-    },
-    ":testing-api": {
-        "conventions": {
-            "base": "org.gradle.api.plugins.BasePluginConvention",
-            "java": "org.gradle.api.plugins.JavaPluginConvention"
-        },
-        "configurations": [
-            "api",
-            "apiElements",
-            "archives",
-            "compile",
-            "compileClasspath",
-            "compileOnly",
-            "default",
-            "implementation",
-            "jython",
-            "runtime",
-            "runtimeClasspath",
-            "runtimeElements",
-            "runtimeOnly",
-            "testCompile",
-            "testCompileClasspath",
-            "testCompileOnly",
-            "testImplementation",
-            "testRuntime",
-            "testRuntimeClasspath",
-            "testRuntimeOnly"
-        ],
-        "extensions": {
-            "ext": "org.gradle.api.plugins.ExtraPropertiesExtension",
-            "envs": "com.jetbrains.python.envs.PythonEnvsExtension",
-            "defaultArtifacts": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
-            "reporting": "org.gradle.api.reporting.ReportingExtension"
-        }
+        "extensions": [
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.Project",
+                "name": "ext"
+            },
+            {
+                "type": "org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension",
+                "target": "org.gradle.api.Project",
+                "name": "kotlin"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.jetbrains.kotlin.gradle.dsl.ExperimentalExtension",
+                "target": "org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension",
+                "name": "experimental"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.jetbrains.kotlin.gradle.dsl.ExperimentalExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.jetbrains.kotlin.gradle.plugin.KaptExtension",
+                "target": "org.gradle.api.Project",
+                "name": "kapt"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.jetbrains.kotlin.gradle.plugin.KaptExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
+                "target": "org.gradle.api.Project",
+                "name": "defaultArtifacts"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.internal.plugins.DefaultArtifactPublicationSet",
+                "name": "ext"
+            },
+            {
+                "type": "org.gradle.api.reporting.ReportingExtension",
+                "target": "org.gradle.api.Project",
+                "name": "reporting"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.reporting.ReportingExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.jetbrains.kotlin.samWithReceiver.gradle.SamWithReceiverExtension",
+                "target": "org.gradle.api.Project",
+                "name": "samWithReceiver"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.jetbrains.kotlin.samWithReceiver.gradle.SamWithReceiverExtension",
+                "name": "ext"
+            },
+            {
+                "type": "com.gradle.publish.PluginBundleExtension",
+                "target": "org.gradle.api.Project",
+                "name": "pluginBundle"
+            },
+            {
+                "type": "org.gradle.plugin.devel.GradlePluginDevelopmentExtension",
+                "target": "org.gradle.api.Project",
+                "name": "gradlePlugin"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.plugin.devel.GradlePluginDevelopmentExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.gradle.api.publish.PublishingExtension",
+                "target": "org.gradle.api.Project",
+                "name": "publishing"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.publish.PublishingExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.jetbrains.kotlin.scripting.gradle.ScriptingExtension",
+                "target": "org.gradle.api.Project",
+                "name": "kotlinScripting"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.jetbrains.kotlin.scripting.gradle.ScriptingExtension",
+                "name": "ext"
+            },
+            {
+                "type": "org.gradle.api.plugins.ExtraPropertiesExtension",
+                "target": "org.gradle.api.tasks.SourceSet",
+                "name": "ext"
+            }
+        ]
     }
 }

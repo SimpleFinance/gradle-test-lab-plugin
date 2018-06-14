@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         ANDROID_HOME = '/home/services/.android/sdk'
+        NEXUS = credentials('simple-nexus')
     }
 
     stages {
@@ -21,13 +22,22 @@ pipeline {
             when {
                 branch 'master'
             }
-            environment {
-                NEXUS = credentials('simple-nexus')
-            }
             steps {
                 sh '''
                   ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
                       publishPluginMavenPublicationToSnapshotsRepository
+                '''.stripIndent()
+            }
+        }
+
+        stage('Deploy release') {
+            when {
+                buildingTag()
+            }
+            steps {
+                sh '''
+                  ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
+                      publishPluginMavenPublicationToReleasesRepository
                 '''.stripIndent()
             }
         }
