@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.simple.gradle.testlab"
-version = "0.3-SNAPSHOT"
+version = "0.2-SNAPSHOT"
 
 subprojects {
     group = rootProject.group

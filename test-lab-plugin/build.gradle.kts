@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.android.tools.build:gradle:3.2.0-alpha18")
+    implementation("com.android.tools.build:gradle:3.1.0")
     implementation("com.google.api-client:google-api-client:1.23.0") {
         exclude(group = "com.google.guava", module = "guava-jdk5")
     }
@@ -31,7 +31,7 @@ dependencies {
     implementation("com.google.apis:google-api-services-testing:v1-rev40-1.23.0")
     implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev396-1.23.0")
 
-    testRuntimeOnly("com.android.tools.build:gradle:3.2.0-alpha18")
+    testRuntimeOnly("com.android.tools.build:gradle:3.1.0")
     testImplementation(kotlin("reflect"))
     testImplementation("junit:junit:4.12")
     testImplementation("com.natpryce:hamkrest:1.4.2.2")
