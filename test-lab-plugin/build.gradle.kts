@@ -6,9 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-gradle-plugin`
-    `kotlin-dsl` version "0.18.0"
-    kotlin("jvm") version "1.2.50"
-    id("com.gradle.plugin-publish") version "0.9.10"
+    `kotlin-dsl`
+    id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
     `maven-publish`
 }
 
@@ -22,25 +21,25 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation("com.android.tools.build:gradle:3.1.0")
-    implementation("com.google.api-client:google-api-client:1.23.0") {
+    implementation(Libs.kotlin_stdlib_jdk8)
+    implementation(Libs.com_android_tools_build_gradle)
+    implementation(Libs.google_api_client) {
         exclude(group = "com.google.guava", module = "guava-jdk5")
     }
-    implementation("com.google.apis:google-api-services-storage:v1-rev134-1.23.0")
-    implementation("com.google.apis:google-api-services-testing:v1-rev40-1.23.0")
-    implementation("com.google.apis:google-api-services-toolresults:v1beta3-rev396-1.23.0")
+    implementation(Libs.google_api_services_storage)
+    implementation(Libs.google_api_services_testing)
+    implementation(Libs.google_api_services_toolresults)
 
-    testRuntimeOnly("com.android.tools.build:gradle:3.1.0")
-    testImplementation(kotlin("reflect"))
-    testImplementation("junit:junit:4.12")
-    testImplementation("com.natpryce:hamkrest:1.4.2.2")
+    testRuntimeOnly(Libs.com_android_tools_build_gradle)
+    testImplementation(Libs.kotlin_reflect)
+    testImplementation(Libs.junit)
+    testImplementation(Libs.hamkrest)
     testImplementation(gradleKotlinDsl())
 }
 
 gradlePlugin {
-    (plugins) {
-        "testLab" {
+    plugins {
+        create("testLab") {
             id = project.group as String
             implementationClass = "com.simple.gradle.testlab.TestLabPlugin"
         }
@@ -68,7 +67,7 @@ publishing {
             url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
             credentials {
                 username = properties["nexusUsername"]?.toString()
-                password = properties["nexusPassword"]?.toString()
+                password = properties["nexusPasswordh"]?.toString()
             }
         }
         maven {

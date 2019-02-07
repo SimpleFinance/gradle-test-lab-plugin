@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.application") version "3.0.1"
+    id("com.android.application") version "3.3.1"
     id("com.simple.gradle.testlab")
 }
 
 android {
-    compileSdkVersion(27)
-    buildToolsVersion("27.0.3")
+    compileSdkVersion(28)
+    buildToolsVersion("28.0.3")
 }
 
 repositories {
@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    androidTestImplementation("com.android.support:support-annotations:27.0.2")
-    androidTestImplementation("com.android.support.test:runner:1.0.1")
-    androidTestImplementation("com.android.support.test:rules:1.0.1")
+    androidTestImplementation("androidx.test:core:1.0.0")
+    androidTestImplementation("androidx.test:runner:1.1.0")
+    androidTestImplementation("androidx.test:rules:1.1.0")
 }
 
 testLab {

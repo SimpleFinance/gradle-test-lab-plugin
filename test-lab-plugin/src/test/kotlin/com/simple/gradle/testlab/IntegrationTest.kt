@@ -1,11 +1,10 @@
 package com.simple.gradle.testlab
 
-import com.natpryce.hamkrest.assertion.assert
+import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.containsSubstring
 import com.natpryce.hamkrest.equalTo
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 
@@ -24,36 +23,35 @@ class IntegrationTest {
     @Test
     fun `groovy integration test`() {
         val result = GradleRunner.create()
-            .withDebug(true)
+            // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample"))
             .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
             .build()
-        assert.that(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assert.that(result.output, containsSubstring("testLabUploadDebugAppApk"))
-        assert.that(result.output, containsSubstring("testLabUploadDebugTestApk"))
-        assert.that(result.output, containsSubstring("testLabUploadReleaseAppApk"))
-        assert.that(result.output, containsSubstring("testLabReleaseFooTest"))
-        assert.that(result.output, containsSubstring("testLabDebugFooTest"))
-        assert.that(result.output, containsSubstring("testLabDebugInstrumentedTest"))
+        assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
+        assertThat(result.output, containsSubstring("testLabUploadDebugAppApk"))
+        assertThat(result.output, containsSubstring("testLabUploadDebugTestApk"))
+        assertThat(result.output, containsSubstring("testLabUploadReleaseAppApk"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
     }
 
     @Test
-    @Ignore("The sample works, but this doesn't. Figure out why.")
     fun `kotlin integration test`() {
         val result = GradleRunner.create()
-            .withDebug(true)
+            // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample-kotlin"))
             .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
             .build()
 
-        assert.that(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assert.that(result.output, containsSubstring("testLabUploadDebugAppApk"))
-        assert.that(result.output, containsSubstring("testLabUploadDebugTestApk"))
-        assert.that(result.output, containsSubstring("testLabUploadReleaseAppApk"))
-        assert.that(result.output, containsSubstring("testLabReleaseFooTest"))
-        assert.that(result.output, containsSubstring("testLabDebugFooTest"))
-        assert.that(result.output, containsSubstring("testLabDebugInstrumentedTest"))
+        assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
+        assertThat(result.output, containsSubstring("testLabUploadDebugAppApk"))
+        assertThat(result.output, containsSubstring("testLabUploadDebugTestApk"))
+        assertThat(result.output, containsSubstring("testLabUploadReleaseAppApk"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
     }
 }

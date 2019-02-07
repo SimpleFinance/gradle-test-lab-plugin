@@ -1,5 +1,6 @@
 plugins {
-    id("com.github.ben-manes.versions") version "0.17.0"
+    id("de.fayard.buildSrcVersions") version "0.3.2"
+    base
 }
 
 group = "com.simple.gradle.testlab"
@@ -33,7 +34,7 @@ val customInstallation by task<Copy> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "4.8"
+    gradleVersion = Versions.Gradle.currentVersion
     distributionType = Wrapper.DistributionType.ALL
 }
 
