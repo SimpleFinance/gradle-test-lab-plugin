@@ -1,11 +1,9 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    //id("org.jlleitschuh.gradle.ktlint") version "7.1.0"
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
     `maven-publish`
+    id("org.jmailen.kotlinter") version Versions.org_jmailen_kotlinter_gradle_plugin
 }
 
 group = rootProject.group
@@ -18,7 +16,6 @@ repositories {
 }
 
 dependencies {
-    implementation(Libs.kotlin_stdlib_jdk8)
     implementation(Libs.com_android_tools_build_gradle)
     implementation(Libs.google_api_client) {
         exclude(group = "com.google.guava", module = "guava-jdk5")
@@ -28,10 +25,8 @@ dependencies {
     implementation(Libs.google_api_services_toolresults)
 
     testRuntimeOnly(Libs.com_android_tools_build_gradle)
-    testImplementation(Libs.kotlin_reflect)
     testImplementation(Libs.junit)
     testImplementation(Libs.hamkrest)
-    testImplementation(gradleKotlinDsl())
 }
 
 gradlePlugin {

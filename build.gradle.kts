@@ -1,5 +1,5 @@
 plugins {
-    id("de.fayard.buildSrcVersions") version "0.3.2"
+    id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     base
 }
 
@@ -37,5 +37,3 @@ tasks.withType<Wrapper> {
     gradleVersion = Versions.Gradle.currentVersion
     distributionType = Wrapper.DistributionType.ALL
 }
-
-inline fun <reified T : Task> task(noinline configuration: T.() -> Unit) = tasks.creating(T::class, configuration)

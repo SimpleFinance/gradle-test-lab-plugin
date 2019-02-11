@@ -113,10 +113,10 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
         log.lifecycle("More results are available at [$url].")
 
         if (testConfig.get().artifacts.isNotEmpty()) {
-            with (ArtifactFetcherFactory(googleApi.storage.objects(), googleApi.bucketName, prefix,
+            with(ArtifactFetcherFactory(googleApi.storage.objects(), googleApi.bucketName, prefix,
                 outputDir.get())) {
                 for (test in supportedExecutions) {
-                    val suffix = with (test.environment.androidDevice) {
+                    val suffix = with(test.environment.androidDevice) {
                         "$androidModelId-$androidVersionId-$locale-$orientation"
                     }
                     log.lifecycle("Fetching result artifacts for $suffix...")

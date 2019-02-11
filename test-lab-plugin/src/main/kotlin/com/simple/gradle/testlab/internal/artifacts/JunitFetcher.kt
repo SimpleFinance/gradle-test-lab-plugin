@@ -10,7 +10,7 @@ internal class JunitFetcher(
     bucketName: String,
     destDir: File,
     private val srcPath: String
-): ArtifactFetcher(objects, bucketName, destDir) {
+) : ArtifactFetcher(objects, bucketName, destDir) {
     override fun fetch(): List<File> {
         log.info("Fetching JUnit results...")
         return objects.list(bucketName)

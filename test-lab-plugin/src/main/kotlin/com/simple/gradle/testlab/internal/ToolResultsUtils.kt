@@ -45,9 +45,9 @@ internal fun createToolResultsUiUrl(projectId: String, toolResultsIds: ToolResul
                 false)
 
 internal fun getToolResultsIds(
-        matrix: TestMatrix,
-        monitor: MatrixMonitor,
-        statusInterval: Long = 10000L
+    matrix: TestMatrix,
+    monitor: MatrixMonitor,
+    statusInterval: Long = 10000L
 ): ToolResultsIds {
     var status = matrix
     while (true) {

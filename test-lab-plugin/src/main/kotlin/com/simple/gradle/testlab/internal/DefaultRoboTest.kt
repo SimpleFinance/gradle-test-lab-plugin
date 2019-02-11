@@ -58,7 +58,7 @@ internal open class DefaultRoboTest @Inject constructor(
                     .setRoboDirectives(directives.get().map { it.toDomain() }))
         }
     }
- }
+}
 
 private fun RoboDirective.toDomain() =
     GoogleRoboDirective()

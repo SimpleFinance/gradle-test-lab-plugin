@@ -46,23 +46,28 @@ object Libs {
             "org.gradle.kotlin.kotlin-dsl:org.gradle.kotlin.kotlin-dsl.gradle.plugin:" +
             Versions.org_gradle_kotlin_kotlin_dsl_gradle_plugin
 
-    const val org_jetbrains_kotlin_jvm_gradle_plugin: String =
-            "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:" +
-            Versions.org_jetbrains_kotlin_jvm_gradle_plugin
-
-    /**
-     * https://kotlinlang.org/ */
-    const val kotlin_annotation_processing_gradle: String =
-            "org.jetbrains.kotlin:kotlin-annotation-processing-gradle:" +
-            Versions.kotlin_annotation_processing_gradle
-
     /**
      * https://kotlinlang.org/ */
     const val kotlin_reflect: String = "org.jetbrains.kotlin:kotlin-reflect:" +
-            Versions.kotlin_reflect
+            Versions.org_jetbrains_kotlin
+
+    /**
+     * https://kotlinlang.org/ */
+    const val kotlin_sam_with_receiver: String = "org.jetbrains.kotlin:kotlin-sam-with-receiver:" +
+            Versions.org_jetbrains_kotlin
+
+    /**
+     * https://kotlinlang.org/ */
+    const val kotlin_scripting_compiler_embeddable: String =
+            "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:" +
+            Versions.org_jetbrains_kotlin
 
     /**
      * https://kotlinlang.org/ */
     const val kotlin_stdlib_jdk8: String = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:" +
-            Versions.kotlin_stdlib_jdk8
+            Versions.org_jetbrains_kotlin
+
+    const val org_jmailen_kotlinter_gradle_plugin: String =
+            "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin:" +
+            Versions.org_jmailen_kotlinter_gradle_plugin
 }
