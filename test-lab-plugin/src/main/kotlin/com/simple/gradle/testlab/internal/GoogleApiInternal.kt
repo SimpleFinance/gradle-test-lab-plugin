@@ -15,13 +15,33 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
         private const val APPLICATION_NAME = "gradle-test-lab-plugin"
     }
 
+    init {
+        check(config.projectId.isPresent) {
+            """
+                A project ID is required for Firebase tests. You can add it to your build script
+                as follows:
+
+                    testLab {
+                        googleApi {
+                            projectId = "my-project-id"
+                        }
+                    }
+            """.trimIndent()
+        }
+    }
+
     private val httpTransport by lazy { GoogleNetHttpTransport.newTrustedTransport() }
     private val jsonFactory by lazy { JacksonFactory.getDefaultInstance() }
 
+    val bucketName by lazy { config.bucketName.orNull ?: defaultBucketName() }
+
+    val projectId by lazy { config.projectId.get() }
+
     val credential by lazy {
-        (config.credentialPath?.let { path -> GoogleCredential.fromStream(FileInputStream(path)) }
-                ?: GoogleCredential.getApplicationDefault())
-                .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
+        (config.credentialPath.orNull
+            ?.let { GoogleCredential.fromStream(FileInputStream(it)) }
+            ?: GoogleCredential.getApplicationDefault())
+            .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
     }
 
     val storage by lazy {
@@ -42,9 +62,9 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
                 .build()
     }
 
-    fun defaultBucketName(): String =
+    private fun defaultBucketName(): String =
         toolResults.projects()
-                .initializeSettings(config.projectId)
+                .initializeSettings(config.projectId.get())
                 .execute()
                 .defaultBucket
 }

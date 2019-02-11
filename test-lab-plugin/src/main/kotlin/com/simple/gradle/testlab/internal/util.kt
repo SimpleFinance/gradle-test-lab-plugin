@@ -4,6 +4,8 @@ import com.google.api.services.storage.Storage
 import com.google.api.services.storage.model.StorageObject
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 // Logging helper
 
@@ -17,7 +19,7 @@ private const val DEFAULT_CAPACITY = 1 shl 8
 internal fun <A, R> ((A) -> R).memoize(initialCapacity: Int = DEFAULT_CAPACITY): (A) -> R {
     val cache: MutableMap<A, R> = HashMap(initialCapacity)
     return { a: A ->
-        cache.getOrPut(a, { this(a) })
+        cache.getOrPut(a) { this(a) }
     }
 }
 
@@ -50,5 +52,21 @@ private class StorageListIterator(
         }
         nextPageToken = result?.nextPageToken
         hasFetched = true
+    }
+}
+
+// Extensions
+
+internal operator fun <T> MutableSet<T>.invoke(value: T) = SetPropertyDelegate(this, value)
+
+internal class SetPropertyDelegate<T>(
+    private val collection: MutableSet<T>,
+    private val value: T
+) : ReadWriteProperty<Any?, Boolean> {
+    override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean =
+        collection.contains(value)
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: Boolean) {
+        if (value) collection.add(this.value) else collection.remove(this.value)
     }
 }

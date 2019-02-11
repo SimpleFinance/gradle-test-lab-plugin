@@ -22,22 +22,10 @@ dependencies {
 testLab {
     tests {
         robo("foo") {
-            device {
-                modelId = "sailfish"
-                version = 26
-            }
-            artifacts {
-                all()
-            }
+            device("sailfish", 26)
         }
         instrumentation("instrumented") {
-            device {
-                modelId = "sailfish"
-                version = 26
-            }
-            artifacts {
-                junit = true
-            }
+            device("sailfish", 26)
         }
     }
 }

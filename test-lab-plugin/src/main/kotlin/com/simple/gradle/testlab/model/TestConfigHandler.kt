@@ -1,7 +1,7 @@
 package com.simple.gradle.testlab.model
 
-import groovy.lang.Closure
-import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
+import org.gradle.api.Action
+import org.gradle.api.provider.Provider
 
 /**
  * Container of test configurations. For each configuration and application variant,
@@ -9,16 +9,22 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
  *
  * Add an instrumentation test with [instrumentation]. Add a Robo test with [robo].
  */
-interface TestConfigContainer : ExtensiblePolymorphicDomainObjectContainer<TestConfig> {
+@Suppress("UnstableApiUsage")
+interface TestConfigHandler {
     /** Configure and add an [instrumentation test][InstrumentationTest] to this container. */
-    fun instrumentation(configure: Closure<*>): InstrumentationTest
+    fun instrumentation(
+        configure: Action<InstrumentationTest>
+    ): Provider<InstrumentationTest> = instrumentation("instrumentation", configure)
 
     /** Configure and add an [instrumentation test][InstrumentationTest] to this container. */
-    fun instrumentation(name: String = "instrumentation", configure: InstrumentationTest.() -> Unit): InstrumentationTest
+    fun instrumentation(
+        name: String,
+        configure: Action<InstrumentationTest>
+    ): Provider<InstrumentationTest>
 
     /** Configure and add a [Robo test][RoboTest] to this container. */
-    fun robo(configure: Closure<*>): RoboTest
+    fun robo(configure: Action<RoboTest>): Provider<RoboTest> = robo("robo", configure)
 
     /** Configure and add a [Robo test][RoboTest] to this container. */
-    fun robo(name: String = "robo", configure: RoboTest.() -> Unit): RoboTest
+    fun robo(name: String, configure: Action<RoboTest>): Provider<RoboTest>
 }

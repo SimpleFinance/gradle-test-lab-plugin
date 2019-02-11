@@ -21,6 +21,8 @@ import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -30,12 +32,12 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import java.io.File
+import javax.inject.Inject
 
-open class TestLabTest : DefaultTask() {
-    @Internal private val objects = project.objects
-
+@Suppress("UnstableApiUsage")
+open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask() {
     @get:InputFile val appApk: Property<File> = objects.property()
-    @get:InputFile @get:Optional val testApk: Property<File> = objects.property()
+    @get:InputFile @get:Optional val testApk = objects.property()
     @get:Input @get:Optional val appPackageId: Property<String?> = objects.property()
     @get:Input @get:Optional val testPackageId: Property<String?> = objects.property()
     @get:Input val google: Property<GoogleApi> = objects.property()
@@ -48,41 +50,41 @@ open class TestLabTest : DefaultTask() {
     @get:Internal internal lateinit var uploadResults: UploadResults
 
     init {
-        group = "verification"
         description = "Run tests on Firebase Test Lab."
+        group = JavaBasePlugin.VERIFICATION_GROUP
     }
 
-    private val googleConfig by lazy { google.get() }
-    private val googleApi by lazy { GoogleApiInternal(googleConfig) }
-    private val bucketName by lazy { googleConfig.bucketName ?: googleApi.defaultBucketName() }
-    private val gcsBucketPath by lazy { "gs://$bucketName/$prefix" }
+    private val googleApi by lazy { GoogleApiInternal(google.get()) }
+    private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/$prefix" }
 
     @TaskAction
     fun runTest() {
-        val testConfig = testConfig.get()
         val appApkReference = uploadResults.references[appApk.get()]
                 ?: throw GradleException("App APK not found: ${appApk.get()}")
-        val testApkReference = if (testConfig.requiresTestApk) {
-            uploadResults.references[testApk.get()]
+        val testApkReference = if (testConfig.get().requiresTestApk) {
+            uploadResults.references[testApk]
                 ?: throw GradleException("Test APK not found: ${testApk.get()}")
         } else {
             null
         }
 
-        val historyPicker = ToolResultsHistoryPicker(googleConfig.projectId!!, googleApi)
-        val historyName = historyPicker.pickHistoryName(testConfig.resultsHistoryName, appPackageId.orNull)
+        val historyPicker = ToolResultsHistoryPicker(googleApi)
+        val historyName = historyPicker.pickHistoryName(
+            testConfig.get().resultsHistoryName.orNull,
+            appPackageId.orNull)
         val historyId = historyPicker.getToolResultsHistoryId(historyName)
 
         val testMatrix = TestMatrix()
                 .setClientInfo(clientInfo())
                 .setResultStorage(resultStorage(historyId))
                 .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
-                .setTestSpecification(testConfig.testSpecification(appApkReference, testApkReference))
+                .setTestSpecification(
+                    testConfig.get().testSpecification(appApkReference, testApkReference).get())
 
         log.info("Test matrix: ${testMatrix.toPrettyString()}")
 
         val triggeredTestMatrix = googleApi.testing.projects().testMatrices()
-                .create(googleConfig.projectId, testMatrix)
+                .create(googleApi.projectId, testMatrix)
                 .execute()
 
         log.info("Triggered matrix: ${triggeredTestMatrix.toPrettyString()}")
@@ -90,7 +92,7 @@ open class TestLabTest : DefaultTask() {
         val projectId = triggeredTestMatrix.projectId
         val matrixId = triggeredTestMatrix.testMatrixId
 
-        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.testType)
+        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.get().testType)
 
         val canceler = Thread { monitor.cancelTestMatrix() }
         Runtime.getRuntime().addShutdownHook(canceler)
@@ -110,15 +112,15 @@ open class TestLabTest : DefaultTask() {
 
         log.lifecycle("More results are available at [$url].")
 
-        if (testConfig.artifacts.isNotEmpty()) {
-            with (ArtifactFetcherFactory(googleApi.storage.objects(), bucketName, prefix, outputDir.get())) {
+        if (testConfig.get().artifacts.isNotEmpty()) {
+            with (ArtifactFetcherFactory(googleApi.storage.objects(), googleApi.bucketName, prefix,
+                outputDir.get())) {
                 for (test in supportedExecutions) {
                     val suffix = with (test.environment.androidDevice) {
                         "$androidModelId-$androidVersionId-$locale-$orientation"
                     }
                     log.lifecycle("Fetching result artifacts for $suffix...")
-                    testConfig.artifacts
-                        .forEach { createFetcher(suffix, it).fetch() }
+                    testConfig.get().artifacts.forEach { createFetcher(suffix, it).fetch() }
                 }
             }
         }
@@ -129,7 +131,7 @@ open class TestLabTest : DefaultTask() {
             .apply {
                 if (historyId != null) {
                     toolResultsHistory = ToolResultsHistory()
-                            .setProjectId(googleConfig.projectId!!)
+                            .setProjectId(googleApi.projectId)
                             .setHistoryId(historyId)
                 }
             }
@@ -143,9 +145,9 @@ open class TestLabTest : DefaultTask() {
             ))
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
-            .setAndroidDevices(testConfig.get().devices.map {
+            .setAndroidDevices(testConfig.get().devices.get().map {
                 AndroidDevice()
-                        .setAndroidModelId(it.modelId)
+                        .setAndroidModelId(it.model)
                         .setAndroidVersionId(it.version.toString())
                         .setLocale(it.locale)
                         .setOrientation(it.orientation.name.toLowerCase())

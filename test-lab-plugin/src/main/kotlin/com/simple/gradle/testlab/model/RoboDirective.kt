@@ -6,13 +6,13 @@ package com.simple.gradle.testlab.model
  */
 interface RoboDirective {
     /** The type of action that Robo should perform on the specified element. Required. */
-    var actionType: String
+    val actionType: String
 
     /**
     * The text that Robo is directed to set. If left empty, the directive will be treated as a CLICK
     * on the element matching [resourceName]. Optional.
     */
-    var inputText: String?
+    val inputText: String?
 
     /**
      * The android resource name of the target UI element. For example:
@@ -26,5 +26,5 @@ interface RoboDirective {
      *
      * Required.
      */
-    var resourceName: String
+    val resourceName: String
 }

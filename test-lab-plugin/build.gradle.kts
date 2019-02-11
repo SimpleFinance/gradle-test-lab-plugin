@@ -1,10 +1,7 @@
-import org.apache.maven.model.Dependency
-import org.gradle.api.tasks.bundling.Jar
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    //id("org.jlleitschuh.gradle.ktlint") version "7.1.0"
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
@@ -81,15 +78,10 @@ publishing {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+kotlinDslPluginOptions {
+    experimentalWarning.set(false)
 }
 
 tasks.withType<Test> {
     dependsOn(rootProject.tasks["customInstallation"])
 }
-
-val SourceSet.kotlin: SourceDirectorySet
-    get() = withConvention(KotlinSourceSet::class) { kotlin }

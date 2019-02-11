@@ -1,15 +1,21 @@
 package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.GoogleApi
+import org.gradle.api.model.ObjectFactory
+import org.gradle.kotlin.dsl.property
 import java.io.File
 import java.io.Serializable
+import javax.inject.Inject
 
-internal class DefaultGoogleApi : GoogleApi, Serializable {
+@Suppress("UnstableApiUsage")
+internal class DefaultGoogleApi @Inject constructor(
+    objects: ObjectFactory
+) : GoogleApi, Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
 
-    override var bucketName: String? = null
-    override var credentialPath: File? = null
-    override var projectId: String? = null
+    override val bucketName = objects.property<String>()
+    override val credentialPath = objects.property<File>()
+    override var projectId = objects.property<String>()
 }

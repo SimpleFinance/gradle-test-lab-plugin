@@ -16,3 +16,5 @@ pluginManagement {
 
 rootProject.buildFileName = "build.gradle.kts"
 rootProject.name = "sample-kotlin"
+
+includeBuild("..")

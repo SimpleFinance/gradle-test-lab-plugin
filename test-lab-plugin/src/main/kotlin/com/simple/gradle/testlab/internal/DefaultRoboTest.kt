@@ -3,59 +3,65 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.testing.model.AndroidRoboTest
 import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSpecification
-import com.simple.gradle.testlab.internal.artifacts.DefaultRoboArtifacts
-import com.simple.gradle.testlab.model.RoboArtifacts
+import com.simple.gradle.testlab.model.RoboArtifactsHandler
 import com.simple.gradle.testlab.model.RoboDirective
-import com.simple.gradle.testlab.model.RoboDirectives
+import com.simple.gradle.testlab.model.RoboDirectivesHandler
 import com.simple.gradle.testlab.model.RoboTest
-import groovy.lang.Closure
-import org.gradle.util.ConfigureUtil
-import java.io.Serializable
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirective
 
-internal open class DefaultRoboTest @Inject constructor(name: String = "robo")
-    : AbstractTestConfig(name, TestType.ROBO), RoboTest, Serializable {
+@Suppress("UnstableApiUsage")
+internal open class DefaultRoboTest @Inject constructor(
+    objects: ObjectFactory,
+    private val providers: ProviderFactory,
+    name: String
+) : AbstractTestConfig(name, TestType.ROBO, objects, providers), RoboTest {
 
-    companion object {
-        private const val serialVersionUID: Long = 1L
+    private val artifactsHandler by lazy {
+        DefaultRoboArtifactsHandler(artifacts)
     }
 
-    override var appInitialActivity: String? = null
-    override val artifacts = DefaultRoboArtifacts()
-    override var maxDepth: Int? = null
-    override var maxSteps: Int? = null
-    override val roboDirectives = DefaultRoboDirectives()
+    private val roboDirectivesHandler by lazy {
+        DefaultRoboDirectivesHandler(directives)
+    }
+
+    override val appInitialActivity = objects.property<String>()
+    override val directives = objects.listProperty<RoboDirective>()
+    override val maxDepth = objects.property<Int>()
+    override val maxSteps = objects.property<Int>()
 
     override val requiresTestApk: Boolean = false
 
-    override fun artifacts(configure: Closure<*>): RoboArtifacts =
-        artifacts.apply { ConfigureUtil.configure(configure, this) }
+    override fun artifacts(configure: Action<in RoboArtifactsHandler>) =
+        configure.execute(artifactsHandler)
 
-    override fun artifacts(configure: RoboArtifacts.() -> Unit): RoboArtifacts =
-        artifacts.apply(configure)
+    override fun directives(configure: Action<in RoboDirectivesHandler>) =
+        configure.execute(roboDirectivesHandler)
 
-    override fun roboDirectives(configure: Closure<*>): RoboDirectives =
-        roboDirectives.apply { ConfigureUtil.configure(configure, this) }
-
-    override fun roboDirectives(configure: RoboDirectives.() -> Unit): RoboDirectives =
-        roboDirectives.apply(configure)
-
-    override fun buildTestSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification =
+    override fun buildTestSpecification(
+        appApk: FileReference,
+        testApk: FileReference?
+    ): Provider<TestSpecification> {
+        return providers.provider {
             TestSpecification().setAndroidRoboTest(
-                    AndroidRoboTest()
-                            .setAppApk(appApk)
-                            .setAppInitialActivity(appInitialActivity)
-                            .setMaxDepth(maxDepth)
-                            .setMaxSteps(maxSteps)
-                            .setRoboDirectives(roboDirectives.toDomain()))
+                AndroidRoboTest()
+                    .setAppApk(appApk)
+                    .setAppInitialActivity(appInitialActivity.orNull)
+                    .setMaxDepth(maxDepth.orNull)
+                    .setMaxSteps(maxSteps.orNull)
+                    .setRoboDirectives(directives.get().map { it.toDomain() }))
+        }
+    }
+ }
 
-    private fun RoboDirectives.toDomain() =
-        directives.map { it.toDomain() }
-
-    private fun RoboDirective.toDomain() =
-        GoogleRoboDirective()
-            .setActionType(actionType)
-            .setResourceName(resourceName)
-            .setInputText(inputText)
-}
+private fun RoboDirective.toDomain() =
+    GoogleRoboDirective()
+        .setActionType(actionType)
+        .setResourceName(resourceName)
+        .setInputText(inputText)

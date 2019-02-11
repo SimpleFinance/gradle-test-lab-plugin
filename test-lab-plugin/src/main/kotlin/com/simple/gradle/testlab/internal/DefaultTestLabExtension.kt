@@ -1,32 +1,43 @@
 package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.GoogleApi
-import com.simple.gradle.testlab.model.TestConfigContainer
-import groovy.lang.Closure
-import org.gradle.util.ConfigureUtil
+import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.TestConfigHandler
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.property
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Random
+import javax.inject.Inject
 
-internal class DefaultTestLabExtension(
-    override val tests: TestConfigContainer
+@Suppress("UnstableApiUsage")
+internal open class DefaultTestLabExtension @Inject constructor(
+    private val objects: ObjectFactory,
+    private val providers: ProviderFactory
 ) : TestLabExtensionInternal {
-    override val googleApi: DefaultGoogleApi = DefaultGoogleApi()
-
+    override val googleApi = objects.property<GoogleApi>()
+    override val tests = objects.mapProperty<String, TestConfig>()
     override val prefix by lazy { getUniquePathPrefix() }
 
-    override fun googleApi(configure: Closure<*>): GoogleApi =
-        googleApi.apply { ConfigureUtil.configure(configure, this) }
+    override val testsInternal by lazy {
+        tests.map { tests -> tests.values.map { it as TestConfigInternal } }
+    }
 
-    override fun googleApi(configure: GoogleApi.() -> Unit): GoogleApi =
-        googleApi.apply(configure)
+    private val testConfigHandler by lazy {
+        objects.newInstance<DefaultTestConfigHandler>(tests)
+    }
 
-    override fun tests(configure: Closure<*>): TestConfigContainer =
-        tests.apply { ConfigureUtil.configure(configure, this) }
+    override fun googleApi(configure: Action<GoogleApi>) = providers.provider<GoogleApi> {
+        objects.newInstance<DefaultGoogleApi>().apply(configure::execute)
+    }.also { googleApi.set(it) }
 
-    override fun tests(configure: TestConfigContainer.() -> Unit): TestConfigContainer =
-        tests.apply(configure)
+    override fun tests(configure: Action<TestConfigHandler>) =
+        configure.execute(testConfigHandler)
 
     private fun getUniquePathPrefix(): String {
         val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

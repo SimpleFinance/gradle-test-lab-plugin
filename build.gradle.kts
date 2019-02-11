@@ -13,7 +13,7 @@ subprojects {
 
 val customInstallationDir = file("$buildDir/custom/gradle-${gradle.gradleVersion}")
 
-val customInstallation by task<Copy> {
+val customInstallation by tasks.registering(Copy::class) {
     description = "Copies the current Gradle distro into '$customInstallationDir'."
 
     from(gradle.gradleHomeDir)
