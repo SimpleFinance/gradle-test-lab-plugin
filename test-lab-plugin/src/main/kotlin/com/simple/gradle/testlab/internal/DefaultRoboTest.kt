@@ -22,6 +22,8 @@ internal open class DefaultRoboTest @Inject constructor(
     providers: ProviderFactory
 ) : AbstractTestConfig(TestType.ROBO, name, objects, providers), RoboTest {
 
+    private val directives = objects.listProperty<RoboDirective>()
+
     private val artifactsHandler by lazy {
         DefaultRoboArtifactsHandler(artifacts)
     }
@@ -31,7 +33,6 @@ internal open class DefaultRoboTest @Inject constructor(
     }
 
     override val appInitialActivity = objects.property<String>()
-    override val directives = objects.listProperty<RoboDirective>()
     override val maxDepth = objects.property<Int>()
     override val maxSteps = objects.property<Int>()
 

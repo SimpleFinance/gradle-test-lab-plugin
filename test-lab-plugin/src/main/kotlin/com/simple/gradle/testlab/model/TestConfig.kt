@@ -15,14 +15,6 @@ import org.gradle.api.provider.Provider
 interface TestConfig {
     val name: String
 
-    /**
-     * The list of [Android devices][Device] on which this test will run. At least one device
-     * is required.
-     *
-     * @see device
-     */
-    val devices: ListProperty<Device>
-
     /** Disables performance metrics recording; may reduce test latency. */
     val disablePerformanceMetrics: Property<Boolean>
 
@@ -61,7 +53,7 @@ interface TestConfig {
     /** Configure and add a [device][Device] on which this test should run. */
     fun device(
         model: String = Device.DEFAULT.model,
-        version: Int = Device.DEFAULT.api,
+        api: Int = Device.DEFAULT.api,
         locale: String = Device.DEFAULT.locale,
         orientation: Orientation = Device.DEFAULT.orientation
     ): Device

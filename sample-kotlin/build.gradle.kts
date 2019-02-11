@@ -20,6 +20,10 @@ dependencies {
 }
 
 testLab {
+    googleApi {
+        serviceCredentials.set(file("../dummy-credentials.json"))
+        projectId.set("test-project-id-12345")
+    }
     tests {
         robo("foo") {
             device("sailfish", 26)

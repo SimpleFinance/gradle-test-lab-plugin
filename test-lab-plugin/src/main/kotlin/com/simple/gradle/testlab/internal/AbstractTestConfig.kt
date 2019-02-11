@@ -36,10 +36,10 @@ internal abstract class AbstractTestConfig(
 
     override fun device(
         model: String,
-        version: Int,
+        api: Int,
         locale: String,
         orientation: Orientation
-    ): Device = DefaultDevice(model, version, locale, orientation).also { devices.add(it) }
+    ): Device = DefaultDevice(model, api, locale, orientation).also { devices.add(it) }
 
     override fun device(configure: Action<Device.Builder>) = providers.provider {
         Device.Builder().apply(configure::execute).build()
