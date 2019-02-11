@@ -9,7 +9,6 @@ import com.simple.gradle.testlab.model.RoboDirectivesHandler
 import com.simple.gradle.testlab.model.RoboTest
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -18,10 +17,10 @@ import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirectiv
 
 @Suppress("UnstableApiUsage")
 internal open class DefaultRoboTest @Inject constructor(
+    name: String,
     objects: ObjectFactory,
-    private val providers: ProviderFactory,
-    name: String
-) : AbstractTestConfig(name, TestType.ROBO, objects, providers), RoboTest {
+    providers: ProviderFactory
+) : AbstractTestConfig(TestType.ROBO, name, objects, providers), RoboTest {
 
     private val artifactsHandler by lazy {
         DefaultRoboArtifactsHandler(artifacts)
@@ -44,24 +43,18 @@ internal open class DefaultRoboTest @Inject constructor(
     override fun directives(configure: Action<in RoboDirectivesHandler>) =
         configure.execute(roboDirectivesHandler)
 
-    override fun buildTestSpecification(
+    override fun TestSpecification.configure(
         appApk: FileReference,
         testApk: FileReference?
-    ): Provider<TestSpecification> {
-        return providers.provider {
-            TestSpecification().setAndroidRoboTest(
-                AndroidRoboTest()
-                    .setAppApk(appApk)
-                    .setAppInitialActivity(appInitialActivity.orNull)
-                    .setMaxDepth(maxDepth.orNull)
-                    .setMaxSteps(maxSteps.orNull)
-                    .setRoboDirectives(directives.get().map { it.toDomain() }))
-        }
-    }
+    ): TestSpecification = setAndroidRoboTest(AndroidRoboTest()
+        .setAppApk(appApk)
+        .setAppInitialActivity(appInitialActivity.orNull)
+        .setMaxDepth(maxDepth.orNull)
+        .setMaxSteps(maxSteps.orNull)
+        .setRoboDirectives(directives.get().map {
+            GoogleRoboDirective()
+                .setActionType(it.actionType)
+                .setResourceName(it.resourceName)
+                .setInputText(it.inputText)
+        }))
 }
-
-private fun RoboDirective.toDomain() =
-    GoogleRoboDirective()
-        .setActionType(actionType)
-        .setResourceName(resourceName)
-        .setInputText(inputText)

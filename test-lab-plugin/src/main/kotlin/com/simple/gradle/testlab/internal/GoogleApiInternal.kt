@@ -38,7 +38,7 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
     val projectId by lazy { config.projectId.get() }
 
     val credential by lazy {
-        (config.credentialPath.orNull
+        (config.serviceCredentials.orNull
             ?.let { GoogleCredential.fromStream(FileInputStream(it)) }
             ?: GoogleCredential.getApplicationDefault())
             .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))

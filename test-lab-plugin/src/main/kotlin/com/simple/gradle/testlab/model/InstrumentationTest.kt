@@ -2,6 +2,7 @@ package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 
 /**
@@ -12,6 +13,9 @@ import org.gradle.api.provider.Property
  */
 @Suppress("UnstableApiUsage")
 interface InstrumentationTest : TestConfig {
+    /** Environment variables to set for the test (only applicable for instrumentation tests). */
+    val environmentVariables: MapProperty<String, String>
+
     /**
      * The `InstrumentationTestRunner` class. Optional; the default is determined by examining the
      * application's manifest.

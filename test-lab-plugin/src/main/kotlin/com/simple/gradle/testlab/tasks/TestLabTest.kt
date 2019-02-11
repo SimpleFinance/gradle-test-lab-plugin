@@ -148,7 +148,7 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
             .setAndroidDevices(testConfig.get().devices.get().map {
                 AndroidDevice()
                         .setAndroidModelId(it.model)
-                        .setAndroidVersionId(it.version.toString())
+                        .setAndroidVersionId(it.api.toString())
                         .setLocale(it.locale)
                         .setOrientation(it.orientation.name.toLowerCase())
             })

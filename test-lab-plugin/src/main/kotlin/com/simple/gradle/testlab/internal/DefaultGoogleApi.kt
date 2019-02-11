@@ -16,6 +16,6 @@ internal class DefaultGoogleApi @Inject constructor(
     }
 
     override val bucketName = objects.property<String>()
-    override val credentialPath = objects.property<File>()
+    override val serviceCredentials = objects.property<File>()
     override var projectId = objects.property<String>()
 }

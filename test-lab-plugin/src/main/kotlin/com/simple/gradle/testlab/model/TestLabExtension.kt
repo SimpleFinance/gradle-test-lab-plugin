@@ -44,7 +44,7 @@ interface TestLabExtension {
      *     testLab {
      *       googleApi {
      *         bucketName = "bucket-name"
-     *         credentialPath = file("/path/to/credentials.json")
+     *         serviceCredentials = file("/path/to/credentials.json")
      *         projectId = "example.com:api-project-1234567890"
      *       }
      *     }

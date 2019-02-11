@@ -15,7 +15,7 @@ interface GoogleApi {
      * [application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/)
      * will be used.
      */
-    val credentialPath: Property<File>
+    val serviceCredentials: Property<File>
 
     /**
      * The Firebase/Google Cloud Platform project to use when executing tests and

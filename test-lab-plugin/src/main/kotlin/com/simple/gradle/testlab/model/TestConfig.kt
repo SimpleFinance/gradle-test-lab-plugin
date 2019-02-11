@@ -2,7 +2,6 @@ package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
@@ -56,24 +55,20 @@ interface TestConfig {
      */
     val directoriesToPull: ListProperty<String>
 
-    /** Environment variables to set for the test (only applicable for instrumentation tests). */
-    val environmentVariables: MapProperty<String, String>
-
     /** The network traffic profile used for running the test. */
     val networkProfile: Property<String>
 
-    /**
-     * Configure and add a [device][Device] on which this test should run.
-     *
-     *
-     */
+    /** Configure and add a [device][Device] on which this test should run. */
     fun device(
         model: String = Device.DEFAULT.model,
-        version: Int = Device.DEFAULT.version,
+        version: Int = Device.DEFAULT.api,
         locale: String = Device.DEFAULT.locale,
         orientation: Orientation = Device.DEFAULT.orientation
     ): Device
 
-    /** Configure and add a [device][Device] on which this test should run. */
+    /**
+     * Configure and add a [device][Device] on which this test should run. This is for Groovy
+     * script compatibility, and should not be used in Kotlin scripts.
+     */
     fun device(configure: Action<Device.Builder>): Provider<Device>
 }

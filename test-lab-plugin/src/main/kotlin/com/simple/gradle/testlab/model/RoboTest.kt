@@ -17,6 +17,8 @@ interface RoboTest : TestConfig {
     /**
      * A set of [directives][RoboDirective] Robo should apply during the crawl. This allows users to customize the
      * crawl. For example, the username and password for a test account can be provided.
+     *
+     * @see directives
      */
     val directives: ListProperty<RoboDirective>
 
