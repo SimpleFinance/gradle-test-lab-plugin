@@ -8,6 +8,7 @@ import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectivesHandler
 import com.simple.gradle.testlab.model.RoboTest
 import org.gradle.api.Action
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
@@ -18,9 +19,10 @@ import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirectiv
 @Suppress("UnstableApiUsage")
 internal open class DefaultRoboTest @Inject constructor(
     name: String,
+    layout: ProjectLayout,
     objects: ObjectFactory,
     providers: ProviderFactory
-) : AbstractTestConfig(TestType.ROBO, name, objects, providers), RoboTest {
+) : AbstractTestConfig(TestType.ROBO, name, layout, objects, providers), RoboTest {
 
     private val directives = objects.listProperty<RoboDirective>()
 

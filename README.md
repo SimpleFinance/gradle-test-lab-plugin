@@ -386,6 +386,12 @@ The following options apply to both `instrumentation` and `robo` tests.
 <summary>Kotlin</summary>
 
 ```kotlin
+// APKs to install in addition to those being directly tested. Currently capped at 100.
+additionalApks.from(
+    "/path/to/some.apk",
+    "/path/to/another.apk"
+)
+
 // Disables performance metrics recording; may reduce test latency.
 disablePerformanceMetrics.set(true)
 
@@ -435,6 +441,12 @@ device(
 <summary>Groovy</summary>
 
 ```groovy
+// APKs to install in addition to those being directly tested. Currently capped at 100.
+additionalApks.from(
+    "/path/to/some.apk",
+    "/path/to/another.apk"
+)
+
 // Disables performance metrics recording; may reduce test latency.
 disablePerformanceMetrics = true
 

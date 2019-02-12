@@ -17,6 +17,7 @@ internal interface TestConfigInternal : TestConfig {
 
     fun testSpecification(
         appApk: FileReference,
-        testApk: FileReference?
+        testApk: FileReference?,
+        additionalApks: List<FileReference>
     ): Provider<TestSpecification>
 }

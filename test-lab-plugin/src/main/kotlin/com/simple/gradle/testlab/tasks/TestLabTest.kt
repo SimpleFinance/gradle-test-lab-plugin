@@ -15,18 +15,16 @@ import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.artifacts.ArtifactFetcherFactory
+import com.simple.gradle.testlab.internal.asFileReference
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -36,38 +34,19 @@ import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
 open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask() {
-    @get:InputFile val appApk: Property<File> = objects.property()
-    @get:InputFile @get:Optional val testApk = objects.property()
     @get:Input @get:Optional val appPackageId: Property<String?> = objects.property()
-    @get:Input @get:Optional val testPackageId: Property<String?> = objects.property()
     @get:Input val google: Property<GoogleApi> = objects.property()
-
+    @get:Input internal val prefix: Property<String> = objects.property()
     @get:Input internal val testConfig: Property<TestConfigInternal> = objects.property()
-
+    @get:Input internal val uploadResults: RegularFileProperty = objects.fileProperty()
     @get:OutputDirectory val outputDir: Property<File> = objects.property()
 
-    @get:Internal internal lateinit var prefix: String
-    @get:Internal internal lateinit var uploadResults: UploadResults
-
-    init {
-        description = "Run tests on Firebase Test Lab."
-        group = JavaBasePlugin.VERIFICATION_GROUP
-    }
-
     private val googleApi by lazy { GoogleApiInternal(google.get()) }
-    private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/$prefix" }
+    private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
+    private val apkPaths by lazy { UploadResults.readFrom(uploadResults.get().asFile) }
 
     @TaskAction
     fun runTest() {
-        val appApkReference = uploadResults.references[appApk.get()]
-                ?: throw GradleException("App APK not found: ${appApk.get()}")
-        val testApkReference = if (testConfig.get().requiresTestApk) {
-            uploadResults.references[testApk]
-                ?: throw GradleException("Test APK not found: ${testApk.get()}")
-        } else {
-            null
-        }
-
         val historyPicker = ToolResultsHistoryPicker(googleApi)
         val historyName = historyPicker.pickHistoryName(
             testConfig.get().resultsHistoryName.orNull,
@@ -78,8 +57,12 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
                 .setClientInfo(clientInfo())
                 .setResultStorage(resultStorage(historyId))
                 .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
-                .setTestSpecification(
-                    testConfig.get().testSpecification(appApkReference, testApkReference).get())
+                .setTestSpecification(testConfig.get()
+                    .testSpecification(
+                        apkPaths.appApk.asFileReference,
+                        apkPaths.testApk?.asFileReference,
+                        apkPaths.additionalApks.map { it.asFileReference })
+                    .get())
 
         log.info("Test matrix: ${testMatrix.toPrettyString()}")
 
@@ -113,8 +96,12 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
         log.lifecycle("More results are available at [$url].")
 
         if (testConfig.get().artifacts.isNotEmpty()) {
-            with(ArtifactFetcherFactory(googleApi.storage.objects(), googleApi.bucketName, prefix,
-                outputDir.get())) {
+            with(ArtifactFetcherFactory(
+                googleApi.storage.objects(),
+                googleApi.bucketName,
+                prefix.get(),
+                outputDir.get()
+            )) {
                 for (test in supportedExecutions) {
                     val suffix = with(test.environment.androidDevice) {
                         "$androidModelId-$androidVersionId-$locale-$orientation"
@@ -147,7 +134,7 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
             .setAndroidDevices(testConfig.get().devices.get().map {
                 AndroidDevice()
-                        .setAndroidModelId(it.model)
+                    .setAndroidModelId(it.model)
                         .setAndroidVersionId(it.api.toString())
                         .setLocale(it.locale)
                         .setOrientation(it.orientation.name.toLowerCase())

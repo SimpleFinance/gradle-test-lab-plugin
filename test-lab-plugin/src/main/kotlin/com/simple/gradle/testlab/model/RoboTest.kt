@@ -1,7 +1,6 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
 /**

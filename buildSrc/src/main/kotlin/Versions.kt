@@ -21,11 +21,15 @@ object Versions {
 
     const val hamkrest: String = "1.7.0.0" 
 
+    const val com_squareup_moshi: String = "1.8.0" 
+
     const val de_fayard_buildsrcversions_gradle_plugin: String = "0.3.2" 
 
     const val junit: String = "4.12" 
 
-    const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String = "1.1.3" // available: "1.2.1"
+    const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String = "1.1.3" // available: "1.2.2"
+
+    const val org_jetbrains_kotlin_kapt_gradle_plugin: String = "1.3.20" // available: "1.3.21"
 
     const val org_jetbrains_kotlin: String = "1.3.20" // available: "1.3.21"
 

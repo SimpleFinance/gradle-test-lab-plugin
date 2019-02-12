@@ -31,7 +31,7 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
     }
 
     private val httpTransport by lazy { GoogleNetHttpTransport.newTrustedTransport() }
-    private val jsonFactory by lazy { JacksonFactory.getDefaultInstance() }
+    val jsonFactory by lazy { JacksonFactory.getDefaultInstance() }
 
     val bucketName by lazy { config.bucketName.orNull ?: defaultBucketName() }
 

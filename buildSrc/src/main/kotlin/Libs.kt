@@ -34,6 +34,15 @@ object Libs {
      * https://github.com/npryce/hamkrest */
     const val hamkrest: String = "com.natpryce:hamkrest:" + Versions.hamkrest
 
+    /**
+     * https://github.com/square/moshi */
+    const val moshi_kotlin_codegen: String = "com.squareup.moshi:moshi-kotlin-codegen:" +
+            Versions.com_squareup_moshi
+
+    /**
+     * https://github.com/square/moshi */
+    const val moshi: String = "com.squareup.moshi:moshi:" + Versions.com_squareup_moshi
+
     const val de_fayard_buildsrcversions_gradle_plugin: String =
             "de.fayard.buildSrcVersions:de.fayard.buildSrcVersions.gradle.plugin:" +
             Versions.de_fayard_buildsrcversions_gradle_plugin
@@ -45,6 +54,16 @@ object Libs {
     const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String =
             "org.gradle.kotlin.kotlin-dsl:org.gradle.kotlin.kotlin-dsl.gradle.plugin:" +
             Versions.org_gradle_kotlin_kotlin_dsl_gradle_plugin
+
+    const val org_jetbrains_kotlin_kapt_gradle_plugin: String =
+            "org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:" +
+            Versions.org_jetbrains_kotlin_kapt_gradle_plugin
+
+    /**
+     * https://kotlinlang.org/ */
+    const val kotlin_annotation_processing_gradle: String =
+            "org.jetbrains.kotlin:kotlin-annotation-processing-gradle:" +
+            Versions.org_jetbrains_kotlin
 
     /**
      * https://kotlinlang.org/ */

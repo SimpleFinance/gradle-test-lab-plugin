@@ -8,20 +8,22 @@ import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.InstrumentationArtifactsHandler
 import com.simple.gradle.testlab.model.InstrumentationTest
 import org.gradle.api.Action
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.property
-import java.io.Serializable
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
 internal open class DefaultInstrumentationTest @Inject constructor(
     name: String,
+    layout: ProjectLayout,
     objects: ObjectFactory,
     providers: ProviderFactory
-) : AbstractTestConfig(TestType.INSTRUMENTATION, name, objects, providers), InstrumentationTest {
+) : AbstractTestConfig(TestType.INSTRUMENTATION, name, layout, objects, providers),
+    InstrumentationTest {
 
     private val artifactsHandler by lazy {
         DefaultInstrumentationArtifactsHandler(artifacts)

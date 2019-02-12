@@ -2,6 +2,7 @@ package com.simple.gradle.testlab.internal
 
 import com.google.api.services.storage.Storage
 import com.google.api.services.storage.model.StorageObject
+import com.google.api.services.testing.model.FileReference
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import kotlin.properties.ReadWriteProperty
@@ -70,3 +71,6 @@ internal class SetPropertyDelegate<T>(
         if (value) collection.add(this.value) else collection.remove(this.value)
     }
 }
+
+internal val String.asFileReference: FileReference
+    get() = FileReference().setGcsPath(this)

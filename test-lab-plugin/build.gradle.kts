@@ -1,6 +1,7 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    kotlin("kapt") version embeddedKotlinVersion
     id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
     `maven-publish`
     id("org.jmailen.kotlinter") version Versions.org_jmailen_kotlinter_gradle_plugin
@@ -11,8 +12,8 @@ version = rootProject.version
 description = "Run Android application tests on Firebase Test Lab"
 
 repositories {
-    jcenter()
     google()
+    jcenter()
 }
 
 dependencies {
@@ -23,6 +24,8 @@ dependencies {
     implementation(Libs.google_api_services_storage)
     implementation(Libs.google_api_services_testing)
     implementation(Libs.google_api_services_toolresults)
+    implementation(Libs.moshi)
+    kapt(Libs.moshi_kotlin_codegen)
 
     testRuntimeOnly(Libs.com_android_tools_build_gradle)
     testImplementation(Libs.junit)
@@ -59,7 +62,7 @@ publishing {
             url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
             credentials {
                 username = properties["nexusUsername"]?.toString()
-                password = properties["nexusPasswordh"]?.toString()
+                password = properties["nexusPassword"]?.toString()
             }
         }
         maven {

@@ -1,14 +1,14 @@
 package com.simple.gradle.testlab.internal
 
-import com.google.api.services.testing.model.Account
+import com.google.api.services.testing.model.Apk
 import com.google.api.services.testing.model.FileReference
-import com.google.api.services.testing.model.GoogleAuto
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.Artifact
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.Orientation
 import org.gradle.api.Action
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -19,20 +19,22 @@ import org.gradle.kotlin.dsl.property
 internal abstract class AbstractTestConfig(
     override val testType: TestType,
     override val name: String,
+    layout: ProjectLayout,
     objects: ObjectFactory,
     private val providers: ProviderFactory
 ) : TestConfigInternal {
     override val artifacts = mutableSetOf<Artifact>()
     override val devices = objects.listProperty<Device>()
 
-    override var disablePerformanceMetrics = objects.property<Boolean>().convention(false)
-    override var disableVideoRecording = objects.property<Boolean>().convention(false)
-    override var resultsHistoryName = objects.property<String>()
-    override var testTimeout = objects.property<String>().convention("900s")
+    override val additionalApks = layout.configurableFiles()
+    override val disablePerformanceMetrics = objects.property<Boolean>().convention(false)
+    override val disableVideoRecording = objects.property<Boolean>().convention(false)
+    override val resultsHistoryName = objects.property<String>()
+    override val testTimeout = objects.property<String>().convention("900s")
 
-    override var autoGoogleAccount = objects.property<Boolean>().convention(true)
+    override val autoGoogleLogin = objects.property<Boolean>().convention(true)
     override val directoriesToPull = objects.listProperty<String>()
-    override var networkProfile = objects.property<String>()
+    override val networkProfile = objects.property<String>()
 
     override fun device(
         model: String,
@@ -47,15 +49,16 @@ internal abstract class AbstractTestConfig(
 
     override fun testSpecification(
         appApk: FileReference,
-        testApk: FileReference?
+        testApk: FileReference?,
+        additionalApks: List<FileReference>
     ): Provider<TestSpecification> = providers.provider {
         TestSpecification()
+            .setAutoGoogleLogin(autoGoogleLogin.get())
             .setDisablePerformanceMetrics(disablePerformanceMetrics.get())
             .setDisableVideoRecording(disableVideoRecording.get())
             .setTestTimeout(testTimeout.get())
             .setTestSetup(TestSetup()
-                .setAccount(autoGoogleAccount.get().takeIf { it }
-                    ?.let { Account().setGoogleAuto(GoogleAuto()) })
+                .setAdditionalApks(additionalApks.map { Apk().setLocation(it) })
                 .setDirectoriesToPull(directoriesToPull.get())
                 .setNetworkProfile(networkProfile.orNull)
                 .apply { configure() })
@@ -67,5 +70,5 @@ internal abstract class AbstractTestConfig(
         testApk: FileReference?
     ): TestSpecification = this
 
-    protected open fun TestSetup.configure(): TestSetup  = this
+    protected open fun TestSetup.configure(): TestSetup = this
 }

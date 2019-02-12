@@ -1,6 +1,7 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -14,6 +15,9 @@ import org.gradle.api.provider.Provider
 @Suppress("UnstableApiUsage")
 interface TestConfig {
     val name: String
+
+    /** APKs to install in addition to those being directly tested. Currently capped at 100. */
+    val additionalApks: ConfigurableFileCollection
 
     /** Disables performance metrics recording; may reduce test latency. */
     val disablePerformanceMetrics: Property<Boolean>
@@ -34,7 +38,7 @@ interface TestConfig {
     val testTimeout: Property<String>
 
     /** Sign in to an automatically-created Google account for the duration of this test. */
-    val autoGoogleAccount: Property<Boolean>
+    val autoGoogleLogin: Property<Boolean>
 
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
