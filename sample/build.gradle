@@ -1,3 +1,5 @@
+import com.simple.gradle.testlab.model.Orientation
+
 plugins {
     id 'com.android.application' version '3.3.1'
     id 'com.simple.gradle.testlab' version '2.0-SNAPSHOT'
@@ -21,26 +23,97 @@ dependencies {
 
 testLab {
     googleApi {
-        serviceCredentials = file('../dummy-credentials.json')
-        projectId = 'test-project-id-12345'
+        bucketName = provider {
+            def currentTime = System.currentTimeMillis()
+            "my-bucket-$currentTime"
+        }
+        serviceCredentials = file("/path/to/service/credentials.json")
+        projectId = "my-project-id-12345"
     }
+
     tests {
-        robo("foo") {
-            device {
-                model = 'sailfish'
-                version = 26
-            }
+        instrumentation("instrumented") {
+            environmentVariables["key"] = "value"
+            testRunnerClass = "com.example.test.MyTestRunner"
+            testTargets.addAll(
+                    "package com.my.package.name",
+                    "notPackage com.package.to.skip",
+                    "class com.foo.ClassName",
+                    "notClass com.foo.ClassName#testMethodToSkip",
+                    "annotation com.foo.AnnotationToRun",
+                    "size large notAnnotation com.foo.AnnotationToSkip"
+            )
             artifacts {
                 all()
+                instrumentation = true
+                junit = true
+                logcat = true
+                video = true
+            }
+            additionalApks.from(
+                    "/path/to/some.apk",
+                    "/path/to/another.apk"
+            )
+            disablePerformanceMetrics = true
+            disableVideoRecording = true
+            resultsHistoryName = provider {
+                def prNumber = "1234"
+                "GitHub PR $prNumber"
+            }
+            testTimeout = "600s"
+            autoGoogleLogin = true
+            directoriesToPull.addAll(
+                    "/sdcard/path/to/dir",
+                    "/data/local/tmp/path/to/dir"
+            )
+            networkProfile = "LTE"
+            device {
+                model = "hammerhead"
+                api = 21
+                locale = "en"
+                orientation = Orientation.PORTRAIT
             }
         }
-        instrumentation("instrumented") {
-            device {
-                model = 'sailfish'
-                version = 26
-            }
+
+        robo("foo") {
+            appInitialActivity = "com.example.app.MainActivity"
+            maxDepth = 50
+            maxSteps = 200
+
             artifacts {
-                junit = true
+                all()
+                logcat = true
+                screenshots = true
+                video = true
+            }
+
+            directives {
+                click("login_button")
+                text("username", "alice")
+            }
+
+            additionalApks.from(
+                    "/path/to/some.apk",
+                    "/path/to/another.apk"
+            )
+            disablePerformanceMetrics = true
+            disableVideoRecording = true
+            resultsHistoryName = provider {
+                def prNumber = "1234"
+                "GitHub PR $prNumber"
+            }
+            testTimeout = "600s"
+            autoGoogleLogin = true
+            directoriesToPull.addAll(
+                    "/sdcard/path/to/dir",
+                    "/data/local/tmp/path/to/dir"
+            )
+            networkProfile = "LTE"
+            device {
+                model = "hammerhead"
+                api = 21
+                locale = "en"
+                orientation = Orientation.PORTRAIT
             }
         }
     }

@@ -290,7 +290,7 @@ testLab {
     
         // Configure and add an instrumentation test to this container.
         // See "Common test options" below for options available to all test types.
-        instrumentation(name = "instrumentation") {
+        instrumentation("instrumentation") {
             
             // Environment variables to set for the test.
             environmentVariables["key"] = "value"
@@ -332,7 +332,7 @@ testLab {
         
         // Configure and add a robo test to this container.
         // See "Common test options" below for options available to all test types.
-        robo(name = "robo") {
+        robo("robo") {
             
             // The initial activity that should be used to start the app. Optional.
             appInitialActivity = "com.example.app.MainActivity"
@@ -433,6 +433,32 @@ device(
     locale = "en",
     orientation = Orientation.PORTRAIT
 )
+
+// Configure the list of files to push to the device before starting the test.
+files {
+    
+    // Opaque Binary Blob (OBB) file(s) to install on the device.
+    //
+    // source - path to the source OBB file
+    // filename - OBB file name which must conform to the format as specified by Android, e.g.
+    //     `[main|patch].0300110.com.example.android.obb`, which will be installed into
+    //     `/Android/obb/` on the device.
+    obb(source = file("/path/to/some.obb"), filename = "main.0300110.com.example.android.obb")
+    
+    // A file or directory to install on the device before the test starts.
+    //
+    // source - path to the source file
+    // devicePath - Where to put the content on the device. Must be an absolute, whitelisted
+    //     path. If the file exists, it will be replaced. The following device-side directories
+    //     and any of their subdirectories are whitelisted:
+    //
+    //     - `${EXTERNAL_STORAGE}`
+    //     - `/sdcard/${ANDROID_DATA}/local/tmp`
+    //     - `/data/local/tmp`
+    //
+    //     Specifying a path outside of these directory trees is invalid.
+    push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
+}
 ```
 
 </details>
@@ -467,7 +493,7 @@ resultsHistoryName = provider {
 testTimeout = "600s"
 
 // Sign in to an automatically-created Google account for the duration of this test.
-autoGoogleAccount = true
+autoGoogleLogin = true
 
 // List of directories on the device to upload to GCS at the end of the test; they must be
 // absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters 

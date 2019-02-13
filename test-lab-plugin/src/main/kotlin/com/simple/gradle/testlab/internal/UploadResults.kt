@@ -8,7 +8,8 @@ import java.io.File
 internal data class UploadResults(
     val appApk: String,
     val testApk: String?,
-    val additionalApks: List<String>
+    val additionalApks: List<String>,
+    val deviceFiles: List<UploadedFile>
 ) {
     companion object {
         private val jsonAdapter = Moshi.Builder().build().adapter(UploadResults::class.java)
@@ -17,4 +18,14 @@ internal data class UploadResults(
     }
 
     fun writeTo(file: File) = file.writeText(jsonAdapter.toJson(this))
+}
+
+@JsonClass(generateAdapter = true)
+internal data class UploadedFile(
+    val type: DeviceFile.Type,
+    val path: String,
+    val dest: String
+) {
+    val asDeviceFileReference: DeviceFileReference
+        get() = DeviceFileReference(type, path.asFileReference, dest)
 }

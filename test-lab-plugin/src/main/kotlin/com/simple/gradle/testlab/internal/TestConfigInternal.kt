@@ -12,12 +12,14 @@ import org.gradle.api.provider.Provider
 internal interface TestConfigInternal : TestConfig {
     val artifacts: MutableSet<Artifact>
     val devices: ListProperty<Device>
+    val files: ListProperty<DeviceFile>
     val requiresTestApk: Boolean
     val testType: TestType
 
     fun testSpecification(
         appApk: FileReference,
         testApk: FileReference?,
-        additionalApks: List<FileReference>
+        additionalApks: List<FileReference>,
+        deviceFiles: List<DeviceFileReference>
     ): Provider<TestSpecification>
 }

@@ -6,6 +6,7 @@ import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.model.Artifact
 import com.simple.gradle.testlab.model.Device
+import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.Orientation
 import org.gradle.api.Action
 import org.gradle.api.file.ProjectLayout
@@ -25,6 +26,7 @@ internal abstract class AbstractTestConfig(
 ) : TestConfigInternal {
     override val artifacts = mutableSetOf<Artifact>()
     override val devices = objects.listProperty<Device>()
+    override val files = objects.listProperty<DeviceFile>()
 
     override val additionalApks = layout.configurableFiles()
     override val disablePerformanceMetrics = objects.property<Boolean>().convention(false)
@@ -47,23 +49,33 @@ internal abstract class AbstractTestConfig(
         Device.Builder().apply(configure::execute).build()
     }.also { devices.add(it) }
 
+    override fun files(configure: Action<in DeviceFilesHandler>) =
+        configure.execute(DefaultDeviceFilesHandler(files))
+
     override fun testSpecification(
         appApk: FileReference,
         testApk: FileReference?,
-        additionalApks: List<FileReference>
+        additionalApks: List<FileReference>,
+        deviceFiles: List<DeviceFileReference>
     ): Provider<TestSpecification> = providers.provider {
         TestSpecification()
             .setAutoGoogleLogin(autoGoogleLogin.get())
             .setDisablePerformanceMetrics(disablePerformanceMetrics.get())
             .setDisableVideoRecording(disableVideoRecording.get())
             .setTestTimeout(testTimeout.get())
-            .setTestSetup(TestSetup()
-                .setAdditionalApks(additionalApks.map { Apk().setLocation(it) })
-                .setDirectoriesToPull(directoriesToPull.get())
-                .setNetworkProfile(networkProfile.orNull)
-                .apply { configure() })
+            .setTestSetup(testSetup(additionalApks, deviceFiles))
             .apply { configure(appApk, testApk) }
     }
+
+    private fun testSetup(
+        additionalApks: List<FileReference>,
+        deviceFiles: List<DeviceFileReference>
+    ): TestSetup = TestSetup()
+        .setAdditionalApks(additionalApks.map { Apk().setLocation(it) })
+        .setDirectoriesToPull(directoriesToPull.get())
+        .setNetworkProfile(networkProfile.orNull)
+        .setFilesToPush(deviceFiles.map { it.asDeviceFile })
+        .apply { configure() }
 
     protected open fun TestSpecification.configure(
         appApk: FileReference,

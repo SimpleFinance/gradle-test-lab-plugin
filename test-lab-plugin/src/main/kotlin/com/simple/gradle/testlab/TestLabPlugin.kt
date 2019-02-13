@@ -10,7 +10,7 @@ import com.simple.gradle.testlab.internal.TestLabExtensionInternal
 import com.simple.gradle.testlab.model.TestConfig
 import com.simple.gradle.testlab.model.TestLabExtension
 import com.simple.gradle.testlab.tasks.TestLabTest
-import com.simple.gradle.testlab.tasks.UploadApk
+import com.simple.gradle.testlab.tasks.UploadFiles
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
@@ -52,16 +52,12 @@ private fun Project.addUploadTask(
     extension: TestLabExtensionInternal,
     testConfig: TestConfigInternal,
     appVariant: ApplicationVariant,
-    block: (TaskProvider<UploadApk>) -> Unit
+    block: (TaskProvider<UploadFiles>) -> Unit
 ) {
-    val name = if (testConfig.requiresTestApk) {
-        "testLabUpload${appVariant.taskName()}AndTestApks"
-    } else {
-        "testLabUpload${appVariant.taskName()}Apks"
-    }
+    val name = "testLab${taskName(appVariant, testConfig)}UploadFiles"
 
     return if (name in tasks.names) {
-        block(tasks.named<UploadApk>(name))
+        block(tasks.named<UploadFiles>(name))
     } else {
         appVariant.onFirstOutput { appOutput ->
             if (testConfig.requiresTestApk) {
@@ -80,8 +76,6 @@ private fun Project.addUploadTask(
                         testOutput,
                         block
                     ) {
-                        description =
-                            "Upload ${appVariant.name} and test APKs to Firebase Test Lab."
                         dependsOn(appVariant.assembleProvider)
                         dependsOn(appVariant.testVariant.assembleProvider)
                     }
@@ -96,7 +90,6 @@ private fun Project.addUploadTask(
                     block
                 ) {
                     dependsOn(appVariant.assembleProvider)
-                    description = "Upload ${appVariant.name} APKs to Firebase Test Lab."
                 }
             }
         }
@@ -109,13 +102,14 @@ private fun Project.maybeRegisterUploadTask(
     testConfig: TestConfigInternal,
     appOutput: BaseVariantOutput,
     testOutput: BaseVariantOutput?,
-    block: (TaskProvider<UploadApk>) -> Unit,
-    configure: UploadApk.() -> Unit
+    block: (TaskProvider<UploadFiles>) -> Unit,
+    configure: UploadFiles.() -> Unit
 ) {
-    block(tasks.register(name, UploadApk::class) {
+    block(tasks.register(name, UploadFiles::class) {
         appApk.set(appOutput.outputFile)
         if (testOutput != null) testApk.set(testOutput.outputFile)
         additionalApks.from(testConfig.additionalApks)
+        deviceFiles.set(testConfig.files)
         prefix.set(extension.prefix)
         google.set(extension.googleApi)
         configure()
@@ -130,7 +124,7 @@ private fun Project.createDefaultTestLabTask(
     addUploadTask(extension, testConfig, appVariant) { uploadApks ->
         tasks.register<TestLabTest>("testLab${appVariant.taskName()}${testConfig.taskName()}Test") {
             description =
-                "Runs the ${testConfig.testType.name.toLowerCase()} test '${testConfig.name}' " +
+                "Runs ${testConfig.testType.name.toLowerCase()} test '${testConfig.name}' " +
                     "for the ${appVariant.name} build on Firebase Test Lab."
             group = JavaBasePlugin.VERIFICATION_GROUP
             dependsOn(uploadApks)
@@ -142,6 +136,9 @@ private fun Project.createDefaultTestLabTask(
         }
     }
 }
+
+private fun taskName(variant: BaseVariant, testConfig: TestConfig): String =
+    "${variant.taskName()}${testConfig.taskName()}"
 
 internal fun BaseVariant.taskName(): String = name.capitalize()
 internal fun TestConfig.taskName(): String = name.asValidTaskName().capitalize()

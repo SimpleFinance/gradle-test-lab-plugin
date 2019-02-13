@@ -43,7 +43,7 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
 
     private val googleApi by lazy { GoogleApiInternal(google.get()) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
-    private val apkPaths by lazy { UploadResults.readFrom(uploadResults.get().asFile) }
+    private val gcsPaths by lazy { UploadResults.readFrom(uploadResults.get().asFile) }
 
     @TaskAction
     fun runTest() {
@@ -59,9 +59,10 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
                 .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
                 .setTestSpecification(testConfig.get()
                     .testSpecification(
-                        apkPaths.appApk.asFileReference,
-                        apkPaths.testApk?.asFileReference,
-                        apkPaths.additionalApks.map { it.asFileReference })
+                        gcsPaths.appApk.asFileReference,
+                        gcsPaths.testApk?.asFileReference,
+                        gcsPaths.additionalApks.map { it.asFileReference },
+                        gcsPaths.deviceFiles.map { it.asDeviceFileReference })
                     .get())
 
         log.info("Test matrix: ${testMatrix.toPrettyString()}")

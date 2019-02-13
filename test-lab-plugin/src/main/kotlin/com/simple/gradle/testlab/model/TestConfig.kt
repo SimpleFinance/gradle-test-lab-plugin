@@ -67,4 +67,7 @@ interface TestConfig {
      * script compatibility, and should not be used in Kotlin scripts.
      */
     fun device(configure: Action<Device.Builder>): Provider<Device>
+
+    /** Configure the list of files to push to the device before starting the test. */
+    fun files(configure: Action<in DeviceFilesHandler>)
 }

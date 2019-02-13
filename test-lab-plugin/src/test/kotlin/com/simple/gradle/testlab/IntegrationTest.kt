@@ -29,12 +29,12 @@ class IntegrationTest {
             .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
             .build()
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assertThat(result.output, containsSubstring("testLabUploadDebugApks"))
-        assertThat(result.output, containsSubstring("testLabUploadDebugAndTestApks"))
-        assertThat(result.output, containsSubstring("testLabUploadReleaseApks"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
         assertThat(result.output, containsSubstring("testLabDebugFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugFooUploadFiles"))
         assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
+        assertThat(result.output, containsSubstring("testLabDebugInstrumentedUploadFiles"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooUploadFiles"))
     }
 
     @Test
@@ -47,11 +47,11 @@ class IntegrationTest {
             .build()
 
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assertThat(result.output, containsSubstring("testLabUploadDebugApks"))
-        assertThat(result.output, containsSubstring("testLabUploadDebugAndTestApks"))
-        assertThat(result.output, containsSubstring("testLabUploadReleaseApks"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
         assertThat(result.output, containsSubstring("testLabDebugFooTest"))
+        assertThat(result.output, containsSubstring("testLabDebugFooUploadFiles"))
         assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
+        assertThat(result.output, containsSubstring("testLabDebugInstrumentedUploadFiles"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
+        assertThat(result.output, containsSubstring("testLabReleaseFooUploadFiles"))
     }
 }
