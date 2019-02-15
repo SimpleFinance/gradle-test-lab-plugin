@@ -112,7 +112,7 @@ artifacts {
 
 gradlePlugin {
     plugins {
-        register("test-lab-plugin") {
+        register("testLab") {
             id = meta.pluginId
             displayName = meta.displayName
             implementationClass = "com.simple.gradle.testlab.TestLabPlugin"
@@ -182,6 +182,13 @@ publishing {
                 password = meta.nexusPassword
             }
         }
+    }
+}
+
+tasks.withType<PublishToMavenRepository> {
+    onlyIf {
+        (!meta.isSnapshot && repository.name == "releases") ||
+            (meta.isSnapshot && repository.name == "snapshots")
     }
 }
 
