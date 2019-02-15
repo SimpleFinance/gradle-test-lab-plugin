@@ -375,7 +375,7 @@ testLab {
 }
 ```
 
-</summary>
+</details>
 
 
 #### Common test options
