@@ -9,6 +9,8 @@ import kotlin.String
 object Versions {
     const val com_android_tools_build_gradle: String = "3.3.1" 
 
+    const val com_github_johnrengelman_shadow_gradle_plugin: String = "4.0.4" 
+
     const val google_api_client: String = "1.28.0" 
 
     const val google_api_services_storage: String = "v1-rev20181109-1.28.0" 
@@ -28,6 +30,8 @@ object Versions {
     const val junit: String = "4.12" 
 
     const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String = "1.1.3" // available: "1.2.2"
+
+    const val org_jetbrains_dokka_gradle_plugin: String = "0.9.17" 
 
     const val org_jetbrains_kotlin_kapt_gradle_plugin: String = "1.3.20" // available: "1.3.21"
 

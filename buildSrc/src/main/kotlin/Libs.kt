@@ -11,6 +11,10 @@ object Libs {
     const val com_android_tools_build_gradle: String = "com.android.tools.build:gradle:" +
             Versions.com_android_tools_build_gradle
 
+    const val com_github_johnrengelman_shadow_gradle_plugin: String =
+            "com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:" +
+            Versions.com_github_johnrengelman_shadow_gradle_plugin
+
     /**
      * https://github.com/google/google-api-java-client */
     const val google_api_client: String = "com.google.api-client:google-api-client:" +
@@ -54,6 +58,10 @@ object Libs {
     const val org_gradle_kotlin_kotlin_dsl_gradle_plugin: String =
             "org.gradle.kotlin.kotlin-dsl:org.gradle.kotlin.kotlin-dsl.gradle.plugin:" +
             Versions.org_gradle_kotlin_kotlin_dsl_gradle_plugin
+
+    const val org_jetbrains_dokka_gradle_plugin: String =
+            "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin:" +
+            Versions.org_jetbrains_dokka_gradle_plugin
 
     const val org_jetbrains_kotlin_kapt_gradle_plugin: String =
             "org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:" +
