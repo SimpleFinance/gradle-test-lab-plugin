@@ -27,4 +27,3 @@ internal data class UploadedFile(
 
 internal val UploadedFile.asDeviceFileReference: DeviceFileReference
         get() = DeviceFileReference(type, path.asFileReference, dest)
-
