@@ -8,7 +8,7 @@ import java.io.Serializable
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-internal class DefaultGoogleApi @Inject constructor(
+internal open class DefaultGoogleApi @Inject constructor(
     objects: ObjectFactory
 ) : GoogleApi, Serializable {
     companion object {

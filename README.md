@@ -83,7 +83,10 @@ buildscript {
 
 ## Usage
 
-After applying the plugin, create an API configuration and define a test:
+### Define tests
+
+After applying the plugin, create an API configuration and define a test using the 
+`testLab` extension in your build script.
 
 <details open>
 <summary>Kotlin</summary>
@@ -126,15 +129,27 @@ testLab {
 
 </details>
 
-The plugin will then create tasks for each Android build variant:
+### Run tests
+
+The plugin will create tasks for each test and applicable Android build variant in the format
+`testLab${variant}${test}Test`, e.g.
 
 - `testLabReleaseFuzzTest`
 - `testLabDebugFuzzTest`
 
-Run the tests by calling the desired task:
+Run a test by invoking the desired task.
 
 ```bash
 ./gradlew testLabDebugFuzzTest
+```
+
+### Show catalog
+
+To show a listing of all available Android devices, locales, and API versions, run the
+`testLabCatalog` task.
+
+```bash
+./gradlew testLabCatalog
 ```
 
 ## Configuration

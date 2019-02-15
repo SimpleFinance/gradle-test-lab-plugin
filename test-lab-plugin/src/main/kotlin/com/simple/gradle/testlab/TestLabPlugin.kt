@@ -9,6 +9,7 @@ import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.TestLabExtensionInternal
 import com.simple.gradle.testlab.model.TestConfig
 import com.simple.gradle.testlab.model.TestLabExtension
+import com.simple.gradle.testlab.tasks.ShowCatalog
 import com.simple.gradle.testlab.tasks.TestLabTest
 import com.simple.gradle.testlab.tasks.UploadFiles
 import org.gradle.api.Plugin
@@ -33,6 +34,8 @@ class TestLabPlugin : Plugin<Project> {
                     project.addTestLabTasksForApplicationVariant(extension, this)
                 }
             }
+
+            addCatalogTasks(extension)
         }
     }
 }
@@ -134,6 +137,12 @@ private fun Project.createDefaultTestLabTask(
             this.testConfig.set(testConfig)
             outputDir.set(file("$buildDir/test-results/$name"))
         }
+    }
+}
+
+private fun Project.addCatalogTasks(extension: TestLabExtensionInternal) {
+    tasks.register<ShowCatalog>("testLabCatalog") {
+        googleApi.set(extension.googleApi)
     }
 }
 
