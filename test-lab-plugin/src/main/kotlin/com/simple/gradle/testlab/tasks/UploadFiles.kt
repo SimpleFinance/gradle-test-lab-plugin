@@ -6,6 +6,7 @@ import com.simple.gradle.testlab.internal.GoogleApiInternal
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.UploadedFile
 import com.simple.gradle.testlab.internal.log
+import com.simple.gradle.testlab.internal.toJson
 import com.simple.gradle.testlab.model.GoogleApi
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -66,7 +67,7 @@ open class UploadFiles @Inject constructor(
                 }
             }
         )
-        paths.writeTo(results.get().asFile.apply { parentFile.mkdirs() })
+        results.get().asFile.apply { parentFile.mkdirs() }.writeText(paths.toJson())
     }
 
     private fun upload(file: File, suffix: String = ""): String {

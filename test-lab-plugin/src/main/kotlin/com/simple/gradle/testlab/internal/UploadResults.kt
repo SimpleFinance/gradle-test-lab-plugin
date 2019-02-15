@@ -1,10 +1,9 @@
 package com.simple.gradle.testlab.internal
 
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
-import java.io.File
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
-@JsonClass(generateAdapter = true)
+@Serializable
 internal data class UploadResults(
     val appApk: String,
     val testApk: String?,
@@ -12,20 +11,20 @@ internal data class UploadResults(
     val deviceFiles: List<UploadedFile>
 ) {
     companion object {
-        private val jsonAdapter = Moshi.Builder().build().adapter(UploadResults::class.java)
-
-        fun readFrom(file: File): UploadResults = jsonAdapter.fromJson(file.readText())!!
+        fun fromJson(text: String): UploadResults = Json.parse(UploadResults.serializer(), text)
     }
-
-    fun writeTo(file: File) = file.writeText(jsonAdapter.toJson(this))
 }
 
-@JsonClass(generateAdapter = true)
+internal fun UploadResults.toJson(): String =
+    Json.indented.stringify(UploadResults.serializer(), this)
+
+@Serializable
 internal data class UploadedFile(
     val type: DeviceFile.Type,
     val path: String,
     val dest: String
-) {
-    val asDeviceFileReference: DeviceFileReference
+)
+
+internal val UploadedFile.asDeviceFileReference: DeviceFileReference
         get() = DeviceFileReference(type, path.asFileReference, dest)
-}
+

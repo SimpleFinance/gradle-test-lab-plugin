@@ -3,14 +3,6 @@ plugins {
     base
 }
 
-group = "com.simple.gradle.testlab"
-version = "0.3-SNAPSHOT"
-
-subprojects {
-    group = rootProject.group
-    version = rootProject.version
-}
-
 val customInstallationDir = file("$buildDir/custom/gradle-${gradle.gradleVersion}")
 
 val customInstallation by tasks.registering(Copy::class) {

@@ -5,7 +5,7 @@ import org.jetbrains.dokka.gradle.PackageOptions
 plugins {
     `kotlin-dsl`
     `maven-publish`
-    kotlin("kapt") version embeddedKotlinVersion
+    id("kotlinx-serialization") version embeddedKotlinVersion
     id("com.github.johnrengelman.shadow") version Versions.com_github_johnrengelman_shadow_gradle_plugin
     id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
     id("org.jmailen.kotlinter") version Versions.org_jmailen_kotlinter_gradle_plugin
@@ -19,6 +19,7 @@ description = meta.description
 repositories {
     google()
     jcenter()
+    maven { url = uri("https://kotlin.bintray.com/kotlinx") }
 }
 
 val shadowed by configurations.creating
@@ -32,16 +33,18 @@ configurations {
 }
 
 dependencies {
+    gradleKotlinDsl()
     compileOnly(Libs.com_android_tools_build_gradle)
 
-    shadowed(Libs.google_api_client) {
-        exclude(group = "com.google.guava", module = "guava-jdk5")
+    shadowed(Libs.kotlinx_serialization_runtime) {
+        // Already added to compileOnly by kotlin-dsl
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
     }
+    shadowed(Libs.google_api_client)
     shadowed(Libs.google_api_services_storage)
     shadowed(Libs.google_api_services_testing)
     shadowed(Libs.google_api_services_toolresults)
-    shadowed(Libs.moshi)
-    kapt(Libs.moshi_kotlin_codegen)
 
     testImplementation(Libs.com_android_tools_build_gradle)
     testImplementation(Libs.junit)
@@ -56,9 +59,8 @@ tasks {
         listOf(
             "com.fasterxml",
             "com.google",
-            "com.squareup",
             "io",
-            "okio",
+            "kotlinx",
             "org.apache",
             "org.checkerframework",
             "org.codehaus"

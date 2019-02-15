@@ -15,6 +15,7 @@ import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.artifacts.ArtifactFetcherFactory
+import com.simple.gradle.testlab.internal.asDeviceFileReference
 import com.simple.gradle.testlab.internal.asFileReference
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
@@ -43,7 +44,7 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
 
     private val googleApi by lazy { GoogleApiInternal(google.get()) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
-    private val gcsPaths by lazy { UploadResults.readFrom(uploadResults.get().asFile) }
+    private val gcsPaths by lazy { UploadResults.fromJson(uploadResults.get().asFile.readText()) }
 
     @TaskAction
     fun runTest() {
