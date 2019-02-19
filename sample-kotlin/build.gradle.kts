@@ -24,12 +24,9 @@ dependencies {
 
 testLab {
     googleApi {
-        bucketName.set(provider {
-            val currentTime = System.currentTimeMillis()
-            "my-bucket-$currentTime"
-        })
-        serviceCredentials.set(file("/path/to/service/credentials.json"))
-        projectId.set("my-project-id-12345")
+        bucketName = "my-bucket-name"
+        serviceCredentials = file("/path/to/service/credentials.json")
+        projectId = "my-project-id-12345"
     }
 
     tests {

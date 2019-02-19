@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 internal class MatrixMonitor(
-    private val googleApi: GoogleApiInternal,
+    private val googleApi: GoogleApi,
     private val projectId: String,
     private val matrixId: String,
     private val testType: TestType

@@ -1,10 +1,10 @@
 package com.simple.gradle.testlab.internal
 
-import com.simple.gradle.testlab.model.Artifact
+import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.RoboArtifactsHandler
 
 @Suppress("UnstableApiUsage")
-class DefaultRoboArtifactsHandler(
+internal class DefaultRoboArtifactsHandler(
     artifacts: MutableSet<Artifact>
 ) : RoboArtifactsHandler {
     override fun all() {

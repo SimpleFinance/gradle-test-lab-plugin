@@ -4,7 +4,7 @@ import com.google.api.services.testing.model.Apk
 import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
-import com.simple.gradle.testlab.model.Artifact
+import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.Orientation

@@ -1,6 +1,6 @@
-package com.simple.gradle.testlab.model
+package com.simple.gradle.testlab.internal.artifacts
 
-enum class Artifact {
+internal enum class Artifact {
     /** Instrumentation logs. */
     INSTRUMENTATION,
 

@@ -1,14 +1,12 @@
 package com.simple.gradle.testlab.internal
 
-import com.simple.gradle.testlab.model.GoogleApi
+import com.simple.gradle.testlab.model.GoogleApiConfig
 import com.simple.gradle.testlab.model.TestConfig
 import com.simple.gradle.testlab.model.TestConfigHandler
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.property
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -17,10 +15,9 @@ import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
 internal open class DefaultTestLabExtension @Inject constructor(
-    private val objects: ObjectFactory,
-    private val providers: ProviderFactory
+    private val objects: ObjectFactory
 ) : TestLabExtensionInternal {
-    override val googleApi = objects.property<GoogleApi>()
+    override val googleApi: DefaultGoogleApiConfig = DefaultGoogleApiConfig()
     override val tests = objects.mapProperty<String, TestConfig>()
     override val prefix by lazy { getUniquePathPrefix() }
 
@@ -32,9 +29,9 @@ internal open class DefaultTestLabExtension @Inject constructor(
         objects.newInstance<DefaultTestConfigHandler>(tests)
     }
 
-    override fun googleApi(configure: Action<GoogleApi>) = providers.provider<GoogleApi> {
-        objects.newInstance<DefaultGoogleApi>().apply(configure::execute)
-    }.also { googleApi.set(it) }
+    override fun googleApi(configure: Action<GoogleApiConfig>) {
+        googleApi.apply(configure::execute)
+    }
 
     override fun tests(configure: Action<TestConfigHandler>) =
         configure.execute(testConfigHandler)

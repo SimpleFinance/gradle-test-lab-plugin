@@ -2,8 +2,6 @@ package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
 import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.internal.HasInternalProtocol
 
 @Suppress("UnstableApiUsage")
@@ -25,7 +23,7 @@ interface TestLabExtension {
      *
      * @see googleApi
      */
-    val googleApi: Property<GoogleApi>
+    val googleApi: GoogleApiConfig
 
     /**
      * The container of test configurations for this project.
@@ -49,7 +47,7 @@ interface TestLabExtension {
      *       }
      *     }
      */
-    fun googleApi(configure: Action<GoogleApi>): Provider<GoogleApi>
+    fun googleApi(configure: Action<GoogleApiConfig>)
 
     /**
      * Configures the test configurations for this project.

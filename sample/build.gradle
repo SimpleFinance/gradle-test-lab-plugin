@@ -23,10 +23,7 @@ dependencies {
 
 testLab {
     googleApi {
-        bucketName = provider {
-            def currentTime = System.currentTimeMillis()
-            "my-bucket-$currentTime"
-        }
+        bucketName = "my-bucket-name"
         serviceCredentials = file("/path/to/service/credentials.json")
         projectId = "my-project-id-12345"
     }

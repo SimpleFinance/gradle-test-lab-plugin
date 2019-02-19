@@ -3,7 +3,7 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.toolresults.model.History
 
 internal class ToolResultsHistoryPicker(
-    val googleApi: GoogleApiInternal
+    val googleApi: GoogleApi
 ) {
     fun pickHistoryName(name: String?, appPackageId: String?): String? =
             name ?: appPackageId?.let { "$it (gradle)" }

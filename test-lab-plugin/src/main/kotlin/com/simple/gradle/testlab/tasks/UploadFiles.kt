@@ -2,12 +2,12 @@ package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
 import com.simple.gradle.testlab.internal.DeviceFile
-import com.simple.gradle.testlab.internal.GoogleApiInternal
+import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.UploadedFile
 import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.internal.toJson
-import com.simple.gradle.testlab.model.GoogleApi
+import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.ProjectLayout
@@ -17,6 +17,8 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskExecutionException
@@ -32,17 +34,17 @@ open class UploadFiles @Inject constructor(
     layout: ProjectLayout,
     objects: ObjectFactory
 ) : DefaultTask() {
-    @get:Input val appApk: RegularFileProperty = objects.fileProperty()
-    @get:Input val testApk: RegularFileProperty = objects.fileProperty()
-    @get:Input val additionalApks: ConfigurableFileCollection = layout.configurableFiles()
-    @get:Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
-    @get:Input val prefix: Property<String> = objects.property()
-    @get:Input val google: Property<GoogleApi> = objects.property()
-    @get:OutputFile val results: RegularFileProperty = objects.fileProperty().convention(
+    @InputFile val appApk: RegularFileProperty = objects.fileProperty()
+    @InputFile val testApk: RegularFileProperty = objects.fileProperty()
+    @InputFiles val additionalApks: ConfigurableFileCollection = layout.configurableFiles()
+    @Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
+    @Input val prefix: Property<String> = objects.property()
+    @Input val google: Property<GoogleApiConfig> = objects.property()
+    @OutputFile val results: RegularFileProperty = objects.fileProperty().convention(
         layout.buildDirectory.file("testLab/$name/upload-results.json")
     )
 
-    private val api by lazy { GoogleApiInternal(google.get()) }
+    private val api by lazy { GoogleApi(google.get()) }
     private val bucketName by lazy { api.bucketName }
     private val dir by prefix
 

@@ -7,10 +7,10 @@ import com.google.api.services.storage.Storage
 import com.google.api.services.testing.Testing
 import com.google.api.services.testing.TestingScopes
 import com.google.api.services.toolresults.ToolResults
-import com.simple.gradle.testlab.model.GoogleApi
+import com.simple.gradle.testlab.model.GoogleApiConfig
 import java.io.FileInputStream
 
-internal class GoogleApiInternal(private val config: GoogleApi) {
+internal class GoogleApi(val config: GoogleApiConfig) {
     companion object {
         private const val APPLICATION_NAME = "gradle-test-lab-plugin"
     }
@@ -18,19 +18,14 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
     private val httpTransport by lazy { GoogleNetHttpTransport.newTrustedTransport() }
     val jsonFactory by lazy { JacksonFactory.getDefaultInstance() }
 
-    val bucketName by lazy { config.bucketName.orNull ?: defaultBucketName() }
+    val bucketName by lazy { config.bucketName ?: defaultBucketName() }
 
     val projectId by lazy {
-        if (config.projectId.isPresent) {
-            config.projectId.get()
-        } else {
-            credential.serviceAccountProjectId
-        }
-        config.projectId.get()
+        if (config.projectId != null) config.projectId else credential.serviceAccountProjectId
     }
 
     val credential by lazy {
-        (config.serviceCredentials.orNull
+        (config.serviceCredentials
             ?.let { GoogleCredential.fromStream(FileInputStream(it)) }
             ?: GoogleCredential.getApplicationDefault())
             .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
@@ -53,10 +48,10 @@ internal class GoogleApiInternal(private val config: GoogleApi) {
                 .setApplicationName(APPLICATION_NAME)
                 .build()
     }
-
-    private fun defaultBucketName(): String =
-        toolResults.projects()
-                .initializeSettings(config.projectId.get())
-                .execute()
-                .defaultBucket
 }
+
+private fun GoogleApi.defaultBucketName(): String =
+    toolResults.projects()
+        .initializeSettings(config.projectId)
+        .execute()
+        .defaultBucket

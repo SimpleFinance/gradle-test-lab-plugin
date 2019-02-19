@@ -1,4 +1,4 @@
-package com.simple.gradle.testlab.internal.catalog
+package com.simple.gradle.testlab.internal
 
 import com.google.api.services.testing.Testing
 import com.google.api.services.testing.model.TestEnvironmentCatalog

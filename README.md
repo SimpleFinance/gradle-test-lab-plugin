@@ -85,7 +85,7 @@ buildscript {
 
 ### Define tests
 
-After applying the plugin, create an API configuration and define a test using the 
+After applying the plugin, create an API configuration and define a test using the
 `testLab` extension in your build script.
 
 <details open>
@@ -162,39 +162,36 @@ testLab {
 
     // Configures the Google API configuration for this project.
     googleApi {
-        
+
         // The Google Cloud Storage bucket where the test results will be stored.
-        // In this example, a `Provider` is used to only call `System.currentTimeMillis()`
-        // at execution time.
-        bucketName.set(provider { 
-            val currentTime = System.currentTimeMillis()
-            "my-bucket-$currentTime" 
-        })
-        
+        // If this is changed from the default, billing must be set up for
+        // Google Cloud Storage.
+        bucketName = "my-bucket-name";
+
         // Path to service account credentials used to execute tests on Firebase and
-        // fetch results from Google Cloud Storage. If not provided, application default 
+        // fetch results from Google Cloud Storage. If not provided, application default
         // credentials will be used.
-        serviceCredentials.set(file("/path/to/service/credentials.json"))
-        
+        serviceCredentials = file("/path/to/service/credentials.json")
+
         // The Firebase/Google Cloud Platform project to use when executing tests and
         // fetching results from Google Cloud Storage.
-        projectId.set("my-project-id-12345")
+        projectId = "my-project-id-12345"
     }
-    
+
     // Configures the test configurations for this project.
     tests {
-    
+
         // Configure and add an instrumentation test to this container.
         // See "Common test options" below for options available to all test types.
         instrumentation(name = "instrumentation") {
-            
+
             // Environment variables to set for the test.
             environmentVariables.put("key", "value")
-            
-            // The `InstrumentationTestRunner` class. Optional; the default is determined by 
+
+            // The `InstrumentationTestRunner` class. Optional; the default is determined by
             // examining the application's manifest.
             testRunnerClass.set("com.example.test.MyTestRunner")
-            
+
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
             testTargets.addAll(
@@ -205,64 +202,64 @@ testLab {
                 "annotation com.foo.AnnotationToRun",
                 "size large notAnnotation com.foo.AnnotationToSkip"
             )
-            
+
             // Configures artifacts to fetch after completing the test.
             artifacts {
-            
+
                 // Fetch all available artifacts for this test type.
                 all()
-            
+
                 // Fetch instrumentation logs to `instrumentation.results`.
                 instrumentation = true
-                
+
                 // Fetch JUnit test results to `test_result_$i.xml` for each result.
                 junit = true
-                
+
                 // Fetch device logs to `logcat`.
                 logcat = true
-                
+
                 // Fetch captured video to `video.mp4`.
                 video = true
             }
         }
-        
+
         // Configure and add a robo test to this container.
         // See "Common test options" below for options available to all test types.
         robo(name = "robo") {
-            
+
             // The initial activity that should be used to start the app. Optional.
             appInitialActivity.set("com.example.app.MainActivity")
-            
-            // The max depth of the traversal stack Robo can explore. Needs to be at least `2` to 
+
+            // The max depth of the traversal stack Robo can explore. Needs to be at least `2` to
             // make Robo explore the app beyond the first activity. Optional; the default is `50`.
             maxDepth.set(50)
-            
+
             // The max number of steps Robo can execute. Optional; the default is no limit.
             maxSteps.set(200)
-            
+
             // Configures artifacts to fetch after completing the test.
             artifacts {
-            
+
                 // Fetch all available artifacts for this test type.
                 all()
-                
+
                 // Fetch device logs to `logcat`.
                 logcat = true
-                
+
                 // Fetch captured screenshots to `screenshots/$filename.png` for each screenshot.
                 screenshots = true
-                
+
                 // Fetch captured video to `video.mp4`.
                 video = true
             }
-            
+
             // Configures the [robo directives][RoboDirectivesHandler] for this test.
             directives {
-                
+
                 // Add a `CLICK` directive on the UI element for [resourceName].
                 click(resourceName = "login_button")
-                
-                // Add a `TEXT` directive which inputs [inputText] on the UI element for 
+
+                // Add a `TEXT` directive which inputs [inputText] on the UI element for
                 // [resourceName].
                 text(resourceName = "username", inputText = "alice")
             }
@@ -281,39 +278,39 @@ testLab {
 
     // Configures the Google API configuration for this project.
     googleApi {
-        
+
         // The Google Cloud Storage bucket where the test results will be stored.
         // In this example, a `Provider` is used to only call `System.currentTimeMillis()`
         // at execution time.
         bucketName = provider {
-            def currentTime = System.currentTimeMillis() 
-            "my-bucket-$currentTime" 
+            def currentTime = System.currentTimeMillis()
+            "my-bucket-$currentTime"
         }
-        
+
         // Path to service account credentials used to execute tests on Firebase and
-        // fetch results from Google Cloud Storage. If not provided, application default 
+        // fetch results from Google Cloud Storage. If not provided, application default
         // credentials will be used.
         serviceCredentials = file("/path/to/service/credentials.json")
-        
+
         // The Firebase/Google Cloud Platform project to use when executing tests and
         // fetching results from Google Cloud Storage.
         projectId = "my-project-id-12345"
     }
-    
+
     // Configures the test configurations for this project.
     tests {
-    
+
         // Configure and add an instrumentation test to this container.
         // See "Common test options" below for options available to all test types.
         instrumentation("instrumentation") {
-            
+
             // Environment variables to set for the test.
             environmentVariables["key"] = "value"
-            
-            // The `InstrumentationTestRunner` class. Optional; the default is determined by 
+
+            // The `InstrumentationTestRunner` class. Optional; the default is determined by
             // examining the application's manifest.
             testRunnerClass = "com.example.test.MyTestRunner"
-            
+
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
             testTargets.addAll(
@@ -324,64 +321,64 @@ testLab {
                 "annotation com.foo.AnnotationToRun",
                 "size large notAnnotation com.foo.AnnotationToSkip"
             )
-            
+
             // Configures artifacts to fetch after completing the test.
             artifacts {
-            
+
                 // Fetch all available artifacts for this test type.
                 all()
-            
+
                 // Fetch instrumentation logs to `instrumentation.results`.
                 instrumentation = true
-                
+
                 // Fetch JUnit test results to `test_result_$i.xml` for each result.
                 junit = true
-                
+
                 // Fetch device logs to `logcat`.
                 logcat = true
-                
+
                 // Fetch captured video to `video.mp4`.
                 video = true
             }
         }
-        
+
         // Configure and add a robo test to this container.
         // See "Common test options" below for options available to all test types.
         robo("robo") {
-            
+
             // The initial activity that should be used to start the app. Optional.
             appInitialActivity = "com.example.app.MainActivity"
-            
-            // The max depth of the traversal stack Robo can explore. Needs to be at least `2` to 
+
+            // The max depth of the traversal stack Robo can explore. Needs to be at least `2` to
             // make Robo explore the app beyond the first activity. Optional; the default is `50`.
             maxDepth = 50
-            
+
             // The max number of steps Robo can execute. Optional; the default is no limit.
             maxSteps = 200
-            
+
             // Configures artifacts to fetch after completing the test.
             artifacts {
-            
+
                 // Fetch all available artifacts for this test type.
                 all()
-                
+
                 // Fetch device logs to `logcat`.
                 logcat = true
-                
+
                 // Fetch captured screenshots to `screenshots/$filename.png` for each screenshot.
                 screenshots = true
-                
+
                 // Fetch captured video to `video.mp4`.
                 video = true
             }
-            
+
             // Configures the [robo directives][RoboDirectivesHandler] for this test.
             directives {
-                
+
                 // Add a `CLICK` directive on the UI element for [resourceName].
                 click("login_button")
-                
-                // Add a `TEXT` directive which inputs [inputText] on the UI element for 
+
+                // Add a `TEXT` directive which inputs [inputText] on the UI element for
                 // [resourceName].
                 text("username", "alice")
             }
@@ -427,10 +424,10 @@ resultsHistoryName.set(provider {
 testTimeout.set("600s")
 
 // Sign in to an automatically-created Google account for the duration of this test.
-autoGoogleAccount.set(true)
+autoGoogleLogin.set(true)
 
 // List of directories on the device to upload to GCS at the end of the test; they must be
-// absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters 
+// absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters
 // `a-z` `0-9` `_` `-` `.` `+` and `/`.
 directoriesToPull.addAll(
     "/sdcard/path/to/dir",
@@ -451,7 +448,7 @@ device(
 
 // Configure the list of files to push to the device before starting the test.
 files {
-    
+
     // Opaque Binary Blob (OBB) file(s) to install on the device.
     //
     // source - path to the source OBB file
@@ -459,7 +456,7 @@ files {
     //     `[main|patch].0300110.com.example.android.obb`, which will be installed into
     //     `/Android/obb/` on the device.
     obb(source = file("/path/to/some.obb"), filename = "main.0300110.com.example.android.obb")
-    
+
     // A file or directory to install on the device before the test starts.
     //
     // source - path to the source file
@@ -499,8 +496,8 @@ disableVideoRecording = true
 // Here, a `Provider` is used to call a fictitious `getGithubPullRequestNumber` method at execution
 // time.
 resultsHistoryName = provider {
-    def prNumber = getGithubPullRequestNumber() 
-    "GitHub PR $prNumber" 
+    def prNumber = getGithubPullRequestNumber()
+    "GitHub PR $prNumber"
 }
 
 // Max time a test execution is allowed to run before it is automatically cancelled.
@@ -511,7 +508,7 @@ testTimeout = "600s"
 autoGoogleLogin = true
 
 // List of directories on the device to upload to GCS at the end of the test; they must be
-// absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters 
+// absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters
 // `a-z` `0-9` `_` `-` `.` `+` and `/`.
 directoriesToPull.addAll(
     "/sdcard/path/to/dir",
@@ -536,7 +533,7 @@ device {
 
 ## Support
 
-Please [open an issue](https://github.com/SimpleFinance/gradle-test-lab-plugin/issues/new) for 
+Please [open an issue](https://github.com/SimpleFinance/gradle-test-lab-plugin/issues/new) for
 support.
 
 ## Contributing

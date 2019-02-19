@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.simple.gradle.testlab
 
 import com.android.build.gradle.AppExtension
@@ -132,9 +134,10 @@ private fun Project.createDefaultTestLabTask(
             group = JavaBasePlugin.VERIFICATION_GROUP
             dependsOn(uploadApks)
             appPackageId.set(appVariant.applicationId)
-            google.set(extension.googleApi)
+            googleApiConfig.set(extension.googleApi)
             prefix.set(extension.prefix)
             this.testConfig.set(testConfig)
+            uploadResults.set(uploadApks.flatMap { it.results })
             outputDir.set(file("$buildDir/test-results/$name"))
         }
     }

@@ -9,7 +9,7 @@ import com.google.api.services.testing.model.GoogleCloudStorage
 import com.google.api.services.testing.model.ResultStorage
 import com.google.api.services.testing.model.TestMatrix
 import com.google.api.services.testing.model.ToolResultsHistory
-import com.simple.gradle.testlab.internal.GoogleApiInternal
+import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.MatrixMonitor
 import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
@@ -20,7 +20,7 @@ import com.simple.gradle.testlab.internal.asFileReference
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.internal.log
-import com.simple.gradle.testlab.model.GoogleApi
+import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
@@ -35,14 +35,14 @@ import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
 open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask() {
-    @get:Input @get:Optional val appPackageId: Property<String?> = objects.property()
-    @get:Input val google: Property<GoogleApi> = objects.property()
-    @get:Input internal val prefix: Property<String> = objects.property()
-    @get:Input internal val testConfig: Property<TestConfigInternal> = objects.property()
-    @get:Input internal val uploadResults: RegularFileProperty = objects.fileProperty()
-    @get:OutputDirectory val outputDir: Property<File> = objects.property()
+    @Input @Optional val appPackageId: Property<String?> = objects.property()
+    @Input val googleApiConfig: Property<GoogleApiConfig> = objects.property()
+    @Input internal val prefix: Property<String> = objects.property()
+    @Input internal val testConfig: Property<TestConfigInternal> = objects.property()
+    @Input internal val uploadResults: RegularFileProperty = objects.fileProperty()
+    @OutputDirectory val outputDir: Property<File> = objects.property()
 
-    private val googleApi by lazy { GoogleApiInternal(google.get()) }
+    private val googleApi by lazy { GoogleApi(googleApiConfig.get()) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
     private val gcsPaths by lazy { UploadResults.fromJson(uploadResults.get().asFile.readText()) }
 

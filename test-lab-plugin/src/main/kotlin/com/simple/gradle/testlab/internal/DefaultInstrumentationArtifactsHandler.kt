@@ -1,9 +1,9 @@
 package com.simple.gradle.testlab.internal
 
-import com.simple.gradle.testlab.model.Artifact
+import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.InstrumentationArtifactsHandler
 
-class DefaultInstrumentationArtifactsHandler(
+internal class DefaultInstrumentationArtifactsHandler(
     artifacts: MutableSet<Artifact>
 ) : InstrumentationArtifactsHandler {
     override fun all() {

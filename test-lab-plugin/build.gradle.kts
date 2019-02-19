@@ -33,7 +33,6 @@ configurations {
 }
 
 dependencies {
-    gradleKotlinDsl()
     compileOnly(Libs.com_android_tools_build_gradle)
 
     shadowed(Libs.kotlinx_serialization_runtime) {
