@@ -22,25 +22,32 @@ import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
-import java.io.File
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
-open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask() {
+open class TestLabTest @Inject constructor(
+    layout: ProjectLayout,
+    objects: ObjectFactory
+) : DefaultTask() {
     @Input @Optional val appPackageId: Property<String?> = objects.property()
     @Input val googleApiConfig: Property<GoogleApiConfig> = objects.property()
     @Input internal val prefix: Property<String> = objects.property()
     @Input internal val testConfig: Property<TestConfigInternal> = objects.property()
-    @Input internal val uploadResults: RegularFileProperty = objects.fileProperty()
-    @OutputDirectory val outputDir: Property<File> = objects.property()
+    @InputFile internal val uploadResults: RegularFileProperty = objects.fileProperty()
+    @OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
+        set(layout.buildDirectory.dir("test-results/$name"))
+    }
 
     private val googleApi by lazy { GoogleApi(googleApiConfig.get()) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
@@ -53,6 +60,8 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
             testConfig.get().resultsHistoryName.orNull,
             appPackageId.orNull)
         val historyId = historyPicker.getToolResultsHistoryId(historyName)
+
+        log.lifecycle("--- 1")
 
         val testMatrix = TestMatrix()
                 .setClientInfo(clientInfo())
@@ -102,7 +111,7 @@ open class TestLabTest @Inject constructor(objects: ObjectFactory) : DefaultTask
                 googleApi.storage.objects(),
                 googleApi.bucketName,
                 prefix.get(),
-                outputDir.get()
+                outputDir.get().asFile
             )) {
                 for (test in supportedExecutions) {
                     val suffix = with(test.environment.androidDevice) {

@@ -30,7 +30,7 @@ testLab {
     }
 
     tests {
-        instrumentation(name = "instrumented") {
+        instrumentation("instrumented") {
             common()
 
             environmentVariables.put("key", "value")
@@ -52,7 +52,7 @@ testLab {
             }
         }
 
-        robo(name = "foo") {
+        robo("foo") {
             common()
 
             appInitialActivity.set("com.example.app.MainActivity")

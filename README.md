@@ -94,8 +94,8 @@ After applying the plugin, create an API configuration and define a test using t
 ```kotlin
 testLab {
     googleApi {
-        serviceCredentials.set(file("/path/to/service/credentials.json"))
-        projectId.set("my-project-id-12345")
+        serviceCredentials = file("/path/to/service/credentials.json")
+        projectId = "my-project-id-12345"
     }
     tests {
         robo("fuzz") {

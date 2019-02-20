@@ -1,10 +1,8 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
-import org.gradle.api.provider.MapProperty
 import org.gradle.internal.HasInternalProtocol
 
-@Suppress("UnstableApiUsage")
 @HasInternalProtocol
 /**
  * The configuration of Firebase Test Lab tests for this project.
@@ -30,7 +28,7 @@ interface TestLabExtension {
      *
      * @see tests
      */
-    val tests: MapProperty<String, in TestConfig>
+    val tests: TestConfigContainer
 
     /**
      * Configures the Google API configuration for this project.
@@ -88,5 +86,5 @@ interface TestLabExtension {
      * @see RoboTest
      * @see TestConfig
      */
-    fun tests(configure: Action<TestConfigHandler>)
+    fun tests(configure: Action<TestConfigContainer>)
 }

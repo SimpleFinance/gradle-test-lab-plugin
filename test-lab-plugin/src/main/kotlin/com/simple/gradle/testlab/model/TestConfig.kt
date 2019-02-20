@@ -1,6 +1,7 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
+import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -13,9 +14,7 @@ import org.gradle.api.provider.Provider
  * @see RoboTest
  */
 @Suppress("UnstableApiUsage")
-interface TestConfig {
-    val name: String
-
+interface TestConfig : Named {
     /** APKs to install in addition to those being directly tested. Currently capped at 100. */
     val additionalApks: ConfigurableFileCollection
 

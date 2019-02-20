@@ -40,9 +40,9 @@ open class UploadFiles @Inject constructor(
     @Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
     @Input val prefix: Property<String> = objects.property()
     @Input val google: Property<GoogleApiConfig> = objects.property()
-    @OutputFile val results: RegularFileProperty = objects.fileProperty().convention(
-        layout.buildDirectory.file("testLab/$name/upload-results.json")
-    )
+    @OutputFile val results: RegularFileProperty = objects.fileProperty().apply {
+        set(layout.buildDirectory.file("testLab/$name/upload-results.json"))
+    }
 
     private val api by lazy { GoogleApi(google.get()) }
     private val bucketName by lazy { api.bucketName }

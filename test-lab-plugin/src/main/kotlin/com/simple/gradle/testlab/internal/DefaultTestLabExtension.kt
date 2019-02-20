@@ -1,11 +1,11 @@
 package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.model.GoogleApiConfig
-import com.simple.gradle.testlab.model.TestConfig
-import com.simple.gradle.testlab.model.TestConfigHandler
+import com.simple.gradle.testlab.model.InstrumentationTest
+import com.simple.gradle.testlab.model.RoboTest
+import com.simple.gradle.testlab.model.TestConfigContainer
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
-import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.newInstance
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -18,23 +18,19 @@ internal open class DefaultTestLabExtension @Inject constructor(
     private val objects: ObjectFactory
 ) : TestLabExtensionInternal {
     override val googleApi: DefaultGoogleApiConfig = DefaultGoogleApiConfig()
-    override val tests = objects.mapProperty<String, TestConfig>()
+    override val tests = objects.customPolymorphicContainer(DefaultTestConfigContainer::class).apply {
+        registerFactory(InstrumentationTest::class.java) { name ->
+            objects.newInstance<DefaultInstrumentationTest>(name)
+        }
+        registerFactory(RoboTest::class.java) { name ->
+            objects.newInstance<DefaultRoboTest>(name)
+        }
+    }
     override val prefix by lazy { getUniquePathPrefix() }
 
-    override val testsInternal by lazy {
-        tests.map { tests -> tests.values.map { it as TestConfigInternal } }
-    }
+    override fun googleApi(configure: Action<GoogleApiConfig>) = configure.execute(googleApi)
 
-    private val testConfigHandler by lazy {
-        objects.newInstance<DefaultTestConfigHandler>(tests)
-    }
-
-    override fun googleApi(configure: Action<GoogleApiConfig>) {
-        googleApi.apply(configure::execute)
-    }
-
-    override fun tests(configure: Action<TestConfigHandler>) =
-        configure.execute(testConfigHandler)
+    override fun tests(configure: Action<TestConfigContainer>) = configure.execute(tests)
 
     private fun getUniquePathPrefix(): String {
         val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

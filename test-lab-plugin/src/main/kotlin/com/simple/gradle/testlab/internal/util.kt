@@ -3,9 +3,14 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.storage.Storage
 import com.google.api.services.storage.model.StorageObject
 import com.google.api.services.testing.model.FileReference
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
+import org.gradle.api.Named
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
+import org.gradle.kotlin.dsl.newInstance
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 // Logging helper
@@ -74,3 +79,7 @@ internal class SetPropertyDelegate<T>(
 
 internal val String.asFileReference: FileReference
     get() = FileReference().setGcsPath(this)
+
+@Suppress("UnstableApiUsage")
+internal fun <T : Named, C : ExtensiblePolymorphicDomainObjectContainer<T>>
+    ObjectFactory.customPolymorphicContainer(containerType: KClass<C>): C = newInstance(containerType)

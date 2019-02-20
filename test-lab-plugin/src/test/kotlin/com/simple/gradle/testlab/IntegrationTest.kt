@@ -26,7 +26,11 @@ class IntegrationTest {
             // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample"))
-            .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
+            .withArguments(":clean", ":tasks",
+                "--all",
+                "--warning-mode", "all",
+                "--stacktrace",
+                "--include-build=$rootProjectDir")
             .build()
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
         assertThat(result.output, containsSubstring("testLabDebugFooTest"))
@@ -43,7 +47,11 @@ class IntegrationTest {
             // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample-kotlin"))
-            .withArguments(":clean", ":tasks", "--all", "--stacktrace", "--include-build=$rootProjectDir")
+            .withArguments(":clean", ":tasks",
+                "--all",
+                "--warning-mode", "all",
+                "--stacktrace",
+                "--include-build=$rootProjectDir")
             .build()
 
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))

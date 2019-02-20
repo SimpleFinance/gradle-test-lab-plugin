@@ -19,7 +19,7 @@ import org.gradle.kotlin.dsl.property
 @Suppress("UnstableApiUsage")
 internal abstract class AbstractTestConfig(
     override val testType: TestType,
-    override val name: String,
+    private val nameInternal: String,
     layout: ProjectLayout,
     objects: ObjectFactory,
     private val providers: ProviderFactory
@@ -37,6 +37,8 @@ internal abstract class AbstractTestConfig(
     override val autoGoogleLogin = objects.property<Boolean>().convention(true)
     override val directoriesToPull = objects.listProperty<String>()
     override val networkProfile = objects.property<String>()
+
+    override fun getName(): String = nameInternal
 
     override fun device(
         model: String,
