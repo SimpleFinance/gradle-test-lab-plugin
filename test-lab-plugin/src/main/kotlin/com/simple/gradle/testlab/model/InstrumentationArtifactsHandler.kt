@@ -1,10 +1,6 @@
 package com.simple.gradle.testlab.model
 
-/**
- * Artifacts to fetch after completing an instrumentation test. Results are stored in
- * `${task.outputDir}/$device` for each test device.
- */
-interface InstrumentationArtifacts : Artifacts {
+interface InstrumentationArtifactsHandler : ArtifactsHandler {
     /** Fetch instrumentation logs to `instrumentation.results`. */
     var instrumentation: Boolean
 

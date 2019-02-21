@@ -1,61 +1,88 @@
 package com.simple.gradle.testlab.internal
 
-import com.google.api.services.testing.model.Account
-import com.google.api.services.testing.model.EnvironmentVariable
+import com.google.api.services.testing.model.Apk
 import com.google.api.services.testing.model.FileReference
-import com.google.api.services.testing.model.GoogleAuto
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
+import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.Device
-import groovy.lang.Closure
-import org.gradle.util.ConfigureUtil
+import com.simple.gradle.testlab.model.DeviceFilesHandler
+import com.simple.gradle.testlab.model.Orientation
+import org.gradle.api.Action
+import org.gradle.api.file.ProjectLayout
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 
+@Suppress("UnstableApiUsage")
 internal abstract class AbstractTestConfig(
-    private var myName: String,
-    override val testType: TestType
+    override val testType: TestType,
+    private val nameInternal: String,
+    layout: ProjectLayout,
+    objects: ObjectFactory,
+    private val providers: ProviderFactory
 ) : TestConfigInternal {
-    override fun getName(): String = myName
-    fun setName(name: String) { myName = name }
+    override val artifacts = mutableSetOf<Artifact>()
+    override val devices = objects.listProperty<Device>()
+    override val files = objects.listProperty<DeviceFile>()
 
-    override val devices = mutableListOf<DefaultDevice>()
+    override val additionalApks = layout.configurableFiles()
+    override val disablePerformanceMetrics = objects.property<Boolean>().convention(false)
+    override val disableVideoRecording = objects.property<Boolean>().convention(false)
+    override val resultsHistoryName = objects.property<String>()
+    override val testTimeout = objects.property<String>().convention("900s")
 
-    override var disablePerformanceMetrics: Boolean = false
-    override var disableVideoRecording: Boolean = false
-    override var resultsHistoryName: String? = null
-    override var testTimeout: String = "900s"
+    override val autoGoogleLogin = objects.property<Boolean>().convention(true)
+    override val directoriesToPull = objects.listProperty<String>()
+    override val networkProfile = objects.property<String>()
 
-    override var autoGoogleAccount: Boolean = true
-    override val directoriesToPull = mutableListOf<String>()
-    override val environmentVariables = mutableMapOf<String, String>()
-    override var networkProfile: String? = null
+    override fun getName(): String = nameInternal
 
-    override fun device(configure: Closure<*>): Device =
-        DefaultDevice().apply {
-            ConfigureUtil.configure(configure, this)
-            devices.add(this)
-        }
+    override fun device(
+        model: String,
+        api: Int,
+        locale: String,
+        orientation: Orientation
+    ): Device = DefaultDevice(model, api, locale, orientation).also { devices.add(it) }
 
-    override fun device(configure: Device.() -> Unit): Device =
-        DefaultDevice().apply {
-            configure()
-            devices.add(this)
-        }
+    override fun device(configure: Action<Device.Builder>) = providers.provider {
+        Device.Builder().apply(configure::execute).build()
+    }.also { devices.add(it) }
 
-    override fun testSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification =
-            buildTestSpecification(appApk, testApk)
-                    .setDisablePerformanceMetrics(disablePerformanceMetrics)
-                    .setDisableVideoRecording(disableVideoRecording)
-                    .setTestTimeout(testTimeout)
-                    .setTestSetup(TestSetup()
-                            .setAccount(autoGoogleAccount.toAccount())
-                            .setDirectoriesToPull(directoriesToPull.toList())
-                            .setEnvironmentVariables(environmentVariables.map { (key, value) ->
-                                EnvironmentVariable().setKey(key).setValue(value)
-                            })
-                            .setNetworkProfile(networkProfile))
+    override fun files(configure: Action<in DeviceFilesHandler>) =
+        configure.execute(DefaultDeviceFilesHandler(files))
 
-    internal abstract fun buildTestSpecification(appApk: FileReference, testApk: FileReference?): TestSpecification
+    override fun testSpecification(
+        appApk: FileReference,
+        testApk: FileReference?,
+        additionalApks: List<FileReference>,
+        deviceFiles: List<DeviceFileReference>
+    ): Provider<TestSpecification> = providers.provider {
+        TestSpecification()
+            .setAutoGoogleLogin(autoGoogleLogin.get())
+            .setDisablePerformanceMetrics(disablePerformanceMetrics.get())
+            .setDisableVideoRecording(disableVideoRecording.get())
+            .setTestTimeout(testTimeout.get())
+            .setTestSetup(testSetup(additionalApks, deviceFiles))
+            .apply { configure(appApk, testApk) }
+    }
 
-    private fun Boolean?.toAccount(): Account? =
-        this?.takeIf { it }?.let { Account().setGoogleAuto(GoogleAuto()) }
+    private fun testSetup(
+        additionalApks: List<FileReference>,
+        deviceFiles: List<DeviceFileReference>
+    ): TestSetup = TestSetup()
+        .setAdditionalApks(additionalApks.map { Apk().setLocation(it) })
+        .setDirectoriesToPull(directoriesToPull.get())
+        .setNetworkProfile(networkProfile.orNull)
+        .setFilesToPush(deviceFiles.map { it.asDeviceFile })
+        .apply { configure() }
+
+    protected open fun TestSpecification.configure(
+        appApk: FileReference,
+        testApk: FileReference?
+    ): TestSpecification = this
+
+    protected open fun TestSetup.configure(): TestSetup = this
 }

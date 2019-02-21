@@ -10,7 +10,7 @@ internal class ScreenshotFetcher(
     bucketName: String,
     destDir: File,
     private val srcPath: String
-): ArtifactFetcher(objects, bucketName, destDir.resolve("screenshots").apply { mkdirs() }) {
+) : ArtifactFetcher(objects, bucketName, destDir.resolve("screenshots").apply { mkdirs() }) {
     override fun fetch(): List<File> {
         log.info("Fetching screenshots...")
         // TODO call ToolResults.Projects.Histories.Executions.clusters().list()

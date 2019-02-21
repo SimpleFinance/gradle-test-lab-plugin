@@ -3,8 +3,7 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.toolresults.model.History
 
 internal class ToolResultsHistoryPicker(
-        val projectId: String,
-        val googleApi: GoogleApiInternal
+    val googleApi: GoogleApi
 ) {
     fun pickHistoryName(name: String?, appPackageId: String?): String? =
             name ?: appPackageId?.let { "$it (gradle)" }
@@ -15,13 +14,13 @@ internal class ToolResultsHistoryPicker(
     }
 
     private fun getHistoriesByName(name: String): List<History>? =
-            googleApi.toolResults.projects().histories().list(projectId)
+            googleApi.toolResults.projects().histories().list(googleApi.projectId)
                     .setFilterByName(name)
                     .execute()
                     .histories
 
     private fun createHistory(name: String): History =
-            googleApi.toolResults.projects().histories().create(projectId,
+            googleApi.toolResults.projects().histories().create(googleApi.projectId,
                     History().setName(name).setDisplayName(name))
                     .execute()
 }

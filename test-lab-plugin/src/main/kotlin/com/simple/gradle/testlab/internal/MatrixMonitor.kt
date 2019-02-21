@@ -9,10 +9,10 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 internal class MatrixMonitor(
-        private val googleApi: GoogleApiInternal,
-        private val projectId: String,
-        private val matrixId: String,
-        private val testType: TestType
+    private val googleApi: GoogleApi,
+    private val projectId: String,
+    private val matrixId: String,
+    private val testType: TestType
 ) {
     companion object {
         private const val statusInterval = 10000L
@@ -48,8 +48,8 @@ internal class MatrixMonitor(
         }
 
         if (unsupportedDimensions.isNotEmpty()) {
-            log.warn("Some device dimensions are not compatible and will be skipped:\n  "
-                    + unsupportedDimensions.joinToString("\n  "))
+            log.warn("Some device dimensions are not compatible and will be skipped:\n  " +
+                    unsupportedDimensions.joinToString("\n  "))
         }
 
         val type = testType.name.toLowerCase()

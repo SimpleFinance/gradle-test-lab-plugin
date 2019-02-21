@@ -1,7 +1,11 @@
 package com.simple.gradle.testlab.model
 
-import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Named
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 
 /**
  * Base test configuration.
@@ -9,38 +13,31 @@ import org.gradle.api.Named
  * @see InstrumentationTest
  * @see RoboTest
  */
+@Suppress("UnstableApiUsage")
 interface TestConfig : Named {
-    /**
-     * The list of [Android devices][Device] on which this test will run. At least one device
-     * is required.
-     *
-     * @see device
-     */
-    val devices: MutableList<out Device>
-
-    /** The artifacts to fetch after this test is completed. */
-    val artifacts: Artifacts
+    /** APKs to install in addition to those being directly tested. Currently capped at 100. */
+    val additionalApks: ConfigurableFileCollection
 
     /** Disables performance metrics recording; may reduce test latency. */
-    var disablePerformanceMetrics: Boolean
+    val disablePerformanceMetrics: Property<Boolean>
 
     /** Disables video recording; may reduce test latency. */
-    var disableVideoRecording: Boolean
+    val disableVideoRecording: Property<Boolean>
 
     /**
      * The name of the results history entry. This appears in the Firebase console and
      * identifies this test.
      */
-    var resultsHistoryName: String?
+    val resultsHistoryName: Property<String>
 
     /**
      * Max time a test execution is allowed to run before it is automatically cancelled.
      * Optional; the default is `5 min`.
      */
-    var testTimeout: String
+    val testTimeout: Property<String>
 
     /** Sign in to an automatically-created Google account for the duration of this test. */
-    var autoGoogleAccount: Boolean
+    val autoGoogleLogin: Property<Boolean>
 
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
@@ -51,17 +48,25 @@ interface TestConfig : Named {
      * substitutions. E.g. if /sdcard on a particular device does not map to external storage, the
      * system will replace it with the external storage path prefix for that device.
      */
-    val directoriesToPull:  MutableList<String>
-
-    /** Environment variables to set for the test (only applicable for instrumentation tests). */
-    val environmentVariables: MutableMap<String, String>
+    val directoriesToPull: ListProperty<String>
 
     /** The network traffic profile used for running the test. */
-    var networkProfile: String?
+    val networkProfile: Property<String>
 
     /** Configure and add a [device][Device] on which this test should run. */
-    fun device(configure: Closure<*>): Device
+    fun device(
+        model: String = Device.DEFAULT.model,
+        api: Int = Device.DEFAULT.api,
+        locale: String = Device.DEFAULT.locale,
+        orientation: Orientation = Device.DEFAULT.orientation
+    ): Device
 
-    /** Configure and add a [device][Device] on which this test should run. */
-    fun device(configure: Device.() -> Unit): Device
+    /**
+     * Configure and add a [device][Device] on which this test should run. This is for Groovy
+     * script compatibility, and should not be used in Kotlin scripts.
+     */
+    fun device(configure: Action<Device.Builder>): Provider<Device>
+
+    /** Configure the list of files to push to the device before starting the test. */
+    fun files(configure: Action<in DeviceFilesHandler>)
 }

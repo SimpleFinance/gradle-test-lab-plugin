@@ -1,18 +1,11 @@
 plugins {
-    id("com.github.ben-manes.versions") version "0.17.0"
-}
-
-group = "com.simple.gradle.testlab"
-version = "0.2-SNAPSHOT"
-
-subprojects {
-    group = rootProject.group
-    version = rootProject.version
+    id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
+    base
 }
 
 val customInstallationDir = file("$buildDir/custom/gradle-${gradle.gradleVersion}")
 
-val customInstallation by task<Copy> {
+val customInstallation by tasks.registering(Copy::class) {
     description = "Copies the current Gradle distro into '$customInstallationDir'."
 
     from(gradle.gradleHomeDir)
@@ -33,8 +26,6 @@ val customInstallation by task<Copy> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "4.8"
+    gradleVersion = Versions.Gradle.currentVersion
     distributionType = Wrapper.DistributionType.ALL
 }
-
-inline fun <reified T : Task> task(noinline configuration: T.() -> Unit) = tasks.creating(T::class, configuration)

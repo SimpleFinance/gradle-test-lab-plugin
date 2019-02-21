@@ -1,10 +1,6 @@
 package com.simple.gradle.testlab.model
 
-/**
- * Artifacts to fetch after completing a robo test. Results are stored in
- * `${task.outputDir}/$device` for each test device.
- */
-interface RoboArtifacts : Artifacts {
+interface RoboArtifactsHandler : ArtifactsHandler {
     /** Fetch device logs to `logcat`. */
     var logcat: Boolean
 

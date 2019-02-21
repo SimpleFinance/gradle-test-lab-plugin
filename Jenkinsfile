@@ -24,8 +24,9 @@ pipeline {
             }
             steps {
                 sh '''
-                  ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
-                      publishPluginMavenPublicationToSnapshotsRepository
+                  ./gradlew -Psnapshot=true -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
+                      publishPluginMavenPublicationToSnapshotsRepository \
+                      publishTestLabPluginMarkerMavenPublicationToSnapshotsRepository
                 '''.stripIndent()
             }
         }
@@ -36,8 +37,9 @@ pipeline {
             }
             steps {
                 sh '''
-                  ./gradlew -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
-                      publishPluginMavenPublicationToReleasesRepository
+                  ./gradlew -Psnapshot=false -PnexusUsername=$NEXUS_USR -PnexusPassword=$NEXUS_PSW \
+                      publishPluginMavenPublicationToReleasesRepository \
+                      publishTestLabPluginMarkerMavenPublicationToReleasesRepository
                 '''.stripIndent()
             }
         }

@@ -1,32 +1,36 @@
 package com.simple.gradle.testlab.internal
 
-import com.simple.gradle.testlab.model.GoogleApi
+import com.simple.gradle.testlab.model.GoogleApiConfig
+import com.simple.gradle.testlab.model.InstrumentationTest
+import com.simple.gradle.testlab.model.RoboTest
 import com.simple.gradle.testlab.model.TestConfigContainer
-import groovy.lang.Closure
-import org.gradle.util.ConfigureUtil
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.kotlin.dsl.newInstance
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Random
+import javax.inject.Inject
 
-internal class DefaultTestLabExtension(
-    override val tests: TestConfigContainer
+@Suppress("UnstableApiUsage")
+internal open class DefaultTestLabExtension @Inject constructor(
+    private val objects: ObjectFactory
 ) : TestLabExtensionInternal {
-    override val googleApi: DefaultGoogleApi = DefaultGoogleApi()
-
+    override val googleApi: DefaultGoogleApiConfig = DefaultGoogleApiConfig()
+    override val tests = objects.customPolymorphicContainer(DefaultTestConfigContainer::class).apply {
+        registerFactory(InstrumentationTest::class.java) { name ->
+            objects.newInstance<DefaultInstrumentationTest>(name)
+        }
+        registerFactory(RoboTest::class.java) { name ->
+            objects.newInstance<DefaultRoboTest>(name)
+        }
+    }
     override val prefix by lazy { getUniquePathPrefix() }
 
-    override fun googleApi(configure: Closure<*>): GoogleApi =
-        googleApi.apply { ConfigureUtil.configure(configure, this) }
+    override fun googleApi(configure: Action<GoogleApiConfig>) = configure.execute(googleApi)
 
-    override fun googleApi(configure: GoogleApi.() -> Unit): GoogleApi =
-        googleApi.apply(configure)
-
-    override fun tests(configure: Closure<*>): TestConfigContainer =
-        tests.apply { ConfigureUtil.configure(configure, this) }
-
-    override fun tests(configure: TestConfigContainer.() -> Unit): TestConfigContainer =
-        tests.apply(configure)
+    override fun tests(configure: Action<TestConfigContainer>) = configure.execute(tests)
 
     private fun getUniquePathPrefix(): String {
         val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

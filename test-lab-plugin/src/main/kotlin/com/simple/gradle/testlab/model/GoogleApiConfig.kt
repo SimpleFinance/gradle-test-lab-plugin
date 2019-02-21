@@ -3,8 +3,13 @@ package com.simple.gradle.testlab.model
 import java.io.File
 
 /** Google API configuration. */
-interface GoogleApi {
-    /** The Google Cloud Storage bucket where the test results will be stored. */
+interface GoogleApiConfig {
+    /**
+     * The Google Cloud Storage bucket where the test results will be stored.
+     *
+     * If this is changed from the default, billing must be set up for
+     * Google Cloud Storage.
+     */
     var bucketName: String?
 
     /**
@@ -13,7 +18,7 @@ interface GoogleApi {
      * [application default credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default/)
      * will be used.
      */
-    var credentialPath: File?
+    var serviceCredentials: File?
 
     /**
      * The Firebase/Google Cloud Platform project to use when executing tests and

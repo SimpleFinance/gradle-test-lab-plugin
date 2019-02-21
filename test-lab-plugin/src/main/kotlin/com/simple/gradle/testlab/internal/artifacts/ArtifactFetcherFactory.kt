@@ -1,7 +1,6 @@
 package com.simple.gradle.testlab.internal.artifacts
 
 import com.google.api.services.storage.Storage
-import com.simple.gradle.testlab.model.Artifact
 import java.io.File
 
 internal class ArtifactFetcherFactory(

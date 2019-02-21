@@ -1,6 +1,9 @@
 package com.simple.gradle.testlab.model
 
-import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 
 /**
  * A test of an Android application that can control an Android component independently of its
@@ -8,27 +11,26 @@ import groovy.lang.Closure
  * same process on a virtual or physical AndroidDevice. They also specify a test runner class, such
  * as `AndroidJUnitTestRunner`, which can vary on the specific instrumentation framework chosen.
  */
+@Suppress("UnstableApiUsage")
 interface InstrumentationTest : TestConfig {
-    /**
-     * The [artifacts][InstrumentationArtifacts] to fetch after completing the test.
-     *
-     * @see artifacts
-     */
-    override val artifacts: InstrumentationArtifacts
+    /** Environment variables to set for the test (only applicable for instrumentation tests). */
+    val environmentVariables: MapProperty<String, String>
 
     /**
      * The `InstrumentationTestRunner` class. Optional; the default is determined by examining the
      * application's manifest.
      */
-    var testRunnerClass: String?
+    val testRunnerClass: Property<String>
 
     /**
-     * [Test targets][TestTargets] to execute. Optional; if empty, all targets in the module will
+     * Test targets to execute. Optional; if empty, all targets in the module will
      * be ran.
      *
-     * @see targets
+     * @see targetClass
+     * @see targetMethod
+     * @see targetPackage
      */
-    val testTargets: TestTargets
+    val testTargets: ListProperty<String>
 
     /**
      * Run each test within its own invocation with the
@@ -43,17 +45,32 @@ interface InstrumentationTest : TestConfig {
      *
      * Optional; if empty, the test will run without the orchestrator.
      */
-    var useOrchestrator: Boolean?
+    val useOrchestrator: Property<Boolean>
 
-    /** Configure the [artifacts][InstrumentationArtifacts] to fetch after the test has completed. */
-    fun artifacts(configure: Closure<*>): InstrumentationArtifacts
+    /**
+     * Configures [artifacts][InstrumentationArtifactsHandler] to fetch after completing the test.
+     */
+    fun artifacts(configure: Action<in InstrumentationArtifactsHandler>)
 
-    /** Configure the artifacts to fetch after the test has completed. */
-    fun artifacts(configure: InstrumentationArtifacts.() -> Unit): InstrumentationArtifacts
+    /**
+     * Adds a package target.
+     *
+     * @param packageName the fully-qualified package name
+     */
+    fun targetPackage(packageName: String)
 
-    /** Configure the [test targets][TestTargets] to execute. */
-    fun targets(configure: Closure<*>): TestTargets
+    /**
+     * Adds a class target.
+     *
+     * @param className the fully-qualified class name
+     */
+    fun targetClass(className: String)
 
-    /** Configure the [test targets][TestTargets] to execute. */
-    fun targets(configure: TestTargets.() -> Unit): TestTargets
+    /**
+     * Adds a method target.
+     *
+     * @param className the fully-qualified class name
+     * @param methodName the method to execute
+     */
+    fun targetMethod(className: String, methodName: String)
 }

@@ -1,161 +1,113 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.simple.gradle.testlab
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.BaseVariantOutput
-import com.android.build.gradle.api.TestVariant
-import com.simple.gradle.testlab.internal.DefaultInstrumentationTest
-import com.simple.gradle.testlab.internal.DefaultRoboTest
-import com.simple.gradle.testlab.internal.DefaultTestConfigContainer
 import com.simple.gradle.testlab.internal.DefaultTestLabExtension
 import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.TestLabExtensionInternal
-import com.simple.gradle.testlab.internal.UploadResults
-import com.simple.gradle.testlab.model.InstrumentationTest
-import com.simple.gradle.testlab.model.RoboTest
 import com.simple.gradle.testlab.model.TestConfig
 import com.simple.gradle.testlab.model.TestLabExtension
+import com.simple.gradle.testlab.tasks.ShowCatalog
 import com.simple.gradle.testlab.tasks.TestLabTest
-import com.simple.gradle.testlab.tasks.UploadApk
+import com.simple.gradle.testlab.tasks.UploadFiles
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.internal.reflect.Instantiator
-import org.gradle.kotlin.dsl.configure
-import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.kotlin.dsl.newInstance
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.the
 
-class TestLabPlugin @Inject constructor(
-    private val instantiator: Instantiator
-): Plugin<Project> {
-    override fun apply(project: Project) {
-        project.run {
-            pluginManager.withPlugin("com.android.application") {
-                val testsContainer = instantiator.newInstance(DefaultTestConfigContainer::class.java, instantiator)
-                testsContainer.registerBinding(InstrumentationTest::class.java, DefaultInstrumentationTest::class.java)
-                testsContainer.registerBinding(RoboTest::class.java, DefaultRoboTest::class.java)
+@Suppress("unused", "UnstableApiUsage")
+class TestLabPlugin : Plugin<Project> {
+    override fun apply(project: Project): Unit = project.run {
+        val extension = objects.newInstance<DefaultTestLabExtension>()
+        extensions.add(TestLabExtension::class.java, TestLabExtension.NAME, extension)
 
-                val extension = DefaultTestLabExtension(testsContainer)
-                extensions.add(TestLabExtension::class.java, TestLabExtension.NAME, extension)
-
-                val uploadResults = UploadResults()
-
-                configure<AppExtension> {
-                    applicationVariants.all {
-                        project.addTestLabTasksForApplicationVariant(extension, this, uploadResults)
-                    }
-                    testVariants.all {
-                        project.addTestLabTasksForTestVariant(extension, this, uploadResults)
-                    }
+        pluginManager.withPlugin("com.android.application") {
+            extension.tests.all {
+                val test = this as TestConfigInternal
+                the<AppExtension>().applicationVariants.all {
+                    addTestLabTasksForApplicationVariant(extension, test, this)
                 }
             }
+            addCatalogTasks(extension)
         }
     }
 }
 
 private fun Project.addTestLabTasksForApplicationVariant(
     extension: TestLabExtensionInternal,
-    variant: ApplicationVariant,
-    uploadResults: UploadResults
+    test: TestConfigInternal,
+    variant: ApplicationVariant
 ) {
-    variant.onFirstOutput { output ->
-        val uploadApp = maybeCreateUploadTask(
-            "testLabUpload${variant.taskName()}AppApk", extension, variant, output, uploadResults)
-
-        extension.tests
-            .map { it as TestConfigInternal }
-            .filterNot { it.requiresTestApk }
-            .forEach { testConfig ->
-                createDefaultTestLabTask(extension, testConfig, variant, output, uploadResults).apply {
-                    dependsOn(uploadApp)
-                }
-            }
-    }
-}
-
-private fun Project.addTestLabTasksForTestVariant(
-    extension: TestLabExtensionInternal,
-    variant: TestVariant,
-    uploadResults: UploadResults
-) {
-    variant.onFirstOutput { testOutput ->
-        val uploadTest = maybeCreateUploadTask(
-            "testLabUpload${variant.taskName()}TestApk", extension, variant, testOutput, uploadResults)
-
-        variant.testedVariant.onFirstOutput { appOutput ->
-            val uploadApp = maybeCreateUploadTask(
-                "testLabUpload${variant.taskName()}AppApk", extension, variant.testedVariant, appOutput, uploadResults)
-
-            extension.tests
-                .map { it as TestConfigInternal }
-                .filter { it.requiresTestApk }
-                .forEach { testConfig ->
-                    createDefaultTestLabTask(extension, testConfig, variant.testedVariant, appOutput, uploadResults)
-                        .apply {
-                            dependsOn(uploadApp)
-                            dependsOn(uploadTest)
-                            testApk.set(testOutput.outputFile)
-                            testPackageId.set(variant.applicationId)
-                        }
-                }
-        }
-    }
-}
-
-private fun Project.maybeCreateUploadTask(
-    name: String,
-    extension: TestLabExtensionInternal,
-    variant: BaseVariant,
-    output: BaseVariantOutput,
-    uploadResults: UploadResults
-): UploadApk =
-    tasks.findByName(name) as? UploadApk ?: tasks.create(name, UploadApk::class.java) {
-        val outputType = if (variant is TestVariant) "test" else "app"
-        description = "Upload the ${variant.name} $outputType APK to Firebase Test Lab."
-        dependsOn(variant.assemble)
-        file.set(output.outputFile)
+    val uploadFiles = tasks.register<UploadFiles>(
+        "testLab${taskName(variant, test)}UploadFiles"
+    ) {
+        dependsOn(variant.packageApplicationProvider)
+        appApk.set(layout.file(provider {
+            variant.apks().first()
+        }))
+        additionalApks.from(test.additionalApks)
+        deviceFiles.set(test.files)
         prefix.set(extension.prefix)
         google.set(extension.googleApi)
-        results = uploadResults
     }
 
-private fun Project.createDefaultTestLabTask(
-    extension: TestLabExtensionInternal,
-    testConfig: TestConfigInternal,
-    variant: BaseVariant,
-    output: BaseVariantOutput,
-    uploadResults: UploadResults
-): TestLabTest {
-    val taskName = "testLab${variant.taskName()}${testConfig.taskName()}Test"
-    return tasks.create(taskName, TestLabTest::class.java).apply {
+    if (test.requiresTestApk) {
+        the<AppExtension>().testVariants.matching { it.testedVariant == variant }.all {
+            uploadFiles.configure {
+                dependsOn(packageApplicationProvider)
+                testApk.set(layout.file(provider { apks().first() }))
+            }
+        }
+    }
+
+    tasks.register<TestLabTest>(
+        "testLab${taskName(variant, test)}Test"
+    ) {
         description =
-            "Runs the ${testConfig.testType.name.toLowerCase()} test '${testConfig.name}' for the ${variant.name} build on Firebase Test Lab."
-        appApk.set(output.outputFile)
+            "Runs ${test.testType.name.toLowerCase()} test '${test.name}' " +
+                "for the ${variant.name} build on Firebase Test Lab."
+        group = JavaBasePlugin.VERIFICATION_GROUP
+        dependsOn(uploadFiles)
         appPackageId.set(variant.applicationId)
-        google.set(extension.googleApi)
-        this.testConfig.set(testConfig)
-        outputDir.set(file("$buildDir/test-results/$name"))
-        prefix = extension.prefix
-        this.uploadResults = uploadResults
+        googleApiConfig.set(extension.googleApi)
+        prefix.set(extension.prefix)
+        testConfig.set(test)
+        uploadResults.set(uploadFiles.flatMap { it.results })
     }
 }
+
+private fun Project.addCatalogTasks(extension: TestLabExtensionInternal) {
+    tasks.register<ShowCatalog>("testLabCatalog") {
+        googleApi.set(extension.googleApi)
+    }
+}
+
+private fun taskName(variant: BaseVariant, testConfig: TestConfig): String =
+    "${variant.taskName()}${testConfig.taskName()}"
 
 internal fun BaseVariant.taskName(): String = name.capitalize()
-internal fun TestVariant.taskName(): String = testedVariant.taskName()
 internal fun TestConfig.taskName(): String = name.asValidTaskName().capitalize()
 
-internal fun BaseVariant.onFirstOutput(configure: (BaseVariantOutput) -> Unit) {
-    val done = AtomicBoolean()
-    outputs.all {
-        if (done.getAndSet(true)) return@all
-        configure(this)
-    }
-}
+internal fun BaseVariant.apks() = outputs.asSequence()
+    .filterIsInstance<ApkVariantOutput>()
+    .map { it.outputFile }
 
 private fun String.asValidTaskName(): String =
     replace(Regex("[-_.]"), " ")
-        .replace(Regex("\\s+(\\S)"), { result: MatchResult -> result.groups[1]!!.value.capitalize() })
-        .let { Constants.FORBIDDEN_CHARACTERS.fold(it, { name, c -> name.replace(c, Constants.REPLACEMENT_CHARACTER) })}
+        .replace(Regex("\\s+(\\S)")) { result: MatchResult ->
+            result.groups[1]!!.value.capitalize()
+        }
+        .let {
+            Constants.FORBIDDEN_CHARACTERS.fold(it) { name, c ->
+                name.replace(c, Constants.REPLACEMENT_CHARACTER)
+            }
+        }
 
 private object Constants {
     val FORBIDDEN_CHARACTERS = charArrayOf(' ', '/', '\\', ':', '<', '>', '"', '?', '*', '|')
