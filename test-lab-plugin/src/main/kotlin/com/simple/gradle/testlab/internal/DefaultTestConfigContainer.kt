@@ -24,17 +24,6 @@ internal open class DefaultTestConfigContainer @Inject constructor(
     ): NamedDomainObjectProvider<InstrumentationTest> =
         register(name, InstrumentationTest::class, configure)
 
-//    override fun instrumentation(
-//        name: String,
-//        configure: Closure<InstrumentationTest>
-//    ): NamedDomainObjectProvider<InstrumentationTest> = instrumentation(name) {
-//        configure.call(this)
-//    }
-
     override fun robo(name: String, configure: Action<in RoboTest>): NamedDomainObjectProvider<RoboTest> =
         register(name, RoboTest::class, configure)
-
-//    override fun robo(name: String, configure: Closure<RoboTest>): NamedDomainObjectProvider<RoboTest> = robo(name) {
-//        configure.call(this)
-//    }
 }
