@@ -61,8 +61,6 @@ open class TestLabTest @Inject constructor(
             appPackageId.orNull)
         val historyId = historyPicker.getToolResultsHistoryId(historyName)
 
-        log.lifecycle("--- 1")
-
         val testMatrix = TestMatrix()
                 .setClientInfo(clientInfo())
                 .setResultStorage(resultStorage(historyId))
