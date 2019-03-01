@@ -19,6 +19,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskExecutionException
@@ -35,7 +36,7 @@ open class UploadFiles @Inject constructor(
     objects: ObjectFactory
 ) : DefaultTask() {
     @InputFile val appApk: RegularFileProperty = objects.fileProperty()
-    @InputFile val testApk: RegularFileProperty = objects.fileProperty()
+    @InputFile @Optional val testApk: RegularFileProperty = objects.fileProperty()
     @InputFiles val additionalApks: ConfigurableFileCollection = layout.configurableFiles()
     @Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
     @Input val prefix: Property<String> = objects.property()
