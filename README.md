@@ -19,7 +19,8 @@ work, but are not supported.
 
 | Plugin version | Gradle version | Android Gradle version |
 | -------------- | -------------- | ---------------------- |
-| 0.3            | 5.2.1          | 3.3.1                  |
+|            0.3 |          5.2.1 | 3.3.1                  |
+|          0.3.2 |            5.3 | 3.3.2                  |
 
 ## Installation
 
@@ -166,7 +167,7 @@ testLab {
         // The Google Cloud Storage bucket where the test results will be stored.
         // If this is changed from the default, billing must be set up for
         // Google Cloud Storage.
-        bucketName = "my-bucket-name";
+        bucketName = "my-bucket-name"
 
         // Path to service account credentials used to execute tests on Firebase and
         // fetch results from Google Cloud Storage. If not provided, application default
@@ -424,7 +425,7 @@ resultsHistoryName.set(provider {
 testTimeout.set("600s")
 
 // Sign in to an automatically-created Google account for the duration of this test.
-autoGoogleLogin.set(true)
+account.googleAuto()
 
 // List of directories on the device to upload to GCS at the end of the test; they must be
 // absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters
@@ -505,7 +506,7 @@ resultsHistoryName = provider {
 testTimeout = "600s"
 
 // Sign in to an automatically-created Google account for the duration of this test.
-autoGoogleLogin = true
+account.googleAuto()
 
 // List of directories on the device to upload to GCS at the end of the test; they must be
 // absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters

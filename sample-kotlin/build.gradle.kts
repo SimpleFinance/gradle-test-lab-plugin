@@ -2,7 +2,7 @@ import com.simple.gradle.testlab.model.Orientation
 import com.simple.gradle.testlab.model.TestConfig
 
 plugins {
-    id("com.android.application") version "3.3.1"
+    id("com.android.application") version "3.3.2"
     id("com.simple.gradle.testlab")
 }
 
@@ -86,7 +86,7 @@ fun TestConfig.common() {
         "GitHub PR $prNumber"
     })
     testTimeout.set("600s")
-    autoGoogleLogin.set(true)
+    account.googleAuto()
     directoriesToPull.addAll(
         "/sdcard/path/to/dir",
         "/data/local/tmp/path/to/dir"
