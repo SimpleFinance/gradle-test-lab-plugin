@@ -15,6 +15,9 @@ import org.gradle.api.provider.Provider
  */
 @Suppress("UnstableApiUsage")
 interface TestConfig : Named {
+    /* The device will be logged in on this account for the duration of the test. */
+    val account: Account
+
     /** APKs to install in addition to those being directly tested. Currently capped at 100. */
     val additionalApks: ConfigurableFileCollection
 
@@ -36,9 +39,6 @@ interface TestConfig : Named {
      */
     val testTimeout: Property<String>
 
-    /** Sign in to an automatically-created Google account for the duration of this test. */
-    val autoGoogleLogin: Property<Boolean>
-
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
      * absolute paths under /sdcard or /data/local/tmp. Path names are restricted to characters a-z
@@ -52,6 +52,9 @@ interface TestConfig : Named {
 
     /** The network traffic profile used for running the test. */
     val networkProfile: Property<String>
+
+    /* The device will be logged in on this account for the duration of the test. */
+    fun account(configure: Action<Account>)
 
     /** Configure and add a [device][Device] on which this test should run. */
     fun device(

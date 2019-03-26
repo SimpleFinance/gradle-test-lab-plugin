@@ -5,6 +5,7 @@ import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.internal.artifacts.Artifact
+import com.simple.gradle.testlab.model.Account
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.Orientation
@@ -24,6 +25,7 @@ internal abstract class AbstractTestConfig(
     objects: ObjectFactory,
     private val providers: ProviderFactory
 ) : TestConfigInternal {
+    override val account = DefaultAccount()
     override val artifacts = mutableSetOf<Artifact>()
     override val devices = objects.listProperty<Device>()
     override val files = objects.listProperty<DeviceFile>()
@@ -34,11 +36,14 @@ internal abstract class AbstractTestConfig(
     override val resultsHistoryName = objects.property<String>()
     override val testTimeout = objects.property<String>().convention("900s")
 
-    override val autoGoogleLogin = objects.property<Boolean>().convention(true)
     override val directoriesToPull = objects.listProperty<String>()
     override val networkProfile = objects.property<String>()
 
     override fun getName(): String = nameInternal
+
+    override fun account(configure: Action<Account>) {
+        configure.execute(account)
+    }
 
     override fun device(
         model: String,
@@ -61,7 +66,6 @@ internal abstract class AbstractTestConfig(
         deviceFiles: List<DeviceFileReference>
     ): Provider<TestSpecification> = providers.provider {
         TestSpecification()
-            .setAutoGoogleLogin(autoGoogleLogin.get())
             .setDisablePerformanceMetrics(disablePerformanceMetrics.get())
             .setDisableVideoRecording(disableVideoRecording.get())
             .setTestTimeout(testTimeout.get())
@@ -77,6 +81,7 @@ internal abstract class AbstractTestConfig(
         .setDirectoriesToPull(directoriesToPull.get())
         .setNetworkProfile(networkProfile.orNull)
         .setFilesToPush(deviceFiles.map { it.asDeviceFile })
+        .setAccount(this@AbstractTestConfig.account.account)
         .apply { configure() }
 
     protected open fun TestSpecification.configure(
