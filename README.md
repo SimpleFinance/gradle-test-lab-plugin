@@ -19,7 +19,8 @@ work, but are not supported.
 
 | Plugin version | Gradle version | Android Gradle version |
 | -------------- | -------------- | ---------------------- |
-| 0.3            | 5.2.1          | 3.3.1                  |
+|            0.3 |          5.2.1 | 3.3.1                  |
+|          0.3.2 |            5.3 | 3.3.2                  |
 
 ## Installation
 

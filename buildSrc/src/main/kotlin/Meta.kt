@@ -14,7 +14,7 @@ class Meta(project: Project) {
     val git = "$url.git"
     val groupId = "com.simple.gradle.testlab"
     val artifactId = "test-lab-plugin"
-    val baseVersion = "0.3.1"
+    val baseVersion = "0.3.2"
     val pluginId = groupId
 
     val isSnapshot: Boolean = snapshot.toBoolean()
