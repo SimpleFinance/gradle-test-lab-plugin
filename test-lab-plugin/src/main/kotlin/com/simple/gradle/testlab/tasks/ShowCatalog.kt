@@ -1,7 +1,7 @@
 package com.simple.gradle.testlab.tasks
 
-import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.CatalogEnvironment
+import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.testEnvironmentCatalog
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
@@ -23,7 +23,7 @@ open class ShowCatalog @Inject constructor(
     }
 
     private val api by lazy {
-        GoogleApi(googleApi.get())
+        GoogleApi(googleApi.get(), logger)
     }
 
     @TaskAction

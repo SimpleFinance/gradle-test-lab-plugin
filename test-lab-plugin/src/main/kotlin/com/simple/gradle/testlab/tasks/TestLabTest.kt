@@ -49,7 +49,7 @@ open class TestLabTest @Inject constructor(
         set(layout.buildDirectory.dir("test-results/$name"))
     }
 
-    private val googleApi by lazy { GoogleApi(googleApiConfig.get()) }
+    private val googleApi by lazy { GoogleApi(googleApiConfig.get(), logger) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
     private val gcsPaths by lazy { UploadResults.fromJson(uploadResults.get().asFile.readText()) }
 
@@ -106,7 +106,7 @@ open class TestLabTest @Inject constructor(
 
         if (testConfig.get().artifacts.isNotEmpty()) {
             with(ArtifactFetcherFactory(
-                googleApi.storage.objects(),
+                googleApi.storage,
                 googleApi.bucketName,
                 prefix.get(),
                 outputDir.get().asFile

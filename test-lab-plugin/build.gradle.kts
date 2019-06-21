@@ -51,10 +51,10 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
     }
     shadowed("com.google.api-client:google-api-client:latest.release")
-    shadowed("com.google.apis:google-api-services-storage:latest.release")
     shadowed("com.google.apis:google-api-services-testing:latest.release")
     shadowed("com.google.apis:google-api-services-toolresults:latest.release")
     shadowed("com.google.auth:google-auth-library-oauth2-http:latest.release")
+    shadowed("com.google.cloud:google-cloud-storage:latest.release")
 
     testImplementation("com.android.tools.build:gradle:3.4+")
     testImplementation("junit:junit:latest.release")
