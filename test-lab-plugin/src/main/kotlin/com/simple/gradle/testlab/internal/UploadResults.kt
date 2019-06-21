@@ -11,7 +11,7 @@ internal data class UploadResults(
     val deviceFiles: List<UploadedFile>
 ) {
     companion object {
-        fun fromJson(text: String): UploadResults = Json.parse(UploadResults.serializer(), text)
+        fun fromJson(text: String): UploadResults = Json.parse(serializer(), text)
     }
 }
 

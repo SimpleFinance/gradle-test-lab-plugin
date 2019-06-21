@@ -1,6 +1,6 @@
 package com.simple.gradle.testlab.internal
 
-import com.google.api.client.googleapis.GoogleUtils
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpBackOffIOExceptionHandler
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler.BackOffRequired
@@ -9,30 +9,31 @@ import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.http.HttpResponse
 import com.google.api.client.http.HttpTransport
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler
-import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
-import com.google.api.services.storage.Storage
 import com.google.api.services.testing.Testing
 import com.google.api.services.testing.TestingScopes
 import com.google.api.services.toolresults.ToolResults
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
+import com.google.cloud.storage.StorageOptions
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.GradleException
+import org.gradle.api.logging.Logger
 import java.io.FileInputStream
 
-internal class GoogleApi(val config: GoogleApiConfig) {
+internal class GoogleApi(
+    val config: GoogleApiConfig,
+    val logger: Logger
+) {
     companion object {
         private const val APPLICATION_NAME = "gradle-test-lab-plugin"
     }
 
     private val httpTransport: HttpTransport by lazy {
-        NetHttpTransport.Builder()
-                .trustCertificates(GoogleUtils.getCertificateTrustStore())
-                .build()
+        GoogleNetHttpTransport.newTrustedTransport()
     }
 
     val jsonFactory: JsonFactory by lazy { JacksonFactory.getDefaultInstance() }
@@ -53,13 +54,14 @@ internal class GoogleApi(val config: GoogleApiConfig) {
     }
 
     val requestInitializer: HttpRequestInitializer by lazy {
-        GoogleApiRequestInitializer(credentials)
+        GoogleApiRequestInitializer(credentials, logger.isDebugEnabled)
     }
 
     val storage by lazy {
-        Storage.Builder(httpTransport, jsonFactory, requestInitializer)
-                .setApplicationName(APPLICATION_NAME)
-                .build()
+        StorageOptions.newBuilder()
+            .setCredentials(credentials)
+            .build()
+            .service
     }
 
     val testing by lazy {
@@ -84,7 +86,8 @@ private fun GoogleApi.defaultBucketName(): String =
 private const val STATUS_TOO_MANY_REQUESTS = 429
 
 private class GoogleApiRequestInitializer(
-    credentials: GoogleCredentials
+    credentials: GoogleCredentials,
+    private val isLoggingEnabled: Boolean
 ) : HttpRequestInitializer {
 
     private val credentialsAdapter = HttpCredentialsAdapter(credentials)
@@ -93,6 +96,7 @@ private class GoogleApiRequestInitializer(
         credentialsAdapter.initialize(request)
         request.ioExceptionHandler = HttpBackOffIOExceptionHandler(ExponentialBackOff())
         request.unsuccessfulResponseHandler = UnsuccessfulResponseHandler(credentialsAdapter)
+        request.isLoggingEnabled = isLoggingEnabled
     }
 
     private class UnsuccessfulResponseHandler(

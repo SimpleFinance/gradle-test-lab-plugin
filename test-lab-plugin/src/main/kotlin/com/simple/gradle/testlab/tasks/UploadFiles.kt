@@ -1,7 +1,14 @@
 package com.simple.gradle.testlab.tasks
 
-import com.google.api.client.http.InputStreamContent
-import com.simple.gradle.testlab.internal.*
+import com.google.cloud.storage.BlobId
+import com.google.cloud.storage.BlobInfo
+import com.google.cloud.storage.StorageException
+import com.simple.gradle.testlab.internal.DeviceFile
+import com.simple.gradle.testlab.internal.GoogleApi
+import com.simple.gradle.testlab.internal.UploadResults
+import com.simple.gradle.testlab.internal.UploadedFile
+import com.simple.gradle.testlab.internal.log
+import com.simple.gradle.testlab.internal.toJson
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -11,7 +18,13 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -34,7 +47,7 @@ open class UploadFiles @Inject constructor(
         set(layout.buildDirectory.file("testLab/$name/upload-results.json"))
     }
 
-    private val api by lazy { GoogleApi(google.get()) }
+    private val api by lazy { GoogleApi(google.get(), logger) }
     private val bucketName by lazy { api.bucketName }
     private val dir by prefix
 
@@ -66,16 +79,20 @@ open class UploadFiles @Inject constructor(
         val name = file.name
         log.lifecycle("Uploading $name to $bucketName...")
 
-        val content = InputStreamContent("application/octet-stream", file.inputStream())
-        val storageObject = try {
-            api.storage.objects().insert(bucketName, null, content)
-                .setName("$dir/$suffix$name")
-                .execute()
+        val blob = try {
+            api.storage.create(
+                BlobInfo.newBuilder(BlobId.of(bucketName, "$dir/$suffix$name"))
+                    .setContentType("application/octet-stream")
+                    .build(),
+                file.readBytes()
+            )
+        } catch (e: StorageException) {
+            throw TaskExecutionException(this, e)
         } catch (e: IOException) {
             throw TaskExecutionException(this, e)
         }
 
-        log.lifecycle("Uploaded: $name -> ${storageObject.selfLink}")
+        log.lifecycle("Uploaded: $name -> ${blob.selfLink}")
         return "gs://$bucketName/$dir/$suffix$name"
     }
 }
