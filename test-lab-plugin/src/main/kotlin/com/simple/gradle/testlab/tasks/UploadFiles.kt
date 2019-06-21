@@ -1,12 +1,7 @@
 package com.simple.gradle.testlab.tasks
 
 import com.google.api.client.http.InputStreamContent
-import com.simple.gradle.testlab.internal.DeviceFile
-import com.simple.gradle.testlab.internal.GoogleApi
-import com.simple.gradle.testlab.internal.UploadResults
-import com.simple.gradle.testlab.internal.UploadedFile
-import com.simple.gradle.testlab.internal.log
-import com.simple.gradle.testlab.internal.toJson
+import com.simple.gradle.testlab.internal.*
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -16,13 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskExecutionException
+import org.gradle.api.tasks.*
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -37,7 +26,7 @@ open class UploadFiles @Inject constructor(
 ) : DefaultTask() {
     @InputFile val appApk: RegularFileProperty = objects.fileProperty()
     @InputFile @Optional val testApk: RegularFileProperty = objects.fileProperty()
-    @InputFiles val additionalApks: ConfigurableFileCollection = layout.configurableFiles()
+    @InputFiles val additionalApks: ConfigurableFileCollection = objects.fileCollection()
     @Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
     @Input val prefix: Property<String> = objects.property()
     @Input val google: Property<GoogleApiConfig> = objects.property()

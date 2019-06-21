@@ -1,5 +1,4 @@
 plugins {
-    id("de.fayard.buildSrcVersions") version Versions.de_fayard_buildsrcversions_gradle_plugin
     base
 }
 
@@ -25,7 +24,14 @@ val customInstallation by tasks.registering(Copy::class) {
     onlyIf { !customInstallationDir.exists() }
 }
 
+allprojects {
+    buildscript {
+        dependencyLocking.lockAllConfigurations()
+    }
+    dependencyLocking.lockAllConfigurations()
+}
+
 tasks.withType<Wrapper> {
-    gradleVersion = Versions.Gradle.currentVersion
+    gradleVersion = "5.4.1"
     distributionType = Wrapper.DistributionType.ALL
 }

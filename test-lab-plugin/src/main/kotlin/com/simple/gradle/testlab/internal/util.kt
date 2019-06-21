@@ -18,8 +18,7 @@ import kotlin.reflect.KProperty
 internal val Any.log: Logger
     get() = getLoggerForClass()(javaClass)
 
-private fun getLoggerForClass(): (Class<*>) -> Logger =
-    { c: Class<*> -> Logging.getLogger(c) }.memoize()
+private fun getLoggerForClass(): (Class<*>) -> Logger = { c: Class<*> -> Logging.getLogger(c) }.memoize()
 
 private const val DEFAULT_CAPACITY = 1 shl 8
 internal fun <A, R> ((A) -> R).memoize(initialCapacity: Int = DEFAULT_CAPACITY): (A) -> R {
