@@ -7,6 +7,7 @@ import com.google.api.services.testing.model.TestMatrix
 import org.gradle.api.GradleException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.max
 
 internal class MatrixMonitor(
     private val googleApi: GoogleApi,
@@ -141,7 +142,7 @@ internal class MatrixMonitor(
         }
         status.sort()
         val out = "\r$timestamp Test matrix status: ${status.joinToString(" ")} "
-        maxStatusLength = Math.max(out.length, maxStatusLength)
+        maxStatusLength = max(out.length, maxStatusLength)
         log.info(out.padEnd(maxStatusLength, ' '))
     }
 

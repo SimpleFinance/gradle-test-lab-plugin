@@ -10,7 +10,6 @@ import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.Orientation
 import org.gradle.api.Action
-import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
@@ -21,7 +20,6 @@ import org.gradle.kotlin.dsl.property
 internal abstract class AbstractTestConfig(
     override val testType: TestType,
     private val nameInternal: String,
-    layout: ProjectLayout,
     objects: ObjectFactory,
     private val providers: ProviderFactory
 ) : TestConfigInternal {
@@ -30,7 +28,7 @@ internal abstract class AbstractTestConfig(
     override val devices = objects.listProperty<Device>()
     override val files = objects.listProperty<DeviceFile>()
 
-    override val additionalApks = layout.configurableFiles()
+    override val additionalApks = objects.fileCollection()
     override val disablePerformanceMetrics = objects.property<Boolean>().convention(false)
     override val disableVideoRecording = objects.property<Boolean>().convention(false)
     override val resultsHistoryName = objects.property<String>()

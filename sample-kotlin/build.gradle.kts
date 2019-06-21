@@ -103,3 +103,8 @@ fun TestConfig.common() {
         push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
     }
 }
+
+tasks.withType<Wrapper> {
+    gradleVersion = "5.4.1"
+}
+

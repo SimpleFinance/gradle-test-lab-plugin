@@ -6,23 +6,33 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     id("kotlinx-serialization") version embeddedKotlinVersion
-    id("com.github.johnrengelman.shadow") version Versions.com_github_johnrengelman_shadow_gradle_plugin
-    id("com.gradle.plugin-publish") version Versions.com_gradle_plugin_publish_gradle_plugin
-    id("org.jmailen.kotlinter") version Versions.org_jmailen_kotlinter_gradle_plugin
-    id("org.jetbrains.dokka") version Versions.org_jetbrains_dokka_gradle_plugin
+    id("com.github.johnrengelman.shadow") version "5.0.0"
+    id("com.gradle.plugin-publish") version "0.10.1"
+    id("org.jmailen.kotlinter") version "1.26.0"
+    id("org.jetbrains.dokka") version "0.9.18"
 }
 
-group = meta.groupId
-version = meta.version
-description = meta.description
+val baseVersion: String by rootProject
+val snapshot: String by rootProject
+val nexusUsername: String by rootProject
+val nexusPassword: String by rootProject
+
+val isSnapshot: Boolean get() = snapshot.toBoolean()
+val pluginDisplayName = "Gradle plugin for Firebase Test Lab"
+val pluginUrl = "https://github.com/SimpleFinance/gradle-test-lab-plugin"
+
+group = "com.simple.gradle.testlab"
+version = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
+description = "Run Firebase tests directly from Gradle"
 
 repositories {
+    mavenCentral()
     google()
     jcenter()
     maven { url = uri("https://kotlin.bintray.com/kotlinx") }
 }
 
-val shadowed by configurations.creating
+val shadowed: Configuration by configurations.creating
 configurations {
     compileOnly {
         extendsFrom(shadowed)
@@ -33,21 +43,22 @@ configurations {
 }
 
 dependencies {
-    compileOnly(Libs.com_android_tools_build_gradle)
+    compileOnly("com.android.tools.build:gradle:latest.release")
 
-    shadowed(Libs.kotlinx_serialization_runtime) {
+    shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0") {
         // Already added to compileOnly by kotlin-dsl
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
     }
-    shadowed(Libs.google_api_client)
-    shadowed(Libs.google_api_services_storage)
-    shadowed(Libs.google_api_services_testing)
-    shadowed(Libs.google_api_services_toolresults)
+    shadowed("com.google.api-client:google-api-client:latest.release")
+    shadowed("com.google.apis:google-api-services-storage:latest.release")
+    shadowed("com.google.apis:google-api-services-testing:latest.release")
+    shadowed("com.google.apis:google-api-services-toolresults:latest.release")
+    shadowed("com.google.auth:google-auth-library-oauth2-http:latest.release")
 
-    testImplementation(Libs.com_android_tools_build_gradle)
-    testImplementation(Libs.junit)
-    testImplementation(Libs.hamkrest)
+    testImplementation("com.android.tools.build:gradle:3.4+")
+    testImplementation("junit:junit:latest.release")
+    testImplementation("com.natpryce:hamkrest:latest.release")
 }
 
 tasks {
@@ -114,17 +125,17 @@ artifacts {
 gradlePlugin {
     plugins {
         register("testLab") {
-            id = meta.pluginId
-            displayName = meta.displayName
+            id = project.group.toString()
+            displayName = pluginDisplayName
             implementationClass = "com.simple.gradle.testlab.TestLabPlugin"
         }
     }
 }
 
 pluginBundle {
-    website = meta.url
-    vcsUrl = meta.url
-    description = meta.description
+    website = pluginUrl
+    vcsUrl = "$pluginUrl.git"
+    description = project.description
     tags = listOf("firebase", "test-lab", "android")
 }
 
@@ -135,14 +146,14 @@ publishing {
                 artifact(sourcesJar.get())
                 artifact(javadocJar.get())
 
-                groupId = meta.groupId
-                artifactId = meta.artifactId
-                version = meta.version
+                groupId = project.group.toString()
+                artifactId = project.name
+                version = project.version.toString()
 
                 pom {
-                    name.set(meta.displayName)
-                    description.set(meta.description)
-                    url.set(meta.url)
+                    name.set(pluginDisplayName)
+                    description.set(project.description)
+                    url.set(pluginUrl)
                     licenses {
                         license {
                             name.set("The Apache Software License, Version 2.0")
@@ -158,9 +169,9 @@ publishing {
                         }
                     }
                     scm {
-                        url.set(meta.url)
-                        connection.set(meta.git)
-                        tag.set(if (meta.isSnapshot) "master" else "v${meta.version}")
+                        url.set(pluginUrl)
+                        connection.set("$pluginUrl.git")
+                        tag.set(if (isSnapshot) "master" else "v${project.version}")
                     }
                 }
             }
@@ -171,16 +182,16 @@ publishing {
             name = "releases"
             url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
             credentials {
-                username = meta.nexusUsername
-                password = meta.nexusPassword
+                username = nexusUsername
+                password = nexusPassword
             }
         }
         maven {
             name = "snapshots"
             url = uri("https://nexus-build.banksimple.com/repository/simple-maven-snapshots/")
             credentials {
-                username = meta.nexusUsername
-                password = meta.nexusPassword
+                username = nexusUsername
+                password = nexusPassword
             }
         }
     }
@@ -188,8 +199,8 @@ publishing {
 
 tasks.withType<PublishToMavenRepository> {
     onlyIf {
-        (!meta.isSnapshot && repository.name == "releases") ||
-            (meta.isSnapshot && repository.name == "snapshots")
+        (!isSnapshot && repository.name == "releases") ||
+            (isSnapshot && repository.name == "snapshots")
     }
 }
 
