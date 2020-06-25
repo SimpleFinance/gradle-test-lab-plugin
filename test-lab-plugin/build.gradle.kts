@@ -1,21 +1,19 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.jetbrains.dokka.gradle.PackageOptions
-
 plugins {
     `kotlin-dsl`
     `maven-publish`
     id("kotlinx-serialization") version embeddedKotlinVersion
-    id("com.github.johnrengelman.shadow") version "5.0.0"
-    id("com.gradle.plugin-publish") version "0.10.1"
-    id("org.jmailen.kotlinter") version "1.26.0"
-    id("org.jetbrains.dokka") version "0.9.18"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.gradle.plugin-publish") version "0.12.0"
+    id("org.jmailen.kotlinter") version "2.4.1"
+    id("org.jetbrains.dokka") version "0.10.1"
 }
 
 val baseVersion: String by rootProject
 val snapshot: String by rootProject
-val nexusUsername: String by rootProject
-val nexusPassword: String by rootProject
+val githubUser: String? by rootProject
+val githubPass: String? by rootProject
 
 val isSnapshot: Boolean get() = snapshot.toBoolean()
 val pluginDisplayName = "Gradle plugin for Firebase Test Lab"
@@ -23,7 +21,7 @@ val pluginUrl = "https://github.com/SimpleFinance/gradle-test-lab-plugin"
 
 group = "com.simple.gradle.testlab"
 version = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
-description = "Run Firebase tests directly from Gradle"
+description = "Run Firebase Test Lab tests directly from Gradle"
 
 repositories {
     mavenCentral()
@@ -43,20 +41,20 @@ configurations {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle:latest.release")
+    compileOnly("com.android.tools.build:gradle:4.0.+")
 
-    shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0") {
+    shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") {
         // Already added to compileOnly by kotlin-dsl
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
     }
     shadowed("com.google.api-client:google-api-client:latest.release")
     shadowed("com.google.apis:google-api-services-testing:latest.release")
-    shadowed("com.google.apis:google-api-services-toolresults:latest.release")
+    shadowed("com.google.apis:google-api-services-toolresults:v1beta3-rev20200513-1.30.9")
     shadowed("com.google.auth:google-auth-library-oauth2-http:latest.release")
     shadowed("com.google.cloud:google-cloud-storage:latest.release")
 
-    testImplementation("com.android.tools.build:gradle:3.4+")
+    testImplementation("com.android.tools.build:gradle:4.0.+")
     testImplementation("junit:junit:latest.release")
     testImplementation("com.natpryce:hamkrest:latest.release")
 }
@@ -92,16 +90,21 @@ tasks {
     test {
         dependsOn(rootProject.tasks.named("customInstallation"))
         dependsOn(shadowJar)
+        reports {
+            junitXml.isEnabled = true
+        }
     }
 
     dokka {
         outputFormat = "javadoc"
         outputDirectory = "$buildDir/javadoc"
-        jdkVersion = 8
-        packageOptions(delegateClosureOf<PackageOptions> {
-            prefix = "com.simple.gradle.testlab.internal"
-            suppress = true
-        })
+        configuration {
+            jdkVersion = 8
+            perPackageOption {
+                prefix = "com.simple.gradle.testlab.shadow"
+                suppress = true
+            }
+        }
     }
 }
 
@@ -126,8 +129,9 @@ gradlePlugin {
     plugins {
         register("testLab") {
             id = project.group.toString()
-            displayName = pluginDisplayName
             implementationClass = "com.simple.gradle.testlab.TestLabPlugin"
+            displayName = pluginDisplayName
+            description = project.description
         }
     }
 }
@@ -141,66 +145,50 @@ pluginBundle {
 
 publishing {
     publications {
-        afterEvaluate {
-            named<MavenPublication>("pluginMaven") {
-                artifact(sourcesJar.get())
-                artifact(javadocJar.get())
+        matching { it.name == "pluginMaven" }.withType<MavenPublication> {
+            artifact(tasks.shadowJar.get())
+            artifact(sourcesJar.get())
+            artifact(javadocJar.get())
 
-                groupId = project.group.toString()
-                artifactId = project.name
-                version = project.version.toString()
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
-                pom {
-                    name.set(pluginDisplayName)
-                    description.set(project.description)
+            pom {
+                name.set(pluginDisplayName)
+                description.set(project.description)
+                url.set(pluginUrl)
+                licenses {
+                    license {
+                        name.set("The Apache Software License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("tad")
+                        name.set("Tad Fisher")
+                        email.set("tad@simple.com")
+                    }
+                }
+                scm {
                     url.set(pluginUrl)
-                    licenses {
-                        license {
-                            name.set("The Apache Software License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("repo")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id.set("tad")
-                            name.set("Tad Fisher")
-                            email.set("tad@simple.com")
-                        }
-                    }
-                    scm {
-                        url.set(pluginUrl)
-                        connection.set("$pluginUrl.git")
-                        tag.set(if (isSnapshot) "master" else "v${project.version}")
-                    }
+                    connection.set("$pluginUrl.git")
+                    tag.set(if (isSnapshot) "master" else "v${project.version}")
                 }
             }
         }
     }
     repositories {
         maven {
-            name = "releases"
-            url = uri("https://nexus-build.banksimple.com/repository/simple-maven-releases/")
+            name = "github"
+            url = uri("https://maven.pkg.github.com/simplefinance/gradle-test-lab-plugin")
             credentials {
-                username = nexusUsername
-                password = nexusPassword
+                username = githubUser
+                password = githubPass
             }
         }
-        maven {
-            name = "snapshots"
-            url = uri("https://nexus-build.banksimple.com/repository/simple-maven-snapshots/")
-            credentials {
-                username = nexusUsername
-                password = nexusPassword
-            }
-        }
-    }
-}
-
-tasks.withType<PublishToMavenRepository> {
-    onlyIf {
-        (!isSnapshot && repository.name == "releases") ||
-            (isSnapshot && repository.name == "snapshots")
     }
 }
 

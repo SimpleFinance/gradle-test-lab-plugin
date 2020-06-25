@@ -9,9 +9,9 @@ interface RoboDirective {
     val actionType: String
 
     /**
-    * The text that Robo is directed to set. If left empty, the directive will be treated as a CLICK
-    * on the element matching [resourceName]. Optional.
-    */
+     * The text that Robo is directed to set. If left empty, the directive will be treated as a CLICK
+     * on the element matching [resourceName]. Optional.
+     */
     val inputText: String?
 
     /**

@@ -24,7 +24,7 @@ val customInstallation by tasks.registering(Copy::class) {
     onlyIf { !customInstallationDir.exists() }
 }
 
-allprojects {
+subprojects {
     buildscript {
         dependencyLocking.lockAllConfigurations()
     }
@@ -32,6 +32,6 @@ allprojects {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "5.4.1"
+    gradleVersion = "6.5"
     distributionType = Wrapper.DistributionType.ALL
 }

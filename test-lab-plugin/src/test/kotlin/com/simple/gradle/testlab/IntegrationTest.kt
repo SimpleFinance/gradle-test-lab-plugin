@@ -16,7 +16,8 @@ class IntegrationTest {
         customInstallationBuildDir.listFiles()?.let {
             it.singleOrNull { it.name.startsWith("gradle") }
                 ?: throw IllegalStateException(
-                    "Expected 1 custom installation but found ${it.size}. Run `./gradlew clean customInstallation`.")
+                    "Expected 1 custom installation but found ${it.size}. Run `./gradlew clean customInstallation`."
+                )
         } ?: throw IllegalStateException("Custom installation not found. Run `./gradlew customInstallation`.")
     }
 
@@ -26,11 +27,13 @@ class IntegrationTest {
             // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample"))
-            .withArguments(":clean", ":tasks",
+            .withArguments(
+                ":clean", ":tasks",
                 "--all",
                 "--warning-mode", "all",
                 "--stacktrace",
-                "--include-build=$rootProjectDir")
+                "--include-build=$rootProjectDir"
+            )
             .build()
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
         assertThat(result.output, containsSubstring("testLabDebugFooTest"))
@@ -47,11 +50,13 @@ class IntegrationTest {
             // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample-kotlin"))
-            .withArguments(":clean", ":tasks",
+            .withArguments(
+                ":clean", ":tasks",
                 "--all",
                 "--warning-mode", "all",
                 "--stacktrace",
-                "--include-build=$rootProjectDir")
+                "--include-build=$rootProjectDir"
+            )
             .build()
 
         assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))

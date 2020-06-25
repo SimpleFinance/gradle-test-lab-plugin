@@ -25,13 +25,15 @@ internal class MatrixMonitor(
             TestState.INCOMPATIBLE_ENVIRONMENT,
             TestState.INCOMPATIBLE_ARCHITECTURE,
             TestState.CANCELLED,
-            TestState.INVALID)
+            TestState.INVALID
+        )
 
         val completedMatrixStates = setOf(
             TestState.FINISHED,
             TestState.ERROR,
             TestState.CANCELLED,
-            TestState.INVALID)
+            TestState.INVALID
+        )
     }
 
     private var maxStatusLength = 0
@@ -49,8 +51,10 @@ internal class MatrixMonitor(
         }
 
         if (unsupportedDimensions.isNotEmpty()) {
-            log.warn("Some device dimensions are not compatible and will be skipped:\n  " +
-                    unsupportedDimensions.joinToString("\n  "))
+            log.warn(
+                "Some device dimensions are not compatible and will be skipped:\n  " +
+                    unsupportedDimensions.joinToString("\n  ")
+            )
         }
 
         val type = testType.name.toLowerCase()
@@ -60,10 +64,10 @@ internal class MatrixMonitor(
     }
 
     fun getTestMatrixStatus(): TestMatrix =
-            googleApi.testing.projects().testMatrices().get(projectId, matrixId).execute()
+        googleApi.testing.projects().testMatrices().get(projectId, matrixId).execute()
 
     fun cancelTestMatrix(): CancelTestMatrixResponse =
-            googleApi.testing.projects().testMatrices().cancel(projectId, matrixId).execute()
+        googleApi.testing.projects().testMatrices().cancel(projectId, matrixId).execute()
 
     fun monitorTestExecutionProgress(testId: String) {
         var lastState: TestState? = null
@@ -120,8 +124,8 @@ internal class MatrixMonitor(
 
             val stateCounts = mutableMapOf<TestState, Int>()
             matrix.testExecutions
-                    .groupingBy { it.testState }
-                    .eachCountTo(stateCounts)
+                .groupingBy { it.testState }
+                .eachCountTo(stateCounts)
 
             updateMatrixStatus(stateCounts)
 
@@ -148,7 +152,7 @@ internal class MatrixMonitor(
 
     private fun getTestExecutionStatus(testId: String) =
         getTestMatrixStatus().testExecutions.firstOrNull { it.id == testId }
-                ?: throw GradleException("Test execution not found: matrix $matrixId, test $testId")
+            ?: throw GradleException("Test execution not found: matrix $matrixId, test $testId")
 
     private fun logTestComplete(state: TestState) {
         log.info("Test matrix completed in state: $state")

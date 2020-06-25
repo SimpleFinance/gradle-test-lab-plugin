@@ -47,18 +47,24 @@ internal open class DefaultInstrumentationTest @Inject constructor(
     override fun TestSpecification.configure(
         appApk: FileReference,
         testApk: FileReference?
-    ): TestSpecification = setAndroidInstrumentationTest(AndroidInstrumentationTest()
-        .setAppApk(appApk)
-        .setTestApk(checkNotNull(testApk) { "Test APK not provided for test '$name'." })
-        .setTestRunnerClass(testRunnerClass.orNull)
-        .setTestTargets(testTargets.get())
-        .setOrchestratorOption(when (useOrchestrator.orNull) {
-            null -> "ORCHESTRATOR_OPTION_UNSPECIFIED"
-            false -> "DO_NOT_USE_ORCHESTRATOR"
-            true -> "USE_ORCHESTRATOR"
-        }))
+    ): TestSpecification = setAndroidInstrumentationTest(
+        AndroidInstrumentationTest()
+            .setAppApk(appApk)
+            .setTestApk(checkNotNull(testApk) { "Test APK not provided for test '$name'." })
+            .setTestRunnerClass(testRunnerClass.orNull)
+            .setTestTargets(testTargets.get())
+            .setOrchestratorOption(
+                when (useOrchestrator.orNull) {
+                    null -> "ORCHESTRATOR_OPTION_UNSPECIFIED"
+                    false -> "DO_NOT_USE_ORCHESTRATOR"
+                    true -> "USE_ORCHESTRATOR"
+                }
+            )
+    )
 
     override fun TestSetup.configure(): TestSetup =
-        setEnvironmentVariables(this@DefaultInstrumentationTest.environmentVariables.get()
-            .map { (key, value) -> EnvironmentVariable().setKey(key).setValue(value) })
+        setEnvironmentVariables(
+            this@DefaultInstrumentationTest.environmentVariables.get()
+                .map { (key, value) -> EnvironmentVariable().setKey(key).setValue(value) }
+        )
 }
