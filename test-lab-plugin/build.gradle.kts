@@ -147,8 +147,13 @@ publishing {
     publications {
         matching { it.name == "pluginMaven" }.withType<MavenPublication> {
             artifact(tasks.shadowJar.get())
-            artifact(sourcesJar.get())
-            artifact(javadocJar.get())
+
+            // GitHub Packages appears to be broken when uploading SNAPSHOT JARs with classifiers.
+            // https://github.community/t/github-package-registry-as-maven-repo-trouble-uploading-artifact/14226
+            if (!isSnapshot) {
+                artifact(sourcesJar.get())
+                artifact(javadocJar.get())
+            }
 
             groupId = project.group.toString()
             artifactId = project.name
