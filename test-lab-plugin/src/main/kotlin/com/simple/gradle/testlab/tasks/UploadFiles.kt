@@ -40,7 +40,7 @@ open class UploadFiles @Inject constructor(
     @InputFile val appApk: RegularFileProperty = objects.fileProperty()
     @InputFile @Optional val testApk: RegularFileProperty = objects.fileProperty()
     @InputFiles val additionalApks: ConfigurableFileCollection = objects.fileCollection()
-    @Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
+    @get:Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
     @Input val prefix: Property<String> = objects.property()
     @Input val google: Property<GoogleApiConfig> = objects.property()
     @OutputFile val results: RegularFileProperty = objects.fileProperty().apply {

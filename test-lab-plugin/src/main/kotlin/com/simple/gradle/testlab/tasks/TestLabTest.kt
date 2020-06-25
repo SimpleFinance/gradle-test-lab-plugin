@@ -29,6 +29,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -42,9 +43,11 @@ open class TestLabTest @Inject constructor(
 ) : DefaultTask() {
     @Input @Optional val appPackageId: Property<String?> = objects.property()
     @Input val googleApiConfig: Property<GoogleApiConfig> = objects.property()
-    @Input internal val prefix: Property<String> = objects.property()
-    @Input internal val testConfig: Property<TestConfigInternal> = objects.property()
-    @InputFile internal val uploadResults: RegularFileProperty = objects.fileProperty()
+
+    @get:Input internal val prefix: Property<String> = objects.property()
+    @get:Input internal val testConfig: Property<TestConfigInternal> = objects.property()
+    @get:InputFile internal val uploadResults: RegularFileProperty = objects.fileProperty()
+
     @OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
         set(layout.buildDirectory.dir("test-results/$name"))
     }
@@ -61,7 +64,6 @@ open class TestLabTest @Inject constructor(
             appPackageId.orNull
         )
         val historyId = historyPicker.getToolResultsHistoryId(historyName)
-        val storage = resultStorage(historyId)
 
         val testMatrix = TestMatrix()
             .setClientInfo(clientInfo())
