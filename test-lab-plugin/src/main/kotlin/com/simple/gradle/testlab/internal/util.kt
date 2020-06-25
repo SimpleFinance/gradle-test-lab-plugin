@@ -81,4 +81,4 @@ internal val String.asFileReference: FileReference
 
 @Suppress("UnstableApiUsage")
 internal fun <T : Named, C : ExtensiblePolymorphicDomainObjectContainer<T>>
-    ObjectFactory.customPolymorphicContainer(containerType: KClass<C>): C = newInstance(containerType)
+ObjectFactory.customPolymorphicContainer(containerType: KClass<C>): C = newInstance(containerType)

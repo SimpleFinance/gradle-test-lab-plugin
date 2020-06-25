@@ -58,26 +58,31 @@ open class TestLabTest @Inject constructor(
         val historyPicker = ToolResultsHistoryPicker(googleApi)
         val historyName = historyPicker.pickHistoryName(
             testConfig.get().resultsHistoryName.orNull,
-            appPackageId.orNull)
+            appPackageId.orNull
+        )
         val historyId = historyPicker.getToolResultsHistoryId(historyName)
+        val storage = resultStorage(historyId)
 
         val testMatrix = TestMatrix()
-                .setClientInfo(clientInfo())
-                .setResultStorage(resultStorage(historyId))
-                .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
-                .setTestSpecification(testConfig.get()
+            .setClientInfo(clientInfo())
+            .setResultStorage(resultStorage(historyId))
+            .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
+            .setTestSpecification(
+                testConfig.get()
                     .testSpecification(
                         gcsPaths.appApk.asFileReference,
                         gcsPaths.testApk?.asFileReference,
                         gcsPaths.additionalApks.map { it.asFileReference },
-                        gcsPaths.deviceFiles.map { it.asDeviceFileReference })
-                    .get())
+                        gcsPaths.deviceFiles.map { it.asDeviceFileReference }
+                    )
+                    .get()
+            )
 
         log.info("Test matrix: ${testMatrix.toPrettyString()}")
 
         val triggeredTestMatrix = googleApi.testing.projects().testMatrices()
-                .create(googleApi.projectId, testMatrix)
-                .execute()
+            .create(googleApi.projectId, testMatrix)
+            .execute()
 
         log.info("Triggered matrix: ${triggeredTestMatrix.toPrettyString()}")
 
@@ -105,12 +110,14 @@ open class TestLabTest @Inject constructor(
         log.lifecycle("More results are available at [$url].")
 
         if (testConfig.get().artifacts.isNotEmpty()) {
-            with(ArtifactFetcherFactory(
-                googleApi.storage,
-                googleApi.bucketName,
-                prefix.get(),
-                outputDir.get().asFile
-            )) {
+            with(
+                ArtifactFetcherFactory(
+                    googleApi.storage,
+                    googleApi.bucketName,
+                    prefix.get(),
+                    outputDir.get().asFile
+                )
+            ) {
                 for (test in supportedExecutions) {
                     val suffix = with(test.environment.androidDevice) {
                         "$androidModelId-$androidVersionId-$locale-$orientation"
@@ -123,29 +130,33 @@ open class TestLabTest @Inject constructor(
     }
 
     private fun resultStorage(historyId: String?): ResultStorage = ResultStorage()
-            .setGoogleCloudStorage(GoogleCloudStorage().setGcsPath(gcsBucketPath))
-            .apply {
-                if (historyId != null) {
-                    toolResultsHistory = ToolResultsHistory()
-                            .setProjectId(googleApi.projectId)
-                            .setHistoryId(historyId)
-                }
+        .setGoogleCloudStorage(GoogleCloudStorage().setGcsPath(gcsBucketPath))
+        .apply {
+            if (historyId != null) {
+                toolResultsHistory = ToolResultsHistory()
+                    .setProjectId(googleApi.projectId)
+                    .setHistoryId(historyId)
             }
+        }
 
     // Mimic the `gcloud` tool; useOrchestrator does not work without this.
     private fun clientInfo(): ClientInfo = ClientInfo()
-            .setName("gcloud")
-            .setClientInfoDetails(listOf(
-                    ClientInfoDetail().setKey("Cloud SDK Version").setValue("178.0.0"),
-                    ClientInfoDetail().setKey("Release Track").setValue("GA")
-            ))
+        .setName("gcloud")
+        .setClientInfoDetails(
+            listOf(
+                ClientInfoDetail().setKey("Cloud SDK Version").setValue("178.0.0"),
+                ClientInfoDetail().setKey("Release Track").setValue("GA")
+            )
+        )
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
-            .setAndroidDevices(testConfig.get().devices.get().map {
+        .setAndroidDevices(
+            testConfig.get().devices.get().map {
                 AndroidDevice()
                     .setAndroidModelId(it.model)
-                        .setAndroidVersionId(it.api.toString())
-                        .setLocale(it.locale)
-                        .setOrientation(it.orientation.name.toLowerCase())
-            })
+                    .setAndroidVersionId(it.api.toString())
+                    .setLocale(it.locale)
+                    .setOrientation(it.orientation.name.toLowerCase())
+            }
+        )
 }

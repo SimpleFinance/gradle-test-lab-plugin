@@ -67,8 +67,10 @@ open class UploadFiles @Inject constructor(
                     is DeviceFile.Obb ->
                         UploadedFile(DeviceFile.Type.OBB, upload(it.source, "obb/"), it.filename)
                     is DeviceFile.Regular ->
-                        UploadedFile(DeviceFile.Type.REGULAR, upload(it.source, "files/"),
-                            it.devicePath)
+                        UploadedFile(
+                            DeviceFile.Type.REGULAR, upload(it.source, "files/"),
+                            it.devicePath
+                        )
                 }
             }
         )

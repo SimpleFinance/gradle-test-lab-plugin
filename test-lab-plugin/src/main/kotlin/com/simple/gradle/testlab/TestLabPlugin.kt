@@ -48,9 +48,13 @@ private fun Project.addTestLabTasksForApplicationVariant(
         "testLab${taskName(variant, test)}UploadFiles"
     ) {
         dependsOn(variant.packageApplicationProvider)
-        appApk.set(layout.file(provider {
-            variant.apks().first()
-        }))
+        appApk.set(
+            layout.file(
+                provider {
+                    variant.apks().first()
+                }
+            )
+        )
         additionalApks.from(test.additionalApks)
         deviceFiles.set(test.files)
         prefix.set(extension.prefix)
@@ -71,7 +75,7 @@ private fun Project.addTestLabTasksForApplicationVariant(
     ) {
         description =
             "Runs ${test.testType.name.toLowerCase()} test '${test.name}' " +
-                "for the ${variant.name} build on Firebase Test Lab."
+            "for the ${variant.name} build on Firebase Test Lab."
         group = JavaBasePlugin.VERIFICATION_GROUP
         dependsOn(uploadFiles)
         appPackageId.set(variant.applicationId)

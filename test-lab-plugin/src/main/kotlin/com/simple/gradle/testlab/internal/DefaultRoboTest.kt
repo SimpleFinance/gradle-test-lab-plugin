@@ -47,15 +47,19 @@ internal open class DefaultRoboTest @Inject constructor(
     override fun TestSpecification.configure(
         appApk: FileReference,
         testApk: FileReference?
-    ): TestSpecification = setAndroidRoboTest(AndroidRoboTest()
-        .setAppApk(appApk)
-        .setAppInitialActivity(appInitialActivity.orNull)
-        .setMaxDepth(maxDepth.orNull)
-        .setMaxSteps(maxSteps.orNull)
-        .setRoboDirectives(directives.get().map {
-            GoogleRoboDirective()
-                .setActionType(it.actionType)
-                .setResourceName(it.resourceName)
-                .setInputText(it.inputText)
-        }))
+    ): TestSpecification = setAndroidRoboTest(
+        AndroidRoboTest()
+            .setAppApk(appApk)
+            .setAppInitialActivity(appInitialActivity.orNull)
+            .setMaxDepth(maxDepth.orNull)
+            .setMaxSteps(maxSteps.orNull)
+            .setRoboDirectives(
+                directives.get().map {
+                    GoogleRoboDirective()
+                        .setActionType(it.actionType)
+                        .setResourceName(it.resourceName)
+                        .setInputText(it.inputText)
+                }
+            )
+    )
 }

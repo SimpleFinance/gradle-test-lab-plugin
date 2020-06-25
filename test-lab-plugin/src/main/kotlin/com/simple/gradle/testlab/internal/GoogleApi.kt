@@ -18,6 +18,7 @@ import com.google.api.services.toolresults.ToolResults
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
+import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.GradleException
@@ -26,7 +27,7 @@ import java.io.FileInputStream
 
 internal class GoogleApi(
     val config: GoogleApiConfig,
-    val logger: Logger
+    private val logger: Logger
 ) {
     companion object {
         private const val APPLICATION_NAME = "gradle-test-lab-plugin"
@@ -36,44 +37,46 @@ internal class GoogleApi(
         GoogleNetHttpTransport.newTrustedTransport()
     }
 
-    val jsonFactory: JsonFactory by lazy { JacksonFactory.getDefaultInstance() }
+    private val jsonFactory: JsonFactory by lazy { JacksonFactory.getDefaultInstance() }
 
     val bucketName by lazy { config.bucketName ?: defaultBucketName() }
 
     val projectId by lazy {
         config.projectId
-                ?: (credentials as? ServiceAccountCredentials)?.projectId
-                ?: throw GradleException("Missing 'projectId' in Test Lab configuration")
+            ?: (credentials as? ServiceAccountCredentials)?.projectId
+            ?: throw GradleException("Missing 'projectId' in Test Lab configuration")
     }
 
-    val credentials by lazy {
-        (config.serviceCredentials
-            ?.let { GoogleCredentials.fromStream(FileInputStream(it)) }
-            ?: GoogleCredentials.getApplicationDefault())
+    private val credentials: GoogleCredentials by lazy {
+        (
+            config.serviceCredentials
+                ?.let { GoogleCredentials.fromStream(FileInputStream(it)) }
+                ?: GoogleCredentials.getApplicationDefault()
+            )
             .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
     }
 
-    val requestInitializer: HttpRequestInitializer by lazy {
+    private val requestInitializer: HttpRequestInitializer by lazy {
         GoogleApiRequestInitializer(credentials, logger.isDebugEnabled)
     }
 
-    val storage by lazy {
+    val storage: Storage by lazy {
         StorageOptions.newBuilder()
             .setCredentials(credentials)
             .build()
             .service
     }
 
-    val testing by lazy {
+    val testing: Testing by lazy {
         Testing.Builder(httpTransport, jsonFactory, requestInitializer)
-                .setApplicationName(APPLICATION_NAME)
-                .build()
+            .setApplicationName(APPLICATION_NAME)
+            .build()
     }
 
-    val toolResults by lazy {
+    val toolResults: ToolResults by lazy {
         ToolResults.Builder(httpTransport, jsonFactory, requestInitializer)
-                .setApplicationName(APPLICATION_NAME)
-                .build()
+            .setApplicationName(APPLICATION_NAME)
+            .build()
     }
 }
 

@@ -2,13 +2,13 @@ import com.simple.gradle.testlab.model.Orientation
 import com.simple.gradle.testlab.model.TestConfig
 
 plugins {
-    id("com.android.application") version "3.3.2"
+    id("com.android.application") version "4.0.0"
     id("com.simple.gradle.testlab")
 }
 
 android {
-    compileSdkVersion(28)
-    buildToolsVersion("28.0.3")
+    compileSdkVersion(29)
+    buildToolsVersion("29.0.3")
 }
 
 repositories {
@@ -105,6 +105,6 @@ fun TestConfig.common() {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "5.4.1"
+    gradleVersion = "6.5"
 }
 

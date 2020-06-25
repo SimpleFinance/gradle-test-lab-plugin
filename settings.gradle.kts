@@ -12,4 +12,6 @@ pluginManagement {
     }
 }
 
+enableFeaturePreview("ONE_LOCKFILE_PER_PROJECT")
+
 include(":test-lab-plugin")
