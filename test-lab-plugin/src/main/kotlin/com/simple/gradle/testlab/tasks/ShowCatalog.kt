@@ -7,6 +7,7 @@ import com.simple.gradle.testlab.model.GoogleApiConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.HelpTasksPlugin
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import javax.inject.Inject
 open class ShowCatalog @Inject constructor(
     objects: ObjectFactory
 ) : DefaultTask() {
+    @Input
     val googleApi = objects.property<GoogleApiConfig>()
 
     init {
