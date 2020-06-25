@@ -12,14 +12,15 @@ import org.gradle.internal.HasInternalProtocol
  */
 interface TestLabExtension {
     companion object {
-        /** The name of this extension when installed by the [TestLabPlugin] ("testLab"). */
+        /**
+         * The name of this extension when installed by the [TestLabPlugin][com.simple.gradle.testlab.TestLabPlugin]
+         * ("testLab").
+         */
         const val NAME: String = "testLab"
     }
 
     /**
      * The Google API configuration to use for this project.
-     *
-     * @see googleApi
      */
     val googleApi: GoogleApiConfig
 

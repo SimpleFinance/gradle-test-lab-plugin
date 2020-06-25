@@ -21,7 +21,7 @@ val pluginUrl = "https://github.com/SimpleFinance/gradle-test-lab-plugin"
 
 group = "com.simple.gradle.testlab"
 version = if (isSnapshot) "$baseVersion-SNAPSHOT" else baseVersion
-description = "Run Firebase tests directly from Gradle"
+description = "Run Firebase Test Lab tests directly from Gradle"
 
 repositories {
     mavenCentral()
@@ -90,6 +90,9 @@ tasks {
     test {
         dependsOn(rootProject.tasks.named("customInstallation"))
         dependsOn(shadowJar)
+        reports {
+            junitXml.isEnabled = true
+        }
     }
 
     dokka {
@@ -97,6 +100,10 @@ tasks {
         outputDirectory = "$buildDir/javadoc"
         configuration {
             jdkVersion = 8
+            perPackageOption {
+                prefix = "com.simple.gradle.testlab.shadow"
+                suppress = true
+            }
         }
     }
 }
@@ -122,8 +129,9 @@ gradlePlugin {
     plugins {
         register("testLab") {
             id = project.group.toString()
-            displayName = pluginDisplayName
             implementationClass = "com.simple.gradle.testlab.TestLabPlugin"
+            displayName = pluginDisplayName
+            description = project.description
         }
     }
 }
@@ -137,38 +145,37 @@ pluginBundle {
 
 publishing {
     publications {
-        afterEvaluate {
-            named<MavenPublication>("pluginMaven") {
-                artifact(sourcesJar.get())
-                artifact(javadocJar.get())
+        matching { it.name == "pluginMaven" }.withType<MavenPublication> {
+            artifact(tasks.shadowJar.get())
+            artifact(sourcesJar.get())
+            artifact(javadocJar.get())
 
-                groupId = project.group.toString()
-                artifactId = project.name
-                version = project.version.toString()
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
-                pom {
-                    name.set(pluginDisplayName)
-                    description.set(project.description)
+            pom {
+                name.set(pluginDisplayName)
+                description.set(project.description)
+                url.set(pluginUrl)
+                licenses {
+                    license {
+                        name.set("The Apache Software License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("tad")
+                        name.set("Tad Fisher")
+                        email.set("tad@simple.com")
+                    }
+                }
+                scm {
                     url.set(pluginUrl)
-                    licenses {
-                        license {
-                            name.set("The Apache Software License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("repo")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id.set("tad")
-                            name.set("Tad Fisher")
-                            email.set("tad@simple.com")
-                        }
-                    }
-                    scm {
-                        url.set(pluginUrl)
-                        connection.set("$pluginUrl.git")
-                        tag.set(if (isSnapshot) "master" else "v${project.version}")
-                    }
+                    connection.set("$pluginUrl.git")
+                    tag.set(if (isSnapshot) "master" else "v${project.version}")
                 }
             }
         }
@@ -176,10 +183,10 @@ publishing {
     repositories {
         maven {
             name = "github"
-            url = uri("https://maven.pkg.github.com/SimpleFinance/gradle-test-lab-plugin")
+            url = uri("https://maven.pkg.github.com/simplefinance/gradle-test-lab-plugin")
             credentials {
-                username = githubUser ?: System.getenv("GITHUB_ACTOR")
-                password = githubPass ?: System.getenv("GITHUB_TOKEN")
+                username = githubUser
+                password = githubPass
             }
         }
     }
