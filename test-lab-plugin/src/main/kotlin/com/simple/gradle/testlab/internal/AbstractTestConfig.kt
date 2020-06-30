@@ -5,7 +5,7 @@ import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.internal.artifacts.Artifact
-import com.simple.gradle.testlab.model.Account
+import com.simple.gradle.testlab.model.AccountHandler
 import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.Orientation
@@ -14,7 +14,9 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.setProperty
 
 @Suppress("UnstableApiUsage")
 internal abstract class AbstractTestConfig(
@@ -23,23 +25,23 @@ internal abstract class AbstractTestConfig(
     objects: ObjectFactory,
     private val providers: ProviderFactory
 ) : TestConfigInternal {
-    override val account = DefaultAccount()
-    override val artifacts = mutableSetOf<Artifact>()
+    override val account = objects.newInstance<DefaultAccountHandler>()
+    override val artifacts = objects.setProperty<Artifact>().empty()
     override val devices = objects.listProperty<Device>()
-    override val files = objects.listProperty<DeviceFile>()
+    override val files = objects.listProperty<DeviceFile>().empty()
 
     override val additionalApks = objects.fileCollection()
-    override val disablePerformanceMetrics = objects.property<Boolean>().convention(false)
-    override val disableVideoRecording = objects.property<Boolean>().convention(false)
+    override val disablePerformanceMetrics = objects.property<Boolean>().value(false)
+    override val disableVideoRecording = objects.property<Boolean>().value(false)
     override val resultsHistoryName = objects.property<String>()
-    override val testTimeout = objects.property<String>().convention("900s")
+    override val testTimeout = objects.property<String>().value("900s")
 
-    override val directoriesToPull = objects.listProperty<String>()
+    override val directoriesToPull = objects.listProperty<String>().empty()
     override val networkProfile = objects.property<String>()
 
     override fun getName(): String = nameInternal
 
-    override fun account(configure: Action<Account>) {
+    override fun account(configure: Action<AccountHandler>) {
         configure.execute(account)
     }
 
@@ -79,7 +81,7 @@ internal abstract class AbstractTestConfig(
         .setDirectoriesToPull(directoriesToPull.get())
         .setNetworkProfile(networkProfile.orNull)
         .setFilesToPush(deviceFiles.map { it.asDeviceFile })
-        .setAccount(this@AbstractTestConfig.account.account)
+        .setAccount(this@AbstractTestConfig.account.account.get().testAccount)
         .apply { configure() }
 
     protected open fun TestSpecification.configure(

@@ -2,9 +2,10 @@ package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.InstrumentationArtifactsHandler
+import org.gradle.api.provider.SetProperty
 
 internal class DefaultInstrumentationArtifactsHandler(
-    artifacts: MutableSet<Artifact>
+    artifacts: SetProperty<Artifact>
 ) : InstrumentationArtifactsHandler {
     override fun all() {
         instrumentation = true

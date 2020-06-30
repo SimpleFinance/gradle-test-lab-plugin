@@ -21,6 +21,7 @@ import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApiConfig
+import com.simple.gradle.testlab.model.TestConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
@@ -29,10 +30,12 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import java.util.Locale
 import javax.inject.Inject
 
 @Suppress("UnstableApiUsage")
@@ -41,11 +44,10 @@ open class TestLabTest @Inject constructor(
     objects: ObjectFactory
 ) : DefaultTask() {
     @Input @Optional val appPackageId: Property<String?> = objects.property()
-    @Input val googleApiConfig: Property<GoogleApiConfig> = objects.property()
-
-    @get:Input internal val prefix: Property<String> = objects.property()
-    @get:Input internal val testConfig: Property<TestConfigInternal> = objects.property()
-    @get:InputFile internal val uploadResults: RegularFileProperty = objects.fileProperty()
+    @Nested val googleApiConfig: Property<GoogleApiConfig> = objects.property()
+    @Input val prefix: Property<String> = objects.property()
+    @Nested val testConfig: Property<TestConfig> = objects.property()
+    @InputFile val uploadResults: RegularFileProperty = objects.fileProperty()
 
     @OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
         set(layout.buildDirectory.dir("test-results/$name"))
@@ -54,6 +56,9 @@ open class TestLabTest @Inject constructor(
     private val googleApi by lazy { GoogleApi(googleApiConfig.get(), logger) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
     private val gcsPaths by lazy { UploadResults.fromJson(uploadResults.get().asFile.readText()) }
+    private val testConfigInternal: TestConfigInternal by lazy {
+        testConfig.get() as TestConfigInternal
+    }
 
     @TaskAction
     fun runTest() {
@@ -69,7 +74,7 @@ open class TestLabTest @Inject constructor(
             .setResultStorage(resultStorage(historyId))
             .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
             .setTestSpecification(
-                testConfig.get()
+                testConfigInternal
                     .testSpecification(
                         gcsPaths.appApk.asFileReference,
                         gcsPaths.testApk?.asFileReference,
@@ -90,7 +95,7 @@ open class TestLabTest @Inject constructor(
         val projectId = triggeredTestMatrix.projectId
         val matrixId = triggeredTestMatrix.testMatrixId
 
-        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfig.get().testType)
+        val monitor = MatrixMonitor(googleApi, projectId, matrixId, testConfigInternal.testType)
 
         val canceler = Thread { monitor.cancelTestMatrix() }
         Runtime.getRuntime().addShutdownHook(canceler)
@@ -110,7 +115,7 @@ open class TestLabTest @Inject constructor(
 
         log.lifecycle("More results are available at [$url].")
 
-        if (testConfig.get().artifacts.isNotEmpty()) {
+        if (testConfigInternal.artifacts.get().isNotEmpty()) {
             with(
                 ArtifactFetcherFactory(
                     googleApi.storage,
@@ -124,7 +129,7 @@ open class TestLabTest @Inject constructor(
                         "$androidModelId-$androidVersionId-$locale-$orientation"
                     }
                     log.lifecycle("Fetching result artifacts for $suffix...")
-                    testConfig.get().artifacts.forEach { createFetcher(suffix, it).fetch() }
+                    testConfigInternal.artifacts.get().forEach { createFetcher(suffix, it).fetch() }
                 }
             }
         }
@@ -152,12 +157,12 @@ open class TestLabTest @Inject constructor(
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()
         .setAndroidDevices(
-            testConfig.get().devices.get().map {
+            testConfigInternal.devices.get().map {
                 AndroidDevice()
                     .setAndroidModelId(it.model)
                     .setAndroidVersionId(it.api.toString())
                     .setLocale(it.locale)
-                    .setOrientation(it.orientation.name.toLowerCase())
+                    .setOrientation(it.orientation.name.toLowerCase(Locale.ENGLISH))
             }
         )
 }

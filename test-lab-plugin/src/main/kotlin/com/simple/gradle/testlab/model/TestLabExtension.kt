@@ -1,9 +1,7 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
-import org.gradle.internal.HasInternalProtocol
 
-@HasInternalProtocol
 /**
  * The configuration of Firebase Test Lab tests for this project.
  *
@@ -46,7 +44,7 @@ interface TestLabExtension {
      *       }
      *     }
      */
-    fun googleApi(configure: Action<GoogleApiConfig>)
+    fun googleApi(configure: Action<in GoogleApiConfig>)
 
     /**
      * Configures the test configurations for this project.
@@ -87,5 +85,5 @@ interface TestLabExtension {
      * @see RoboTest
      * @see TestConfig
      */
-    fun tests(configure: Action<TestConfigContainer>)
+    fun tests(configure: Action<in TestConfigContainer>)
 }

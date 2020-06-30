@@ -28,9 +28,13 @@ internal open class DefaultTestLabExtension @Inject constructor(
     }
     override val prefix by lazy { getUniquePathPrefix() }
 
-    override fun googleApi(configure: Action<GoogleApiConfig>) = configure.execute(googleApi)
+    override fun googleApi(configure: Action<in GoogleApiConfig>) {
+        configure.execute(googleApi)
+    }
 
-    override fun tests(configure: Action<TestConfigContainer>) = configure.execute(tests)
+    override fun tests(configure: Action<in TestConfigContainer>) {
+        configure.execute(tests)
+    }
 
     private fun getUniquePathPrefix(): String {
         val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

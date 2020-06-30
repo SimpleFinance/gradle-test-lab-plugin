@@ -6,6 +6,11 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 
 /**
  * Base test configuration.
@@ -16,28 +21,28 @@ import org.gradle.api.provider.Provider
 @Suppress("UnstableApiUsage")
 interface TestConfig : Named {
     /* The device will be logged in on this account for the duration of the test. */
-    val account: Account
+    @get:Nested val account: AccountHandler
 
     /** APKs to install in addition to those being directly tested. Currently capped at 100. */
-    val additionalApks: ConfigurableFileCollection
+    @get:InputFiles val additionalApks: ConfigurableFileCollection
 
     /** Disables performance metrics recording; may reduce test latency. */
-    val disablePerformanceMetrics: Property<Boolean>
+    @get:Input val disablePerformanceMetrics: Property<Boolean>
 
     /** Disables video recording; may reduce test latency. */
-    val disableVideoRecording: Property<Boolean>
+    @get:Input val disableVideoRecording: Property<Boolean>
 
     /**
      * The name of the results history entry. This appears in the Firebase console and
      * identifies this test.
      */
-    val resultsHistoryName: Property<String>
+    @get:[Input Optional] val resultsHistoryName: Property<String>
 
     /**
      * Max time a test execution is allowed to run before it is automatically cancelled.
      * Optional; the default is `5 min`.
      */
-    val testTimeout: Property<String>
+    @get:Input val testTimeout: Property<String>
 
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
@@ -48,13 +53,13 @@ interface TestConfig : Named {
      * substitutions. E.g. if /sdcard on a particular device does not map to external storage, the
      * system will replace it with the external storage path prefix for that device.
      */
-    val directoriesToPull: ListProperty<String>
+    @get:Input val directoriesToPull: ListProperty<String>
 
     /** The network traffic profile used for running the test. */
-    val networkProfile: Property<String>
+    @get:[Input Optional] val networkProfile: Property<String>
 
     /* The device will be logged in on this account for the duration of the test. */
-    fun account(configure: Action<Account>)
+    fun account(configure: Action<AccountHandler>)
 
     /** Configure and add a [device][Device] on which this test should run. */
     fun device(
@@ -72,4 +77,7 @@ interface TestConfig : Named {
 
     /** Configure the list of files to push to the device before starting the test. */
     fun files(configure: Action<in DeviceFilesHandler>)
+
+    @Internal
+    override fun getName(): String
 }

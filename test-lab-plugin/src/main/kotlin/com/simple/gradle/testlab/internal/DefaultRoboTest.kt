@@ -20,9 +20,8 @@ internal open class DefaultRoboTest @Inject constructor(
     name: String,
     objects: ObjectFactory,
     providers: ProviderFactory
-) : AbstractTestConfig(TestType.ROBO, name, objects, providers), RoboTest {
-
-    private val directives = objects.listProperty<RoboDirective>()
+) : AbstractTestConfig(TestType.ROBO, name, objects, providers),
+    RoboTest {
 
     private val artifactsHandler by lazy {
         DefaultRoboArtifactsHandler(artifacts)
@@ -32,6 +31,7 @@ internal open class DefaultRoboTest @Inject constructor(
         DefaultRoboDirectivesHandler(directives)
     }
 
+    override val directives = objects.listProperty<RoboDirective>()
     override val appInitialActivity = objects.property<String>()
     override val maxDepth = objects.property<Int>()
     override val maxSteps = objects.property<Int>()
@@ -54,7 +54,7 @@ internal open class DefaultRoboTest @Inject constructor(
             .setMaxDepth(maxDepth.orNull)
             .setMaxSteps(maxSteps.orNull)
             .setRoboDirectives(
-                directives.get().map {
+                directives.orNull?.map {
                     GoogleRoboDirective()
                         .setActionType(it.actionType)
                         .setResourceName(it.resourceName)
