@@ -1,4 +1,5 @@
 import com.simple.gradle.testlab.model.Orientation
+import com.simple.gradle.testlab.model.TestSize
 
 plugins {
     id 'com.android.application' version '4.1.0'
@@ -45,14 +46,25 @@ testLab {
         instrumentation("instrumented") {
             environmentVariables["key"] = "value"
             testRunnerClass = "com.example.test.MyTestRunner"
-            testTargets.addAll(
-                    "package com.my.package.name",
-                    "notPackage com.package.to.skip",
-                    "class com.foo.ClassName",
-                    "notClass com.foo.ClassName#testMethodToSkip",
-                    "annotation com.foo.AnnotationToRun",
-                    "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                packages = ["com.my.package.name", "!com.my.package.other"]
+                classes = ["com.foo.ClassName", "!com.foo.OtherClass"]
+                annotations = ["com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip"]
+                includeFile = "/data/local/tmp/include.txt"
+                excludeFile = "/data/local/tmp/exclude.txt"
+                regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                size = TestSize.LARGE
+                shardCount = 10
+                shard {
+                    packages = ["com.my.package.name", "!com.my.package.other"]
+                    classes = ["com.foo.ClassName", "!com.foo.OtherClass"]
+                    annotations = ["com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip"]
+                    includeFile = "/data/local/tmp/include.txt"
+                    excludeFile = "/data/local/tmp/exclude.txt"
+                    regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                    size = TestSize.LARGE
+                }
+            }
             artifacts {
                 all()
                 instrumentation = true

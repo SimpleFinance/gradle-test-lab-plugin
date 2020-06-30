@@ -202,14 +202,56 @@ testLab {
 
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                
+                // Include all tests in the given packages.
+                packages.add("com.my.package.name")
+
+                // Exclude all tests in the given packages.
+                packages.add("!com.package.to.skip")
+
+                // Include all tests in the given classes or test methods.
+                classes.add("com.package.Class")
+                classes.add("com.package.Class#method")
+
+                // Exclude all tests in the given classes or test methods.
+                classes.add("!com.package.Class")
+                classes.add("!com.package.Class#method")
+
+                // Include tests annotated with *all* of the given annotations.               
+                annotations.add("com.package.Annotation")
+
+                // Exclude tests annotated with *any* of the given annotations.
+                annotations.add("!com.foo.AnnotationToSkip")
+
+                // Include tests listed in a file located at the given path on the target device.
+                includeFile.set("/data/local/tmp/include.txt")
+
+                // Exclude tests listed in a file located at the given path on the target device.
+                excludeFile.set("/data/local/tmp/exclude.txt")
+                
+                // Include tests matching the given regular expression.
+                regex.set("""^com\.package\.(MyClass|OtherClass)#test.+""")
+
+                // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
+                size.set(TestSize.LARGE) // Alternatives: TestSize.MEDIUM, TestSize.SMALL
+ 
+                // Uniformly distribute test targets among this number of shards. Shards are
+                // executed in parallel across all devices.
+                shardCount.set(10)
+ 
+                // Add an explicit shard of test targets. Shards are executed in parallel
+                // across all devices.
+                shard {
+                    packages.add("com.my.package.name")
+                    classes.add("com.foo.ClassName")
+                    annotations.add("com.foo.AnnotationToRun")
+                    includeFile.set("/data/local/tmp/include.txt")
+                    excludeFile.set("/data/local/tmp/exclude.txt")
+                    regex.set("""^com\.package\.(MyClass|OtherClass)#test.+""")
+                    size.set(TestSize.LARGE)
+                }
+            }
 
             // Configures artifacts to fetch after completing the test.
             artifacts {
@@ -355,14 +397,56 @@ testLab {
 
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                
+                // Include all tests in the given packages.
+                packages.add("com.my.package.name")
+
+                // Exclude all tests in the given packages.
+                packages.add("!com.package.to.skip")
+
+                // Include all tests in the given classes or test methods.
+                classes.add("com.package.Class")
+                classes.add("com.package.Class#method")
+
+                // Exclude all tests in the given classes or test methods.
+                classes.add("!com.package.Class")
+                classes.add("!com.package.Class#method")
+
+                // Include tests annotated with *all* of the given annotations.               
+                annotations.add("com.package.Annotation")
+
+                // Exclude tests annotated with *any* of the given annotations.
+                annotations.add("!com.foo.AnnotationToSkip")
+
+                // Include tests listed in a file located at the given path on the target device.
+                includeFile = "/data/local/tmp/include.txt"
+
+                // Exclude tests listed in a file located at the given path on the target device.
+                excludeFile = "/data/local/tmp/exclude.txt"
+                
+                // Include tests matching the given regular expression.
+                regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+
+                // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
+                size = TestSize.LARGE // Alternatives: TestSize.MEDIUM, TestSize.SMALL
+ 
+                // Uniformly distribute test targets among this number of shards. Shards are
+                // executed in parallel across all devices.
+                shardCount.set(10)
+ 
+                // Add an explicit shard of test targets. Shards are executed in parallel
+                // across all devices.
+                shard {
+                    packages.add("com.my.package.name")
+                    classes.add("com.foo.ClassName")
+                    annotations.add("com.foo.AnnotationToRun")
+                    includeFile = "/data/local/tmp/include.txt"
+                    excludeFile = "/data/local/tmp/exclude.txt"
+                    regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                    size = TestSize.LARGE
+                }
+            }
 
             // Configures artifacts to fetch after completing the test.
             artifacts {

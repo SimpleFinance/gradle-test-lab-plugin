@@ -1,5 +1,6 @@
 import com.simple.gradle.testlab.model.Orientation
 import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.TestSize
 
 plugins {
     id("com.android.application") version "4.1.0"
@@ -48,14 +49,25 @@ testLab {
 
             environmentVariables.put("key", "value")
             testRunnerClass.set("com.example.test.MyTestRunner")
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                packages.addAll("com.my.package.name", "!com.my.package.other")
+                classes.addAll("com.foo.ClassName", "!com.foo.OtherClass")
+                annotations.addAll("com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip")
+                includeFile.set("/data/local/tmp/include.txt")
+                excludeFile.set("/data/local/tmp/exclude.txt")
+                regex.set("""/^com\.package\.(MyClass|OtherClass)#test.+""")
+                size.set(TestSize.LARGE)
+                shardCount.set(10)
+                shard {
+                    packages.addAll("com.my.package.name", "!com.my.package.other")
+                    classes.addAll("com.foo.ClassName", "!com.foo.OtherClass")
+                    annotations.addAll("com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip")
+                    includeFile.set("/data/local/tmp/include.txt")
+                    excludeFile.set("/data/local/tmp/exclude.txt")
+                    regex.set("""/^com\.package\.(MyClass|OtherClass)#test.+""")
+                    size.set(TestSize.LARGE)
+                }
+            }
             artifacts {
                 all()
                 instrumentation = true
@@ -140,4 +152,3 @@ fun TestConfig.common() {
 tasks.withType<Wrapper> {
     gradleVersion = "6.6.1"
 }
-

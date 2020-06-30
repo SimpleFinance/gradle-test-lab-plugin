@@ -17,7 +17,6 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.kotlin.dsl.property
@@ -34,7 +33,7 @@ abstract class UploadTask(
     @Input
     val prefix: Property<String> = objects.property()
 
-    @Nested
+    @Internal
     val googleApiConfig: Property<GoogleApiConfig> = objects.property()
 
     @Internal

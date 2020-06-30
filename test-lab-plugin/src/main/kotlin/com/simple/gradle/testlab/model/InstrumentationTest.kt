@@ -5,6 +5,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 /**
@@ -27,12 +28,18 @@ interface InstrumentationTest : TestConfig {
     /**
      * Test targets to execute. Optional; if empty, all targets in the module will
      * be ran.
-     *
-     * @see targetClass
-     * @see targetMethod
-     * @see targetPackage
      */
+    @Deprecated(
+        message = "Replaced with targets function",
+        replaceWith = ReplaceWith("targets { }"),
+        level = DeprecationLevel.WARNING
+    )
     @get:Input val testTargets: ListProperty<String>
+
+    /**
+     * Test targets to execute. If empty, all targets in the module will be ran.
+     */
+    @get:Nested val targets: TestTargetsHandler
 
     /**
      * Run each test within its own invocation with the
@@ -55,10 +62,31 @@ interface InstrumentationTest : TestConfig {
     fun artifacts(configure: Action<in InstrumentationArtifactsHandler>)
 
     /**
+     * Configure test targets and shards to execute.
+     *
+     * See [https://developer.android.com/reference/androidx/test/runner/AndroidJUnitRunner#execution-options] for the
+     * syntax of [targets].
+     *
+     * Typical targets are of the following forms:
+     *
+     * - `package name.of.package`
+     * - `class fully.qualified.ClassName`
+     * - `class fully.qualified.ClassName#MethodName`
+     *
+     * @see TestTargets
+     */
+    fun targets(configure: Action<in TestTargetsHandler>)
+
+    /**
      * Adds a package target.
      *
      * @param packageName the fully-qualified package name
      */
+    @Deprecated(
+        message = "Replaced with targets function",
+        replaceWith = ReplaceWith("targets { packages.add(packageName) }"),
+        level = DeprecationLevel.WARNING
+    )
     fun targetPackage(packageName: String)
 
     /**
@@ -66,6 +94,11 @@ interface InstrumentationTest : TestConfig {
      *
      * @param className the fully-qualified class name
      */
+    @Deprecated(
+        message = "Replaced with targets function",
+        replaceWith = ReplaceWith("targets { classes.add(className) }"),
+        level = DeprecationLevel.WARNING
+    )
     fun targetClass(className: String)
 
     /**
@@ -74,5 +107,10 @@ interface InstrumentationTest : TestConfig {
      * @param className the fully-qualified class name
      * @param methodName the method to execute
      */
+    @Deprecated(
+        message = "Replaced with targets function",
+        replaceWith = ReplaceWith("targets { classes.add(className + \"#\" + methodName) }"),
+        level = DeprecationLevel.WARNING
+    )
     fun targetMethod(className: String, methodName: String)
 }

@@ -9,10 +9,19 @@
 - Support for split APKs, which are passed via the `additionalApks` property.
 - Support for additional Robo test options:
   - `script`: File containing scripted actions taken by the Robo test runner.
-  - `startingIntents`: Intents used to start the application for the Robo crawl.
+  - `startingIntents { }`: Intents used to start the application for the Robo crawl.
 - Support for additional common test options:
   - `dontAutograntPermissions`: Prevent all runtime permissions from being granted at install time.
-  - `systrace`: Enables collection of systrace data.
+  - `systrace { }`: Enables collection of systrace data.
+- Support for Instrumentation test sharding.
+  - The following options have migrated to a `targets { }` closure and are deprecated:
+    - `testTargets`
+    - `targetPackage`
+    - `targetClass`
+    - `targetMethod`
+  - Shards are configured within the `targets { }` closure:
+    - `shardCount`: Uniformly distribute test targets among this number of shards.
+    - `shard { }`: Add an explicit shard of test targets.
 
 ### Changed
 

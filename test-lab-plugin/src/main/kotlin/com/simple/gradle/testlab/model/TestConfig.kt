@@ -18,7 +18,6 @@ import org.gradle.api.tasks.Optional
  * @see InstrumentationTest
  * @see RoboTest
  */
-@Suppress("UnstableApiUsage")
 interface TestConfig : Named {
     /* The device will be logged in on this account for the duration of the test. */
     @get:Nested val account: AccountHandler
@@ -55,7 +54,7 @@ interface TestConfig : Named {
      */
     @get:Input val testTimeout: Property<String>
 
-    @get:[Input Optional] val systrace: SystraceHandler
+    @get:Nested val systrace: SystraceHandler
 
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
