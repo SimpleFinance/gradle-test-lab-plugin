@@ -30,7 +30,13 @@ repositories {
     maven { url = uri("https://kotlin.bintray.com/kotlinx") }
 }
 
-val shadowed: Configuration by configurations.creating
+val shadowed: Configuration by configurations.creating {
+    // Already added to compileOnly by kotlin-dsl
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
+    exclude(group = "org.jetbrains", module = "annotations")
+}
 configurations {
     compileOnly {
         extendsFrom(shadowed)
@@ -43,11 +49,7 @@ configurations {
 dependencies {
     compileOnly("com.android.tools.build:gradle:4.0.+")
 
-    shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0") {
-        // Already added to compileOnly by kotlin-dsl
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
-    }
+    shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
     shadowed("com.google.api-client:google-api-client:latest.release")
     shadowed("com.google.apis:google-api-services-testing:latest.release")
     shadowed("com.google.apis:google-api-services-toolresults:v1beta3-rev20200513-1.30.9")
@@ -64,16 +66,31 @@ tasks {
         archiveClassifier.set("")
         configurations = listOf(shadowed)
         exclude("META-INF/maven/**")
+
         listOf(
             "com.fasterxml",
             "com.google",
+            "google.api",
+            "google.cloud",
+            "google.geo",
+            "google.iam",
+            "google.logging",
+            "google.longrunning",
+            "google.protobuf",
+            "google.rpc",
+            "google.type",
             "io",
             "kotlinx",
             "org.apache",
             "org.checkerframework",
-            "org.codehaus"
+            "org.codehaus.*",
+            "org.threeten.*"
         ).forEach {
             relocate(it, "com.simple.gradle.testlab.shadow.$it")
+        }
+
+        doFirst {
+            logger.lifecycle(dependsOn.joinToString())
         }
     }
 
