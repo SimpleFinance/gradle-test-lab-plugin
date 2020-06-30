@@ -24,6 +24,8 @@ import org.gradle.kotlin.dsl.the
 @Suppress("unused", "UnstableApiUsage")
 class TestLabPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
+        logger.debug("Test lab verison 0.4.0-SNAPSHOT")
+
         val extension = objects.newInstance<DefaultTestLabExtension>()
         extensions.add(TestLabExtension::class.java, TestLabExtension.NAME, extension)
 

@@ -21,6 +21,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -40,9 +41,9 @@ open class UploadFiles @Inject constructor(
     @InputFile val appApk: RegularFileProperty = objects.fileProperty()
     @InputFile @Optional val testApk: RegularFileProperty = objects.fileProperty()
     @InputFiles val additionalApks: ConfigurableFileCollection = objects.fileCollection()
-    @get:Input internal val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
+    @Nested val deviceFiles: ListProperty<DeviceFile> = objects.listProperty()
     @Input val prefix: Property<String> = objects.property()
-    @Input val google: Property<GoogleApiConfig> = objects.property()
+    @Nested val google: Property<GoogleApiConfig> = objects.property()
     @OutputFile val results: RegularFileProperty = objects.fileProperty().apply {
         set(layout.buildDirectory.file("testLab/$name/upload-results.json"))
     }

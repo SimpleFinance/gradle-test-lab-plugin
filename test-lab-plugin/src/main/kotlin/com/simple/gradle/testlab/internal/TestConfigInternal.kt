@@ -7,14 +7,18 @@ import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.TestConfig
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 
 @Suppress("UnstableApiUsage")
 internal interface TestConfigInternal : TestConfig {
-    val artifacts: MutableSet<Artifact>
-    val devices: ListProperty<Device>
-    val files: ListProperty<DeviceFile>
-    val requiresTestApk: Boolean
-    val testType: TestType
+    @get:Input val artifacts: SetProperty<Artifact>
+    @get:Nested val devices: ListProperty<Device>
+    @get:Nested val files: ListProperty<DeviceFile>
+    @get:Internal val requiresTestApk: Boolean
+    @get:Internal val testType: TestType
 
     fun testSpecification(
         appApk: FileReference,

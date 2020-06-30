@@ -2,10 +2,11 @@ package com.simple.gradle.testlab.internal
 
 import com.simple.gradle.testlab.internal.artifacts.Artifact
 import com.simple.gradle.testlab.model.RoboArtifactsHandler
+import org.gradle.api.provider.SetProperty
 
 @Suppress("UnstableApiUsage")
 internal class DefaultRoboArtifactsHandler(
-    artifacts: MutableSet<Artifact>
+    artifacts: SetProperty<Artifact>
 ) : RoboArtifactsHandler {
     override fun all() {
         logcat = true

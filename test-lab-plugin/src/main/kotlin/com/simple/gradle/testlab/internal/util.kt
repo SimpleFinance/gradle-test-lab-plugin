@@ -8,6 +8,7 @@ import org.gradle.api.Named
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.newInstance
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
@@ -62,17 +63,17 @@ private class StorageListIterator(
 
 // Extensions
 
-internal operator fun <T> MutableSet<T>.invoke(value: T) = SetPropertyDelegate(this, value)
+internal operator fun <T> SetProperty<T>.invoke(value: T) = SetPropertyDelegate(this, value)
 
 internal class SetPropertyDelegate<T>(
-    private val collection: MutableSet<T>,
+    private val collection: SetProperty<T>,
     private val value: T
 ) : ReadWriteProperty<Any?, Boolean> {
     override fun getValue(thisRef: Any?, property: KProperty<*>): Boolean =
-        collection.contains(value)
+        collection.orNull?.contains(value) == true
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: Boolean) {
-        if (value) collection.add(this.value) else collection.remove(this.value)
+        if (value) collection.add(this.value) else collection.orNull?.remove(this.value)
     }
 }
 

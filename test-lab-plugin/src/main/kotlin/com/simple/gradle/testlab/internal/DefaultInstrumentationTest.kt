@@ -27,7 +27,7 @@ internal open class DefaultInstrumentationTest @Inject constructor(
         DefaultInstrumentationArtifactsHandler(artifacts)
     }
 
-    override val environmentVariables = objects.mapProperty<String, String>()
+    override val environmentVariables = objects.mapProperty<String, String>().empty()
     override val testRunnerClass = objects.property<String>()
     override val useOrchestrator = objects.property<Boolean>()
     override val testTargets = objects.listProperty<String>()

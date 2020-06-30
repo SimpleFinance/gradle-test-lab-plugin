@@ -4,6 +4,8 @@ import org.gradle.api.Action
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
  * A test of an Android application that can control an Android component independently of its
@@ -14,13 +16,13 @@ import org.gradle.api.provider.Property
 @Suppress("UnstableApiUsage")
 interface InstrumentationTest : TestConfig {
     /** Environment variables to set for the test (only applicable for instrumentation tests). */
-    val environmentVariables: MapProperty<String, String>
+    @get:Input val environmentVariables: MapProperty<String, String>
 
     /**
      * The `InstrumentationTestRunner` class. Optional; the default is determined by examining the
      * application's manifest.
      */
-    val testRunnerClass: Property<String>
+    @get:[Input Optional] val testRunnerClass: Property<String>
 
     /**
      * Test targets to execute. Optional; if empty, all targets in the module will
@@ -30,7 +32,7 @@ interface InstrumentationTest : TestConfig {
      * @see targetMethod
      * @see targetPackage
      */
-    val testTargets: ListProperty<String>
+    @get:Input val testTargets: ListProperty<String>
 
     /**
      * Run each test within its own invocation with the
@@ -45,7 +47,7 @@ interface InstrumentationTest : TestConfig {
      *
      * Optional; if empty, the test will run without the orchestrator.
      */
-    val useOrchestrator: Property<Boolean>
+    @get:[Input Optional] val useOrchestrator: Property<Boolean>
 
     /**
      * Configures [artifacts][InstrumentationArtifactsHandler] to fetch after completing the test.
