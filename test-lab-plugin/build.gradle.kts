@@ -58,7 +58,7 @@ dependencies {
 
     testImplementation("com.android.tools.build:gradle:4.0.+")
     testImplementation("junit:junit:latest.release")
-    testImplementation("com.natpryce:hamkrest:latest.release")
+    testImplementation("io.strikt:strikt-core:latest.release")
 }
 
 tasks {

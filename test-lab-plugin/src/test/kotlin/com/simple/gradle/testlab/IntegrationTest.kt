@@ -1,11 +1,11 @@
 package com.simple.gradle.testlab
 
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.containsSubstring
-import com.natpryce.hamkrest.equalTo
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.Test
+import strikt.api.expectThat
+import strikt.assertions.contains
+import strikt.assertions.isEqualTo
 import java.io.File
 
 class IntegrationTest {
@@ -35,13 +35,15 @@ class IntegrationTest {
                 "--include-build=$rootProjectDir"
             )
             .build()
-        assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assertThat(result.output, containsSubstring("testLabDebugFooTest"))
-        assertThat(result.output, containsSubstring("testLabDebugFooUploadFiles"))
-        assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
-        assertThat(result.output, containsSubstring("testLabDebugInstrumentedUploadFiles"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooUploadFiles"))
+        expectThat(result.task(":tasks")?.outcome).isEqualTo(SUCCESS)
+        expectThat(result.output).and {
+            contains("testLabDebugFooTest")
+            contains("testLabDebugFooUploadFiles")
+            contains("testLabDebugInstrumentedTest")
+            contains("testLabDebugInstrumentedUploadFiles")
+            contains("testLabReleaseFooTest")
+            contains("testLabReleaseFooUploadFiles")
+        }
     }
 
     @Test
@@ -59,12 +61,13 @@ class IntegrationTest {
             )
             .build()
 
-        assertThat(result.task(":tasks")?.outcome, equalTo(SUCCESS))
-        assertThat(result.output, containsSubstring("testLabDebugFooTest"))
-        assertThat(result.output, containsSubstring("testLabDebugFooUploadFiles"))
-        assertThat(result.output, containsSubstring("testLabDebugInstrumentedTest"))
-        assertThat(result.output, containsSubstring("testLabDebugInstrumentedUploadFiles"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooTest"))
-        assertThat(result.output, containsSubstring("testLabReleaseFooUploadFiles"))
+        expectThat(result.output).and {
+            contains("testLabDebugFooTest")
+            contains("testLabDebugFooUploadFiles")
+            contains("testLabDebugInstrumentedTest")
+            contains("testLabDebugInstrumentedUploadFiles")
+            contains("testLabReleaseFooTest")
+            contains("testLabReleaseFooUploadFiles")
+        }
     }
 }

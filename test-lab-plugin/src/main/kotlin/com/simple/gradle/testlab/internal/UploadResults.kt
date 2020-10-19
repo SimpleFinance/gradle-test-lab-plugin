@@ -1,7 +1,6 @@
 package com.simple.gradle.testlab.internal
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 internal data class UploadResults(
@@ -11,12 +10,12 @@ internal data class UploadResults(
     val deviceFiles: List<UploadedFile>
 ) {
     companion object {
-        fun fromJson(text: String): UploadResults = Json.parse(serializer(), text)
+        fun fromJson(text: String): UploadResults = DefaultJson.parse(serializer(), text)
     }
 }
 
 internal fun UploadResults.toJson(): String =
-    Json.indented.stringify(UploadResults.serializer(), this)
+    DefaultJson.stringify(UploadResults.serializer(), this)
 
 @Serializable
 internal data class UploadedFile(
