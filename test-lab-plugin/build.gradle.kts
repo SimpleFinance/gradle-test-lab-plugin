@@ -4,10 +4,10 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     id("kotlinx-serialization") version embeddedKotlinVersion
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
     id("com.gradle.plugin-publish") version "0.12.0"
-    id("org.jmailen.kotlinter") version "2.4.1"
-    id("org.jetbrains.dokka") version "0.10.1"
+    id("org.jmailen.kotlinter") version "3.2.0"
+    id("org.jetbrains.dokka") version "1.4.10"
 }
 
 val baseVersion: String by rootProject
@@ -112,14 +112,12 @@ tasks {
         }
     }
 
-    dokka {
-        outputFormat = "javadoc"
-        outputDirectory = "$buildDir/javadoc"
-        configuration {
-            jdkVersion = 8
+    withType<org.jetbrains.dokka.gradle.DokkaTask> {
+        dokkaSourceSets.all {
+            jdkVersion.set(8)
             perPackageOption {
-                prefix = "com.simple.gradle.testlab.shadow"
-                suppress = true
+                prefix.set("com.simple.gradle.testlab.shadow")
+                suppress.set(true)
             }
         }
     }
@@ -132,7 +130,7 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
+    from(tasks.dokkaJavadoc)
 }
 
 configurations.archives.get().artifacts.clear()
