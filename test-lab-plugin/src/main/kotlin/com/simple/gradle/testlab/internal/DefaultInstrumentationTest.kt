@@ -1,10 +1,11 @@
 package com.simple.gradle.testlab.internal
 
 import com.google.api.services.testing.model.AndroidInstrumentationTest
+import com.google.api.services.testing.model.AppBundle
 import com.google.api.services.testing.model.EnvironmentVariable
-import com.google.api.services.testing.model.FileReference
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
+import com.simple.gradle.testlab.model.FileType
 import com.simple.gradle.testlab.model.InstrumentationArtifactsHandler
 import com.simple.gradle.testlab.model.InstrumentationTest
 import org.gradle.api.Action
@@ -45,21 +46,26 @@ internal open class DefaultInstrumentationTest @Inject constructor(
         testTargets.add("class $className#$methodName")
 
     override fun TestSpecification.configure(
-        appApk: FileReference,
-        testApk: FileReference?
+        files: List<AppFile>
     ): TestSpecification = setAndroidInstrumentationTest(
-        AndroidInstrumentationTest()
-            .setAppApk(appApk)
-            .setTestApk(checkNotNull(testApk) { "Test APK not provided for test '$name'." })
-            .setTestRunnerClass(testRunnerClass.orNull)
-            .setTestTargets(testTargets.get())
-            .setOrchestratorOption(
-                when (useOrchestrator.orNull) {
-                    null -> "ORCHESTRATOR_OPTION_UNSPECIFIED"
-                    false -> "DO_NOT_USE_ORCHESTRATOR"
-                    true -> "USE_ORCHESTRATOR"
-                }
-            )
+        AndroidInstrumentationTest().apply {
+            val appApkFile = files.firstOrNull { it.type == FileType.APP_APK }
+            val appBundleFile = files.firstOrNull { it.type == FileType.APP_BUNDLE }
+            val testApkFile = files.firstOrNull { it.type == FileType.TEST_APK }
+            when {
+                appApkFile != null -> appApk = appApkFile.path
+                appBundleFile != null -> appBundle = AppBundle().setBundleLocation(appBundleFile.path)
+                else -> throw IllegalStateException("The application .apk or .abb file is required for test '$name'.")
+            }
+            testApk = checkNotNull(testApkFile?.path) { "The test .apk file is required for test '$name'." }
+            testRunnerClass = this@DefaultInstrumentationTest.testRunnerClass.orNull
+            testTargets = this@DefaultInstrumentationTest.testTargets.get()
+            orchestratorOption = when (useOrchestrator.orNull) {
+                null -> "ORCHESTRATOR_OPTION_UNSPECIFIED"
+                false -> "DO_NOT_USE_ORCHESTRATOR"
+                true -> "USE_ORCHESTRATOR"
+            }
+        }
     )
 
     override fun TestSetup.configure(): TestSetup =

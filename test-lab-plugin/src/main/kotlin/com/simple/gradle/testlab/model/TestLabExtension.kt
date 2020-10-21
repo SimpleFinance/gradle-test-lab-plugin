@@ -1,6 +1,8 @@
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
+import org.gradle.api.PolymorphicDomainObjectContainer
+import org.gradle.kotlin.dsl.GradleDsl
 
 /**
  * The configuration of Firebase Test Lab tests for this project.
@@ -8,6 +10,7 @@ import org.gradle.api.Action
  * Tests require a valid [Google API configuration][googleApi] and a
  * [test configuration][TestConfig].
  */
+@GradleDsl
 interface TestLabExtension {
     companion object {
         /**
@@ -25,9 +28,9 @@ interface TestLabExtension {
     /**
      * The container of test configurations for this project.
      *
-     * @see tests
+     * @see testConfigs
      */
-    val tests: TestConfigContainer
+    val testConfigs: PolymorphicDomainObjectContainer<TestConfig>
 
     /**
      * Configures the Google API configuration for this project.
@@ -85,5 +88,5 @@ interface TestLabExtension {
      * @see RoboTest
      * @see TestConfig
      */
-    fun tests(configure: Action<in TestConfigContainer>)
+    fun tests(configure: Action<in TestsHandler>)
 }

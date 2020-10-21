@@ -38,11 +38,21 @@ class IntegrationTest {
         expectThat(result.task(":tasks")?.outcome).isEqualTo(SUCCESS)
         expectThat(result.output).and {
             contains("testLabDebugFooTest")
-            contains("testLabDebugFooUploadFiles")
+            contains("testLabDebugFooBundleTest")
             contains("testLabDebugInstrumentedTest")
-            contains("testLabDebugInstrumentedUploadFiles")
+            contains("testLabDebugInstrumentedBundleTest")
+            contains("testLabDebugUploadAppApk")
+            contains("testLabDebugUploadAppBundle")
+            contains("testLabDebugUploadTestApk")
+            contains("testLabFooUploadExtraFiles")
+            contains("testLabInstrumentedUploadExtraFiles")
             contains("testLabReleaseFooTest")
-            contains("testLabReleaseFooUploadFiles")
+            contains("testLabReleaseFooBundleTest")
+            contains("testLabReleaseUploadAppApk")
+            contains("testLabReleaseUploadAppBundle")
+            not { contains("testLabReleaseInstrumentedTest") }
+            not { contains("testLabReleaseInstrumentedBundleTest") }
+            not { contains("testLabReleaseUploadTestApk") }
         }
     }
 
@@ -63,11 +73,21 @@ class IntegrationTest {
 
         expectThat(result.output).and {
             contains("testLabDebugFooTest")
-            contains("testLabDebugFooUploadFiles")
+            contains("testLabDebugFooBundleTest")
             contains("testLabDebugInstrumentedTest")
-            contains("testLabDebugInstrumentedUploadFiles")
+            contains("testLabDebugInstrumentedBundleTest")
+            contains("testLabDebugUploadAppApk")
+            contains("testLabDebugUploadAppBundle")
+            contains("testLabDebugUploadTestApk")
+            contains("testLabFooUploadExtraFiles")
+            contains("testLabInstrumentedUploadExtraFiles")
             contains("testLabReleaseFooTest")
-            contains("testLabReleaseFooUploadFiles")
+            contains("testLabReleaseFooBundleTest")
+            contains("testLabReleaseUploadAppApk")
+            contains("testLabReleaseUploadAppBundle")
+            not { contains("testLabReleaseInstrumentedTest") }
+            not { contains("testLabReleaseInstrumentedBundleTest") }
+            not { contains("testLabReleaseUploadTestApk") }
         }
     }
 }

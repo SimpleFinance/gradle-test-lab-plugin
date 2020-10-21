@@ -47,7 +47,7 @@ configurations {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle:4.0.+")
+    compileOnly("com.android.tools.build:gradle:4.1.+")
 
     shadowed("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0")
     shadowed("com.google.api-client:google-api-client:latest.release")

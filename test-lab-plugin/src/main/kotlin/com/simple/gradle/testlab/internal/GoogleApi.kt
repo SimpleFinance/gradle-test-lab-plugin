@@ -83,7 +83,7 @@ internal class GoogleApi(
 
 private fun GoogleApi.defaultBucketName(): String =
     toolResults.projects()
-        .initializeSettings(config.projectId)
+        .initializeSettings(projectId)
         .execute()
         .defaultBucket
 

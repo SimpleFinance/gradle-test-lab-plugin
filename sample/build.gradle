@@ -1,13 +1,26 @@
 import com.simple.gradle.testlab.model.Orientation
 
 plugins {
-    id 'com.android.application' version '4.0.0'
-    id 'com.simple.gradle.testlab' version '0.3.3'
+    id 'com.android.application' version '4.1.0'
+    id 'com.simple.gradle.testlab'
 }
 
 android {
     compileSdkVersion 29
     buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        minSdkVersion 23
+        versionCode 1
+        versionName "0.1"
+    }
+
+    splits {
+        density {
+            enable true
+            compatibleScreens 'small', 'normal', 'large', 'xlarge'
+        }
+    }
 }
 
 repositories {
@@ -116,5 +129,5 @@ testLab {
 }
 
 wrapper {
-    gradleVersion = "6.5"
+    gradleVersion = "6.6.1"
 }
