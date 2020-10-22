@@ -140,6 +140,11 @@ The plugin will create tasks for each test and applicable Android build variant 
 - `testLabReleaseFuzzTest`
 - `testLabDebugFuzzTest`
 
+If you wish to test an Android App Bundle instead of an APK, use a task ending in `BundleTest`.
+
+- `testLabReleaseFuzzBundleTest`
+- `testLabDebugFuzzBundleTest`
+
 Run a test by invoking the desired task.
 
 ```bash
@@ -271,7 +276,7 @@ testLab {
 }
 ```
 
-</summary>
+</details>
 
 <details>
 <summary>Groovy</summary>
