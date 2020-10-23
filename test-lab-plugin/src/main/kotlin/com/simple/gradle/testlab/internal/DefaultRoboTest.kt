@@ -1,8 +1,9 @@
 package com.simple.gradle.testlab.internal
 
 import com.google.api.services.testing.model.AndroidRoboTest
-import com.google.api.services.testing.model.FileReference
+import com.google.api.services.testing.model.AppBundle
 import com.google.api.services.testing.model.TestSpecification
+import com.simple.gradle.testlab.model.FileType
 import com.simple.gradle.testlab.model.RoboArtifactsHandler
 import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectivesHandler
@@ -44,22 +45,24 @@ internal open class DefaultRoboTest @Inject constructor(
     override fun directives(configure: Action<in RoboDirectivesHandler>) =
         configure.execute(roboDirectivesHandler)
 
-    override fun TestSpecification.configure(
-        appApk: FileReference,
-        testApk: FileReference?
-    ): TestSpecification = setAndroidRoboTest(
-        AndroidRoboTest()
-            .setAppApk(appApk)
-            .setAppInitialActivity(appInitialActivity.orNull)
-            .setMaxDepth(maxDepth.orNull)
-            .setMaxSteps(maxSteps.orNull)
-            .setRoboDirectives(
-                directives.orNull?.map {
-                    GoogleRoboDirective()
-                        .setActionType(it.actionType)
-                        .setResourceName(it.resourceName)
-                        .setInputText(it.inputText)
-                }
-            )
+    override fun TestSpecification.configure(files: List<AppFile>): TestSpecification = setAndroidRoboTest(
+        AndroidRoboTest().apply {
+            val appApkFile = files.find { it.type == FileType.APP_APK }
+            val appBundleFile = files.find { it.type == FileType.APP_BUNDLE }
+            when {
+                appApkFile != null -> appApk = appApkFile.path
+                appBundleFile != null -> appBundle = AppBundle().setBundleLocation(appBundleFile.path)
+                else -> throw IllegalStateException("The application .apk or .abb file is required for test '$name'.")
+            }
+            appInitialActivity = this@DefaultRoboTest.appInitialActivity.orNull
+            maxDepth = this@DefaultRoboTest.maxDepth.orNull
+            maxSteps = this@DefaultRoboTest.maxSteps.orNull
+            roboDirectives = directives.orNull?.map {
+                GoogleRoboDirective()
+                    .setActionType(it.actionType)
+                    .setResourceName(it.resourceName)
+                    .setInputText(it.inputText)
+            }
+        }
     )
 }

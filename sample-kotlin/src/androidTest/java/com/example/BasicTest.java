@@ -1,9 +1,7 @@
-package example;
+package com.example;
 
-import android.support.test.runner.AndroidJUnit4;
+import org.junit.Test;
 
-@RunWith(AndroidJunit4.class)
-@SmallTest
 public class BasicTest {
     @Test
     public void hello() {

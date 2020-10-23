@@ -9,27 +9,25 @@ import com.google.api.services.testing.model.GoogleCloudStorage
 import com.google.api.services.testing.model.ResultStorage
 import com.google.api.services.testing.model.TestMatrix
 import com.google.api.services.testing.model.ToolResultsHistory
+import com.simple.gradle.testlab.internal.AppFile
 import com.simple.gradle.testlab.internal.GoogleApi
 import com.simple.gradle.testlab.internal.MatrixMonitor
 import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.ToolResultsHistoryPicker
-import com.simple.gradle.testlab.internal.UploadResults
 import com.simple.gradle.testlab.internal.artifacts.ArtifactFetcherFactory
-import com.simple.gradle.testlab.internal.asDeviceFileReference
-import com.simple.gradle.testlab.internal.asFileReference
 import com.simple.gradle.testlab.internal.createToolResultsUiUrl
 import com.simple.gradle.testlab.internal.getToolResultsIds
 import com.simple.gradle.testlab.internal.log
 import com.simple.gradle.testlab.model.GoogleApiConfig
 import com.simple.gradle.testlab.model.TestConfig
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
@@ -47,7 +45,7 @@ open class TestLabTest @Inject constructor(
     @Nested val googleApiConfig: Property<GoogleApiConfig> = objects.property()
     @Input val prefix: Property<String> = objects.property()
     @Nested val testConfig: Property<TestConfig> = objects.property()
-    @InputFile val uploadResults: RegularFileProperty = objects.fileProperty()
+    @InputFiles val appFileMetadata: ConfigurableFileCollection = objects.fileCollection()
 
     @OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
         set(layout.buildDirectory.dir("test-results/$name"))
@@ -55,13 +53,16 @@ open class TestLabTest @Inject constructor(
 
     private val googleApi by lazy { GoogleApi(googleApiConfig.get(), logger) }
     private val gcsBucketPath by lazy { "gs://${googleApi.bucketName}/${prefix.get()}" }
-    private val gcsPaths by lazy { UploadResults.fromJson(uploadResults.get().asFile.readText()) }
     private val testConfigInternal: TestConfigInternal by lazy {
         testConfig.get() as TestConfigInternal
     }
 
     @TaskAction
     fun runTest() {
+        val appFiles: List<AppFile> = appFileMetadata
+            .map { AppFile.fromJson(it.readText()) }
+            .reduce { acc, meta -> acc + meta }
+
         val historyPicker = ToolResultsHistoryPicker(googleApi)
         val historyName = historyPicker.pickHistoryName(
             testConfig.get().resultsHistoryName.orNull,
@@ -73,16 +74,7 @@ open class TestLabTest @Inject constructor(
             .setClientInfo(clientInfo())
             .setResultStorage(resultStorage(historyId))
             .setEnvironmentMatrix(EnvironmentMatrix().setAndroidDeviceList(androidDeviceList()))
-            .setTestSpecification(
-                testConfigInternal
-                    .testSpecification(
-                        gcsPaths.appApk.asFileReference,
-                        gcsPaths.testApk?.asFileReference,
-                        gcsPaths.additionalApks.map { it.asFileReference },
-                        gcsPaths.deviceFiles.map { it.asDeviceFileReference }
-                    )
-                    .get()
-            )
+            .setTestSpecification(testConfigInternal.testSpecification(appFiles))
 
         log.info("Test matrix: ${testMatrix.toPrettyString()}")
 

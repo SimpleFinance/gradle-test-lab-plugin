@@ -15,6 +15,7 @@ import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.testing.Testing
 import com.google.api.services.testing.TestingScopes
 import com.google.api.services.toolresults.ToolResults
+import com.google.api.services.toolresults.ToolResultsScopes
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.auth.oauth2.ServiceAccountCredentials
@@ -56,25 +57,25 @@ internal class GoogleApi(
             .createScoped(listOf(TestingScopes.CLOUD_PLATFORM))
     }
 
-    private val requestInitializer: HttpRequestInitializer by lazy {
-        GoogleApiRequestInitializer(credentials, logger.isDebugEnabled)
-    }
+    private fun requestInitializer(vararg scopes: String): HttpRequestInitializer =
+        GoogleApiRequestInitializer(credentials.createScoped(*scopes), logger.isDebugEnabled)
 
     val storage: Storage by lazy {
         StorageOptions.newBuilder()
             .setCredentials(credentials)
+            .setProjectId(projectId)
             .build()
             .service
     }
 
     val testing: Testing by lazy {
-        Testing.Builder(httpTransport, jsonFactory, requestInitializer)
+        Testing.Builder(httpTransport, jsonFactory, requestInitializer(TestingScopes.CLOUD_PLATFORM))
             .setApplicationName(APPLICATION_NAME)
             .build()
     }
 
     val toolResults: ToolResults by lazy {
-        ToolResults.Builder(httpTransport, jsonFactory, requestInitializer)
+        ToolResults.Builder(httpTransport, jsonFactory, requestInitializer(ToolResultsScopes.CLOUD_PLATFORM))
             .setApplicationName(APPLICATION_NAME)
             .build()
     }
@@ -82,7 +83,7 @@ internal class GoogleApi(
 
 private fun GoogleApi.defaultBucketName(): String =
     toolResults.projects()
-        .initializeSettings(config.projectId)
+        .initializeSettings(projectId)
         .execute()
         .defaultBucket
 
