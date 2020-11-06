@@ -58,6 +58,7 @@ internal open class DefaultInstrumentationTest @Inject constructor(
                 else -> throw IllegalStateException("The application .apk or .abb file is required for test '$name'.")
             }
             testApk = checkNotNull(testApkFile?.path) { "The test .apk file is required for test '$name'." }
+            appPackageId = this@DefaultInstrumentationTest.appPackageId.orNull
             testRunnerClass = this@DefaultInstrumentationTest.testRunnerClass.orNull
             testTargets = this@DefaultInstrumentationTest.testTargets.get()
             orchestratorOption = when (useOrchestrator.orNull) {

@@ -7,6 +7,12 @@
 - Create additional test tasks for app bundles. These are named 'testLab${test}BundleTest'. Existing tests for APKs are
   not affected.
 - Support for split APKs, which are passed via the `additionalApks` property.
+- Support for additional Robo test options:
+  - `script`: File containing scripted actions taken by the Robo test runner.
+  - `startingIntents`: Intents used to start the application for the Robo crawl.
+- Support for additional common test options:
+  - `dontAutograntPermissions`: Prevent all runtime permissions from being granted at install time.
+  - `systrace`: Enables collection of systrace data.
 
 ### Changed
 

@@ -83,6 +83,21 @@ testLab {
                 click(resourceName = "login_button")
                 text(resourceName = "username", inputText = "alice")
             }
+
+            script.set(file("script.robo"))
+
+            startingIntents {
+                launcherActivity()
+                launcherActivity {
+                    timeout.set(10)
+                }
+                startActivity {
+                    action.set("android.intent.action.VIEW")
+                    categories.add("android.intent.category.TEST")
+                    uri.set("https://www.example.com")
+                    timeout.set(20)
+                }
+            }
         }
     }
 }
@@ -94,6 +109,7 @@ fun TestConfig.common() {
     )
     disablePerformanceMetrics.set(true)
     disableVideoRecording.set(true)
+    dontAutograntPermissions.set(true)
     resultsHistoryName.set(provider {
         val prNumber = "1234"
         "GitHub PR $prNumber"
@@ -114,6 +130,10 @@ fun TestConfig.common() {
     files {
         obb(source = file("/path/to/some.obb"), filename = "main.0300110.com.example.android.obb")
         push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
+    }
+    systrace {
+        enabled.set(true)
+        durationSeconds.set(30)
     }
 }
 

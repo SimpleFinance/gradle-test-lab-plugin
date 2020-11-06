@@ -26,11 +26,22 @@ interface TestConfig : Named {
     /** APKs to install in addition to those being directly tested. Currently capped at 100. */
     @get:InputFiles val additionalApks: ConfigurableFileCollection
 
+    /**
+     * The java package for the test to be executed. The default value is determined by examining the
+     * application's manifest.
+     */
+    @get:[Input Optional] val appPackageId: Property<String>
+
     /** Disables performance metrics recording; may reduce test latency. */
     @get:Input val disablePerformanceMetrics: Property<Boolean>
 
     /** Disables video recording; may reduce test latency. */
     @get:Input val disableVideoRecording: Property<Boolean>
+
+    /**
+     * Whether to prevent all runtime permissions to be granted at install time.
+     */
+    @get:Input val dontAutograntPermissions: Property<Boolean>
 
     /**
      * The name of the results history entry. This appears in the Firebase console and
@@ -43,6 +54,8 @@ interface TestConfig : Named {
      * Optional; the default is `5 min`.
      */
     @get:Input val testTimeout: Property<String>
+
+    @get:[Input Optional] val systrace: SystraceHandler
 
     /**
      * List of directories on the device to upload to GCS at the end of the test; they must be
@@ -77,6 +90,9 @@ interface TestConfig : Named {
 
     /** Configure the list of files to push to the device before starting the test. */
     fun files(configure: Action<in DeviceFilesHandler>)
+
+    /** Configure systrace collection. */
+    fun systrace(configure: Action<in SystraceHandler>)
 
     @Internal
     override fun getName(): String

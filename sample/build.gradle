@@ -66,6 +66,7 @@ testLab {
             )
             disablePerformanceMetrics = true
             disableVideoRecording = true
+            dontAutograntPermissions = true
             resultsHistoryName = provider {
                 def prNumber = "1234"
                 "GitHub PR $prNumber"
@@ -81,6 +82,10 @@ testLab {
                 api = 21
                 locale = "en"
                 orientation = Orientation.PORTRAIT
+            }
+            systrace {
+                enabled = true
+                durationSeconds = 30
             }
         }
 
@@ -101,12 +106,28 @@ testLab {
                 text("username", "alice")
             }
 
+            script = file("script.robo")
+
+            startingIntents {
+                launcherActivity()
+                launcherActivity {
+                    timeout = 10
+                }
+                startActivity {
+                    action = "android.intent.action.VIEW"
+                    categories = ["android.intent.category.TEST"]
+                    uri = "https://www.example.com"
+                    timeout = 20
+                }
+            }
+
             additionalApks.from(
                     "/path/to/some.apk",
                     "/path/to/another.apk"
             )
             disablePerformanceMetrics = true
             disableVideoRecording = true
+            dontAutograntPermissions = true
             resultsHistoryName = provider {
                 def prNumber = "1234"
                 "GitHub PR $prNumber"
@@ -123,6 +144,10 @@ testLab {
                 api = 21
                 locale = "en"
                 orientation = Orientation.PORTRAIT
+            }
+            systrace {
+                enabled = true
+                durationSeconds = 30
             }
         }
     }

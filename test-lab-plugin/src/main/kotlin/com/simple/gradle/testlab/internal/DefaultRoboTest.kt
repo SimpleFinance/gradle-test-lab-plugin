@@ -7,11 +7,14 @@ import com.simple.gradle.testlab.model.FileType
 import com.simple.gradle.testlab.model.RoboArtifactsHandler
 import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectivesHandler
+import com.simple.gradle.testlab.model.RoboStartingIntentsHandler
 import com.simple.gradle.testlab.model.RoboTest
+import com.simple.gradle.testlab.model.StartingIntent
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 import com.google.api.services.testing.model.RoboDirective as GoogleRoboDirective
@@ -32,10 +35,16 @@ internal open class DefaultRoboTest @Inject constructor(
         DefaultRoboDirectivesHandler(directives)
     }
 
+    private val startingIntentsHandler by lazy {
+        objects.newInstance<DefaultRoboStartingIntentsHandler>(startingIntents)
+    }
+
     override val directives = objects.listProperty<RoboDirective>()
+    override val script = objects.fileProperty()
     override val appInitialActivity = objects.property<String>()
     override val maxDepth = objects.property<Int>()
     override val maxSteps = objects.property<Int>()
+    override val startingIntents = objects.listProperty<StartingIntent>()
 
     override val requiresTestApk: Boolean = false
 
@@ -44,6 +53,10 @@ internal open class DefaultRoboTest @Inject constructor(
 
     override fun directives(configure: Action<in RoboDirectivesHandler>) =
         configure.execute(roboDirectivesHandler)
+
+    override fun startingIntents(configure: Action<in RoboStartingIntentsHandler>) {
+        configure.execute(startingIntentsHandler)
+    }
 
     override fun TestSpecification.configure(files: List<AppFile>): TestSpecification = setAndroidRoboTest(
         AndroidRoboTest().apply {
@@ -55,6 +68,7 @@ internal open class DefaultRoboTest @Inject constructor(
                 else -> throw IllegalStateException("The application .apk or .abb file is required for test '$name'.")
             }
             appInitialActivity = this@DefaultRoboTest.appInitialActivity.orNull
+            appPackageId = this@DefaultRoboTest.appPackageId.orNull
             maxDepth = this@DefaultRoboTest.maxDepth.orNull
             maxSteps = this@DefaultRoboTest.maxSteps.orNull
             roboDirectives = directives.orNull?.map {
@@ -63,6 +77,10 @@ internal open class DefaultRoboTest @Inject constructor(
                     .setResourceName(it.resourceName)
                     .setInputText(it.inputText)
             }
+            roboScript = files.find { it.type == FileType.ROBO_SCRIPT }?.path
+            startingIntents = this@DefaultRoboTest.startingIntents.get()
+                .map { it.asRoboStartingIntent() }
+                .takeUnless { it.isEmpty() }
         }
     )
 }

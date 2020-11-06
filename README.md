@@ -271,6 +271,40 @@ testLab {
                 // [resourceName].
                 text(resourceName = "username", inputText = "alice")
             }
+
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // crawl. Optional.
+            script.set(file("robo-script.json"))
+            
+            // Configures the starting intents used to launch the app for the crawl. Optional.
+            startingIntents {
+                
+                // Add an intent that starts the main launcher activity.
+                launcherActivity()
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity {
+                    
+                    // Timeout in seconds for the intent.
+                    timeout.set(10)
+                }
+
+                // Add a starting intent specified by an action, uri, and categories.
+                startActivity {
+                
+                    // Action name. Required.
+                    action.set("anroid.intent.action.VIEW")
+
+                    // Intent categories. Optional.
+                    categories.add("android.intent.category.TEST")
+
+                    // URI for the action. Optional.
+                    uri.set("http://www.example.com")
+
+                    // Timeout in seconds for the intent.
+                    timeout.set(20)
+                }
+            }
         }
     }
 }
@@ -390,6 +424,41 @@ testLab {
                 // [resourceName].
                 text("username", "alice")
             }
+
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // crawl. Optional.
+            script = file("robo-script.json")
+            
+            // Configures the starting intents used to launch the app for the crawl. Optional.
+            startingIntents {
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity()
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity {
+
+                    // Timeout in seconds for the intent.
+                    timeout = 10
+                }
+
+                // Add a starting intent specified by an action, uri, and categories.
+                startActivity {
+
+                    // Action name. Required.
+                    action = "android.intent.action.VIEW"
+
+                    // Intent categories. Optional.
+                    categories = ["android.intent.category.TEST"]
+
+                    // URI for the action. Optional.
+                    uri = "https://www.example.com"
+
+                    // Timeout in seconds for the intent.
+                    timeout = 20
+                }
+            }
+
         }
     }
 }
@@ -417,6 +486,9 @@ disablePerformanceMetrics.set(true)
 
 // Disables video recording; may reduce test latency.
 disableVideoRecording.set(true)
+
+// Prevent all runtime permissions to be granted at install time.
+dontAutograntPermissions.set(true)
 
 // The name of the results history entry. This appears in the Firebase console and
 // identifies this test.
@@ -479,6 +551,16 @@ files {
     //     Specifying a path outside of these directory trees is invalid.
     push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
 }
+
+// Configure systrace collection.
+systrace {
+
+    // `true` to enable systrace collection for this test.
+    enabled.set(true)
+
+    // Systrace duration in seconds. Should be between 1 and 30 seconds.
+    durationSeconds.set(30)
+}
 ```
 
 </details>
@@ -498,6 +580,9 @@ disablePerformanceMetrics = true
 
 // Disables video recording; may reduce test latency.
 disableVideoRecording = true
+
+// Prevent all runtime permissions to be granted at install time.
+dontAutograntPermissions = true
 
 // The name of the results history entry. This appears in the Firebase console and
 // identifies this test.
@@ -534,6 +619,16 @@ device {
     api = 21
     locale = "en"
     orientation = Orientation.PORTRAIT
+}
+
+// Configure systrace collection.
+systrace {
+
+    // `true` to enable systrace collection for this test.
+    enabled.set(true)
+
+    // Systrace duration in seconds. Should be between 1 and 30 seconds.
+    durationSeconds.set(30)
 }
 ```
 
