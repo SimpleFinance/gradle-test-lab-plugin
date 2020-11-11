@@ -4,7 +4,6 @@ import com.simple.gradle.testlab.model.RoboDirective
 import com.simple.gradle.testlab.model.RoboDirectivesHandler
 import org.gradle.api.provider.ListProperty
 
-@Suppress("UnstableApiUsage")
 internal class DefaultRoboDirectivesHandler(
     private val directives: ListProperty<RoboDirective>
 ) : RoboDirectivesHandler {

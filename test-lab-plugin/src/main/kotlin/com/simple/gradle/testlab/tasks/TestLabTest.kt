@@ -28,6 +28,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
@@ -42,7 +43,7 @@ open class TestLabTest @Inject constructor(
     objects: ObjectFactory
 ) : DefaultTask() {
     @Input @Optional val appPackageId: Property<String?> = objects.property()
-    @Nested val googleApiConfig: Property<GoogleApiConfig> = objects.property()
+    @Internal val googleApiConfig: Property<GoogleApiConfig> = objects.property()
     @Input val prefix: Property<String> = objects.property()
     @Nested val testConfig: Property<TestConfig> = objects.property()
     @InputFiles val appFileMetadata: ConfigurableFileCollection = objects.fileCollection()
@@ -117,8 +118,13 @@ open class TestLabTest @Inject constructor(
                 )
             ) {
                 for (test in supportedExecutions) {
-                    val suffix = with(test.environment.androidDevice) {
-                        "$androidModelId-$androidVersionId-$locale-$orientation"
+                    val suffix = buildString {
+                        with(test.environment.androidDevice) {
+                            append("$androidModelId-$androidVersionId-$locale-$orientation")
+                        }
+                        test.shard?.shardIndex?.let {
+                            append("-shard_$it")
+                        }
                     }
                     log.lifecycle("Fetching result artifacts for $suffix...")
                     testConfigInternal.artifacts.get().forEach { createFetcher(suffix, it).fetch() }

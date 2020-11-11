@@ -6,5 +6,6 @@ enum class FileType {
     EXTRA_APK,
     EXTRA_FILE,
     EXTRA_OBB,
+    ROBO_SCRIPT,
     TEST_APK
 }

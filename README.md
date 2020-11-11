@@ -202,14 +202,56 @@ testLab {
 
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                
+                // Include all tests in the given packages.
+                packages.add("com.my.package.name")
+
+                // Exclude all tests in the given packages.
+                packages.add("!com.package.to.skip")
+
+                // Include all tests in the given classes or test methods.
+                classes.add("com.package.Class")
+                classes.add("com.package.Class#method")
+
+                // Exclude all tests in the given classes or test methods.
+                classes.add("!com.package.Class")
+                classes.add("!com.package.Class#method")
+
+                // Include tests annotated with *all* of the given annotations.               
+                annotations.add("com.package.Annotation")
+
+                // Exclude tests annotated with *any* of the given annotations.
+                annotations.add("!com.foo.AnnotationToSkip")
+
+                // Include tests listed in a file located at the given path on the target device.
+                includeFile.set("/data/local/tmp/include.txt")
+
+                // Exclude tests listed in a file located at the given path on the target device.
+                excludeFile.set("/data/local/tmp/exclude.txt")
+                
+                // Include tests matching the given regular expression.
+                regex.set("""^com\.package\.(MyClass|OtherClass)#test.+""")
+
+                // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
+                size.set(TestSize.LARGE) // Alternatives: TestSize.MEDIUM, TestSize.SMALL
+ 
+                // Uniformly distribute test targets among this number of shards. Shards are
+                // executed in parallel across all devices.
+                shardCount.set(10)
+ 
+                // Add an explicit shard of test targets. Shards are executed in parallel
+                // across all devices.
+                shard {
+                    packages.add("com.my.package.name")
+                    classes.add("com.foo.ClassName")
+                    annotations.add("com.foo.AnnotationToRun")
+                    includeFile.set("/data/local/tmp/include.txt")
+                    excludeFile.set("/data/local/tmp/exclude.txt")
+                    regex.set("""^com\.package\.(MyClass|OtherClass)#test.+""")
+                    size.set(TestSize.LARGE)
+                }
+            }
 
             // Configures artifacts to fetch after completing the test.
             artifacts {
@@ -271,6 +313,40 @@ testLab {
                 // [resourceName].
                 text(resourceName = "username", inputText = "alice")
             }
+
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // crawl. Optional.
+            script.set(file("robo-script.json"))
+            
+            // Configures the starting intents used to launch the app for the crawl. Optional.
+            startingIntents {
+                
+                // Add an intent that starts the main launcher activity.
+                launcherActivity()
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity {
+                    
+                    // Timeout in seconds for the intent.
+                    timeout.set(10)
+                }
+
+                // Add a starting intent specified by an action, uri, and categories.
+                startActivity {
+                
+                    // Action name. Required.
+                    action.set("anroid.intent.action.VIEW")
+
+                    // Intent categories. Optional.
+                    categories.add("android.intent.category.TEST")
+
+                    // URI for the action. Optional.
+                    uri.set("http://www.example.com")
+
+                    // Timeout in seconds for the intent.
+                    timeout.set(20)
+                }
+            }
         }
     }
 }
@@ -321,14 +397,56 @@ testLab {
 
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                
+                // Include all tests in the given packages.
+                packages.add("com.my.package.name")
+
+                // Exclude all tests in the given packages.
+                packages.add("!com.package.to.skip")
+
+                // Include all tests in the given classes or test methods.
+                classes.add("com.package.Class")
+                classes.add("com.package.Class#method")
+
+                // Exclude all tests in the given classes or test methods.
+                classes.add("!com.package.Class")
+                classes.add("!com.package.Class#method")
+
+                // Include tests annotated with *all* of the given annotations.               
+                annotations.add("com.package.Annotation")
+
+                // Exclude tests annotated with *any* of the given annotations.
+                annotations.add("!com.foo.AnnotationToSkip")
+
+                // Include tests listed in a file located at the given path on the target device.
+                includeFile = "/data/local/tmp/include.txt"
+
+                // Exclude tests listed in a file located at the given path on the target device.
+                excludeFile = "/data/local/tmp/exclude.txt"
+                
+                // Include tests matching the given regular expression.
+                regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+
+                // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
+                size = TestSize.LARGE // Alternatives: TestSize.MEDIUM, TestSize.SMALL
+ 
+                // Uniformly distribute test targets among this number of shards. Shards are
+                // executed in parallel across all devices.
+                shardCount.set(10)
+ 
+                // Add an explicit shard of test targets. Shards are executed in parallel
+                // across all devices.
+                shard {
+                    packages.add("com.my.package.name")
+                    classes.add("com.foo.ClassName")
+                    annotations.add("com.foo.AnnotationToRun")
+                    includeFile = "/data/local/tmp/include.txt"
+                    excludeFile = "/data/local/tmp/exclude.txt"
+                    regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                    size = TestSize.LARGE
+                }
+            }
 
             // Configures artifacts to fetch after completing the test.
             artifacts {
@@ -390,6 +508,41 @@ testLab {
                 // [resourceName].
                 text("username", "alice")
             }
+
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // crawl. Optional.
+            script = file("robo-script.json")
+            
+            // Configures the starting intents used to launch the app for the crawl. Optional.
+            startingIntents {
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity()
+
+                // Add an intent that starts the main launcher activity.
+                launcherActivity {
+
+                    // Timeout in seconds for the intent.
+                    timeout = 10
+                }
+
+                // Add a starting intent specified by an action, uri, and categories.
+                startActivity {
+
+                    // Action name. Required.
+                    action = "android.intent.action.VIEW"
+
+                    // Intent categories. Optional.
+                    categories = ["android.intent.category.TEST"]
+
+                    // URI for the action. Optional.
+                    uri = "https://www.example.com"
+
+                    // Timeout in seconds for the intent.
+                    timeout = 20
+                }
+            }
+
         }
     }
 }
@@ -417,6 +570,9 @@ disablePerformanceMetrics.set(true)
 
 // Disables video recording; may reduce test latency.
 disableVideoRecording.set(true)
+
+// Prevent all runtime permissions to be granted at install time.
+dontAutograntPermissions.set(true)
 
 // The name of the results history entry. This appears in the Firebase console and
 // identifies this test.
@@ -479,6 +635,16 @@ files {
     //     Specifying a path outside of these directory trees is invalid.
     push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
 }
+
+// Configure systrace collection.
+systrace {
+
+    // `true` to enable systrace collection for this test.
+    enabled.set(true)
+
+    // Systrace duration in seconds. Should be between 1 and 30 seconds.
+    durationSeconds.set(30)
+}
 ```
 
 </details>
@@ -498,6 +664,9 @@ disablePerformanceMetrics = true
 
 // Disables video recording; may reduce test latency.
 disableVideoRecording = true
+
+// Prevent all runtime permissions to be granted at install time.
+dontAutograntPermissions = true
 
 // The name of the results history entry. This appears in the Firebase console and
 // identifies this test.
@@ -534,6 +703,16 @@ device {
     api = 21
     locale = "en"
     orientation = Orientation.PORTRAIT
+}
+
+// Configure systrace collection.
+systrace {
+
+    // `true` to enable systrace collection for this test.
+    enabled.set(true)
+
+    // Systrace duration in seconds. Should be between 1 and 30 seconds.
+    durationSeconds.set(30)
 }
 ```
 

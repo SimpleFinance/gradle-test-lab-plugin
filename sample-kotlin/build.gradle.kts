@@ -1,5 +1,6 @@
 import com.simple.gradle.testlab.model.Orientation
 import com.simple.gradle.testlab.model.TestConfig
+import com.simple.gradle.testlab.model.TestSize
 
 plugins {
     id("com.android.application") version "4.1.0"
@@ -48,14 +49,25 @@ testLab {
 
             environmentVariables.put("key", "value")
             testRunnerClass.set("com.example.test.MyTestRunner")
-            testTargets.addAll(
-                "package com.my.package.name",
-                "notPackage com.package.to.skip",
-                "class com.foo.ClassName",
-                "notClass com.foo.ClassName#testMethodToSkip",
-                "annotation com.foo.AnnotationToRun",
-                "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                packages.addAll("com.my.package.name", "!com.my.package.other")
+                classes.addAll("com.foo.ClassName", "!com.foo.OtherClass")
+                annotations.addAll("com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip")
+                includeFile.set("/data/local/tmp/include.txt")
+                excludeFile.set("/data/local/tmp/exclude.txt")
+                regex.set("""/^com\.package\.(MyClass|OtherClass)#test.+""")
+                size.set(TestSize.LARGE)
+                shardCount.set(10)
+                shard {
+                    packages.addAll("com.my.package.name", "!com.my.package.other")
+                    classes.addAll("com.foo.ClassName", "!com.foo.OtherClass")
+                    annotations.addAll("com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip")
+                    includeFile.set("/data/local/tmp/include.txt")
+                    excludeFile.set("/data/local/tmp/exclude.txt")
+                    regex.set("""/^com\.package\.(MyClass|OtherClass)#test.+""")
+                    size.set(TestSize.LARGE)
+                }
+            }
             artifacts {
                 all()
                 instrumentation = true
@@ -83,6 +95,21 @@ testLab {
                 click(resourceName = "login_button")
                 text(resourceName = "username", inputText = "alice")
             }
+
+            script.set(file("script.robo"))
+
+            startingIntents {
+                launcherActivity()
+                launcherActivity {
+                    timeout.set(10)
+                }
+                startActivity {
+                    action.set("android.intent.action.VIEW")
+                    categories.add("android.intent.category.TEST")
+                    uri.set("https://www.example.com")
+                    timeout.set(20)
+                }
+            }
         }
     }
 }
@@ -94,6 +121,7 @@ fun TestConfig.common() {
     )
     disablePerformanceMetrics.set(true)
     disableVideoRecording.set(true)
+    dontAutograntPermissions.set(true)
     resultsHistoryName.set(provider {
         val prNumber = "1234"
         "GitHub PR $prNumber"
@@ -115,9 +143,12 @@ fun TestConfig.common() {
         obb(source = file("/path/to/some.obb"), filename = "main.0300110.com.example.android.obb")
         push(source = file("/path/to/some.file"), devicePath = "/sdcard/some.file")
     }
+    systrace {
+        enabled.set(true)
+        durationSeconds.set(30)
+    }
 }
 
 tasks.withType<Wrapper> {
     gradleVersion = "6.6.1"
 }
-

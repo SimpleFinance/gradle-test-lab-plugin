@@ -1,4 +1,5 @@
 import com.simple.gradle.testlab.model.Orientation
+import com.simple.gradle.testlab.model.TestSize
 
 plugins {
     id 'com.android.application' version '4.1.0'
@@ -45,14 +46,25 @@ testLab {
         instrumentation("instrumented") {
             environmentVariables["key"] = "value"
             testRunnerClass = "com.example.test.MyTestRunner"
-            testTargets.addAll(
-                    "package com.my.package.name",
-                    "notPackage com.package.to.skip",
-                    "class com.foo.ClassName",
-                    "notClass com.foo.ClassName#testMethodToSkip",
-                    "annotation com.foo.AnnotationToRun",
-                    "size large notAnnotation com.foo.AnnotationToSkip"
-            )
+            targets {
+                packages = ["com.my.package.name", "!com.my.package.other"]
+                classes = ["com.foo.ClassName", "!com.foo.OtherClass"]
+                annotations = ["com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip"]
+                includeFile = "/data/local/tmp/include.txt"
+                excludeFile = "/data/local/tmp/exclude.txt"
+                regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                size = TestSize.LARGE
+                shardCount = 10
+                shard {
+                    packages = ["com.my.package.name", "!com.my.package.other"]
+                    classes = ["com.foo.ClassName", "!com.foo.OtherClass"]
+                    annotations = ["com.foo.AnnotationToRun", "!com.foo.AnnotationToSkip"]
+                    includeFile = "/data/local/tmp/include.txt"
+                    excludeFile = "/data/local/tmp/exclude.txt"
+                    regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
+                    size = TestSize.LARGE
+                }
+            }
             artifacts {
                 all()
                 instrumentation = true
@@ -66,6 +78,7 @@ testLab {
             )
             disablePerformanceMetrics = true
             disableVideoRecording = true
+            dontAutograntPermissions = true
             resultsHistoryName = provider {
                 def prNumber = "1234"
                 "GitHub PR $prNumber"
@@ -81,6 +94,10 @@ testLab {
                 api = 21
                 locale = "en"
                 orientation = Orientation.PORTRAIT
+            }
+            systrace {
+                enabled = true
+                durationSeconds = 30
             }
         }
 
@@ -101,12 +118,28 @@ testLab {
                 text("username", "alice")
             }
 
+            script = file("script.robo")
+
+            startingIntents {
+                launcherActivity()
+                launcherActivity {
+                    timeout = 10
+                }
+                startActivity {
+                    action = "android.intent.action.VIEW"
+                    categories = ["android.intent.category.TEST"]
+                    uri = "https://www.example.com"
+                    timeout = 20
+                }
+            }
+
             additionalApks.from(
                     "/path/to/some.apk",
                     "/path/to/another.apk"
             )
             disablePerformanceMetrics = true
             disableVideoRecording = true
+            dontAutograntPermissions = true
             resultsHistoryName = provider {
                 def prNumber = "1234"
                 "GitHub PR $prNumber"
@@ -123,6 +156,10 @@ testLab {
                 api = 21
                 locale = "en"
                 orientation = Orientation.PORTRAIT
+            }
+            systrace {
+                enabled = true
+                durationSeconds = 30
             }
         }
     }

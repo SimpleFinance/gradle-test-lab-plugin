@@ -13,6 +13,7 @@ import com.simple.gradle.testlab.internal.TestConfigInternal
 import com.simple.gradle.testlab.internal.TestLabExtensionInternal
 import com.simple.gradle.testlab.internal.tasks.UploadTask
 import com.simple.gradle.testlab.model.FileType
+import com.simple.gradle.testlab.model.RoboTest
 import com.simple.gradle.testlab.model.TestLabExtension
 import com.simple.gradle.testlab.tasks.ShowCatalog
 import com.simple.gradle.testlab.tasks.TestLabTest
@@ -80,6 +81,9 @@ private fun Project.addUploadExtraFilesTask(
     description = "Uploads extra files for ${testConfig.description()} to Firebase Test Lab."
     additionalApks.setFrom(testConfig.additionalApks)
     deviceFiles.addAll(testConfig.files)
+    if (testConfig is RoboTest) {
+        roboScript.set(testConfig.script)
+    }
 }
 
 private fun Project.addUploadAppApkTask(

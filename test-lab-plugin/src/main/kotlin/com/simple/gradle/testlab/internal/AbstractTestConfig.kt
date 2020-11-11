@@ -3,6 +3,7 @@ package com.simple.gradle.testlab.internal
 import com.google.api.services.testing.model.Apk
 import com.google.api.services.testing.model.ObbFile
 import com.google.api.services.testing.model.RegularFile
+import com.google.api.services.testing.model.SystraceSetup
 import com.google.api.services.testing.model.TestSetup
 import com.google.api.services.testing.model.TestSpecification
 import com.simple.gradle.testlab.internal.artifacts.Artifact
@@ -11,6 +12,7 @@ import com.simple.gradle.testlab.model.Device
 import com.simple.gradle.testlab.model.DeviceFilesHandler
 import com.simple.gradle.testlab.model.FileType
 import com.simple.gradle.testlab.model.Orientation
+import com.simple.gradle.testlab.model.SystraceHandler
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
@@ -33,13 +35,16 @@ internal abstract class AbstractTestConfig(
     override val files = objects.listProperty<DeviceFile>().empty()
 
     override val additionalApks = objects.fileCollection()
+    override val appPackageId = objects.property<String>()
     override val disablePerformanceMetrics = objects.property<Boolean>().value(false)
     override val disableVideoRecording = objects.property<Boolean>().value(false)
+    override val dontAutograntPermissions = objects.property<Boolean>().value(false)
     override val resultsHistoryName = objects.property<String>()
     override val testTimeout = objects.property<String>().value("900s")
 
     override val directoriesToPull = objects.listProperty<String>().empty()
     override val networkProfile = objects.property<String>()
+    override val systrace = objects.newInstance<DefaultSystraceHandler>()
 
     override fun getName(): String = nameInternal
 
@@ -61,6 +66,9 @@ internal abstract class AbstractTestConfig(
     override fun files(configure: Action<in DeviceFilesHandler>) =
         configure.execute(DefaultDeviceFilesHandler(files))
 
+    override fun systrace(configure: Action<in SystraceHandler>) =
+        configure.execute(systrace)
+
     override fun testSpecification(files: List<AppFile>): TestSpecification = TestSpecification()
         .setDisablePerformanceMetrics(disablePerformanceMetrics.get())
         .setDisableVideoRecording(disableVideoRecording.get())
@@ -69,8 +77,10 @@ internal abstract class AbstractTestConfig(
         .apply { configure(files) }
 
     private fun testSetup(appFiles: List<AppFile>): TestSetup = TestSetup()
+        .setAccount(this@AbstractTestConfig.account.account.get().testAccount)
         .setAdditionalApks(appFiles.filter { it.type == FileType.EXTRA_APK }.map { Apk().setLocation(it.path) })
         .setDirectoriesToPull(directoriesToPull.get())
+        .setDontAutograntPermissions(dontAutograntPermissions.get())
         .setNetworkProfile(networkProfile.orNull)
         .setFilesToPush(
             appFiles.filter { it.type == FileType.EXTRA_FILE }.map {
@@ -79,7 +89,19 @@ internal abstract class AbstractTestConfig(
                 TestingDeviceFile().setObbFile(ObbFile().setObb(it.path))
             }
         )
-        .setAccount(this@AbstractTestConfig.account.account.get().testAccount)
+        .setSystrace(
+            SystraceSetup().setDurationSeconds(
+                if (systrace.enabled.get()) {
+                    systrace.durationSeconds.get().also {
+                        if (it !in 1..30) {
+                            log.warn("$name: systrace.durationSeconds should be within 1..30 but is $it. Coercing.")
+                        }
+                    }.coerceIn(1..30)
+                } else {
+                    0
+                }
+            )
+        )
         .apply { configure() }
 
     protected open fun TestSpecification.configure(files: List<AppFile>): TestSpecification = this

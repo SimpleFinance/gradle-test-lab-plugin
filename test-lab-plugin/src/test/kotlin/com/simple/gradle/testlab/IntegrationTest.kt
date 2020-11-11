@@ -24,7 +24,7 @@ class IntegrationTest {
     @Test
     fun `groovy integration test`() {
         val result = GradleRunner.create()
-            // .withDebug(true) -- https://github.com/gradle/gradle/issues/6862
+            .withDebug(true)
             .withGradleInstallation(customInstallation)
             .withProjectDir(File("../sample"))
             .withArguments(
