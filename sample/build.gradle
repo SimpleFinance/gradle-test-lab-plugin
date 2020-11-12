@@ -42,6 +42,8 @@ testLab {
         projectId = "my-project-id-12345"
     }
 
+    clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+
     tests {
         instrumentation("instrumented") {
             environmentVariables["key"] = "value"
@@ -76,6 +78,7 @@ testLab {
                     "/path/to/some.apk",
                     "/path/to/another.apk"
             )
+            clientDetails.put("test-name", name)
             disablePerformanceMetrics = true
             disableVideoRecording = true
             dontAutograntPermissions = true
@@ -137,6 +140,7 @@ testLab {
                     "/path/to/some.apk",
                     "/path/to/another.apk"
             )
+            clientDetails.put("test-name", name)
             disablePerformanceMetrics = true
             disableVideoRecording = true
             dontAutograntPermissions = true

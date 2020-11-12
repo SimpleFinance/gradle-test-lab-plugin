@@ -1,9 +1,12 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -30,6 +33,20 @@ interface TestConfig : Named {
      * application's manifest.
      */
     @get:[Input Optional] val appPackageId: Property<String>
+
+    /**
+     * Extra values to send with this test for use with Cloud Functions.
+     *
+     * These values will be merged with the extension's [clientDetails][TestLabExtension.clientDetails], with the values
+     * from this test overriding existing values with identical keys.
+     *
+     * These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
+     * [Firebase documentation][https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
+     * for more information.
+     *
+     *     clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+     */
+    @get:Input val clientDetails: MapProperty<String, String>
 
     /** Disables performance metrics recording; may reduce test latency. */
     @get:Input val disablePerformanceMetrics: Property<Boolean>

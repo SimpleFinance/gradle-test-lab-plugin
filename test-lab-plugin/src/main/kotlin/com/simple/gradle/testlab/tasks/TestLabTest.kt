@@ -25,6 +25,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -33,6 +34,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.property
 import java.util.Locale
 import javax.inject.Inject
@@ -42,13 +44,15 @@ open class TestLabTest @Inject constructor(
     layout: ProjectLayout,
     objects: ObjectFactory
 ) : DefaultTask() {
-    @Input @Optional val appPackageId: Property<String?> = objects.property()
-    @Internal val googleApiConfig: Property<GoogleApiConfig> = objects.property()
-    @Input val prefix: Property<String> = objects.property()
-    @Nested val testConfig: Property<TestConfig> = objects.property()
-    @InputFiles val appFileMetadata: ConfigurableFileCollection = objects.fileCollection()
+    @get:[Input Optional] val appPackageId: Property<String?> = objects.property()
+    @get:Internal val googleApiConfig: Property<GoogleApiConfig> = objects.property()
 
-    @OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
+    @get:Input val prefix: Property<String> = objects.property()
+    @get:Input val clientDetails: MapProperty<String, String> = objects.mapProperty()
+    @get:Nested val testConfig: Property<TestConfig> = objects.property()
+    @get:InputFiles val appFileMetadata: ConfigurableFileCollection = objects.fileCollection()
+
+    @get:OutputDirectory val outputDir: DirectoryProperty = objects.directoryProperty().apply {
         set(layout.buildDirectory.dir("test-results/$name"))
     }
 
@@ -143,14 +147,10 @@ open class TestLabTest @Inject constructor(
             }
         }
 
-    // Mimic the `gcloud` tool; useOrchestrator does not work without this.
     private fun clientInfo(): ClientInfo = ClientInfo()
-        .setName("gcloud")
+        .setName("gradle-test-lab-plugin")
         .setClientInfoDetails(
-            listOf(
-                ClientInfoDetail().setKey("Cloud SDK Version").setValue("178.0.0"),
-                ClientInfoDetail().setKey("Release Track").setValue("GA")
-            )
+            clientDetails.orNull?.map { (key, value) -> ClientInfoDetail().setKey(key).setValue(value) }
         )
 
     private fun androidDeviceList(): AndroidDeviceList = AndroidDeviceList()

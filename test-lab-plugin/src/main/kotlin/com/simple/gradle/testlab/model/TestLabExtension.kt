@@ -2,6 +2,7 @@ package com.simple.gradle.testlab.model
 
 import org.gradle.api.Action
 import org.gradle.api.PolymorphicDomainObjectContainer
+import org.gradle.api.provider.MapProperty
 import org.gradle.kotlin.dsl.GradleDsl
 
 /**
@@ -10,6 +11,7 @@ import org.gradle.kotlin.dsl.GradleDsl
  * Tests require a valid [Google API configuration][googleApi] and a
  * [test configuration][TestConfig].
  */
+@Suppress("UnstableApiUsage")
 @GradleDsl
 interface TestLabExtension {
     companion object {
@@ -24,6 +26,20 @@ interface TestLabExtension {
      * The Google API configuration to use for this project.
      */
     val googleApi: GoogleApiConfig
+
+    /**
+     * Extra values to send with all tests for use with Cloud Functions.
+     *
+     * For each test, these values will be merged with the test's [clientDetails][TestConfig.clientDetails], with the
+     * test's values taking priority for identical keys.
+     *
+     * These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
+     * [Firebase documentation][https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
+     * for more information.
+     *
+     *     clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+     */
+    val clientDetails: MapProperty<String, String>
 
     /**
      * The container of test configurations for this project.
