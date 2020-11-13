@@ -43,6 +43,8 @@ testLab {
         projectId = "my-project-id-12345"
     }
 
+    clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+
     tests {
         instrumentation("instrumented") {
             common()
@@ -119,6 +121,7 @@ fun TestConfig.common() {
         "/path/to/some.apk",
         "/path/to/another.apk"
     )
+    clientDetails.put("test-name", name)
     disablePerformanceMetrics.set(true)
     disableVideoRecording.set(true)
     dontAutograntPermissions.set(true)

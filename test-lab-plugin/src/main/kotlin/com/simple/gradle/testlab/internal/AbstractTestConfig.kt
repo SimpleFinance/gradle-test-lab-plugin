@@ -17,6 +17,7 @@ import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
@@ -30,9 +31,10 @@ internal abstract class AbstractTestConfig(
     private val providers: ProviderFactory
 ) : TestConfigInternal {
     override val account = objects.newInstance<DefaultAccountHandler>()
-    override val artifacts = objects.setProperty<Artifact>().empty()
+    override val artifacts = objects.setProperty<Artifact>()
+    override val clientDetails = objects.mapProperty<String, String>()
     override val devices = objects.listProperty<Device>()
-    override val files = objects.listProperty<DeviceFile>().empty()
+    override val files = objects.listProperty<DeviceFile>()
 
     override val additionalApks = objects.fileCollection()
     override val appPackageId = objects.property<String>()

@@ -7,6 +7,8 @@ import com.simple.gradle.testlab.model.TestConfig
 import com.simple.gradle.testlab.model.TestsHandler
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
+import org.gradle.kotlin.dsl.mapProperty
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.polymorphicDomainObjectContainer
 import java.time.ZoneId
@@ -20,6 +22,8 @@ internal open class DefaultTestLabExtension @Inject constructor(
     private val objects: ObjectFactory
 ) : TestLabExtensionInternal {
     override val googleApi: DefaultGoogleApiConfig = DefaultGoogleApiConfig()
+
+    override val clientDetails: MapProperty<String, String> = objects.mapProperty()
 
     override val testConfigs = objects.polymorphicDomainObjectContainer(TestConfig::class).apply {
         registerFactory(InstrumentationTest::class.java) { name ->

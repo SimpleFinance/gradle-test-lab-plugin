@@ -182,6 +182,11 @@ private fun Project.addTestTask(
         appFileMetadata.from(uploadTasks.map { task -> task.map { it.results } })
 
         appPackageId.set(variant.applicationId)
+        clientDetails.set(
+            providers.provider {
+                extension.clientDetails.get() + testConfig.clientDetails.get()
+            }
+        )
         googleApiConfig.set(extension.googleApi)
         prefix.set(extension.prefix)
         this.testConfig.set(testConfig)

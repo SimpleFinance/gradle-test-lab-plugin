@@ -187,6 +187,16 @@ testLab {
         projectId = "my-project-id-12345"
     }
 
+    // Extra values to send with all tests for use with Cloud Functions.
+    //
+    // For each test, these values will be merged with the test's `clientDetails`,
+    // with the test's values taking priority for identical keys. 
+    //
+    // These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
+    // Firebase documentation for more information: 
+    // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
+    clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+
     // Configures the test configurations for this project.
     tests {
 
@@ -382,6 +392,16 @@ testLab {
         projectId = "my-project-id-12345"
     }
 
+    // Extra values to send with all tests for use with Cloud Functions.
+    //
+    // For each test, these values will be merged with the test's `clientDetails`,
+    // with the test's values taking priority for identical keys. 
+    //
+    // These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
+    // Firebase documentation for more information: 
+    // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
+    clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
+
     // Configures the test configurations for this project.
     tests {
 
@@ -566,6 +586,16 @@ additionalApks.from(
     "/path/to/another.apk"
 )
 
+// Extra values to send with this test for use with Cloud Functions.
+//
+// These values will be merged with `testLab.clientDetails`, with the values from this 
+// test overriding existing values with identical keys.
+//
+// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions 
+// script. See the Firebase documentation for more information: 
+// https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details
+clientDetails.put("test-name", name)
+
 // Disables performance metrics recording; may reduce test latency.
 disablePerformanceMetrics.set(true)
 
@@ -659,6 +689,16 @@ additionalApks.from(
     "/path/to/some.apk",
     "/path/to/another.apk"
 )
+
+// Extra values to send with this test for use with Cloud Functions.
+//
+// These values will be merged with `testLab.clientDetails`, with the values from this 
+// test overriding existing values with identical keys.
+//
+// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions 
+// script. See the Firebase documentation for more information: 
+// https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details
+clientDetails.put("test-name", name)
 
 // Disables performance metrics recording; may reduce test latency.
 disablePerformanceMetrics = true
