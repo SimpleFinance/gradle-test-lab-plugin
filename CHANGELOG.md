@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.5.0] - 2020-11-13
 
 ### Added
 
@@ -26,8 +26,8 @@
 ### Changed
 
 - Require Android Gradle Plugin 4.1 in order to support app bundles using the new AGP DSL.
-- Split upload tasks into finer-grained units. Out-of-date checks for these tasks are now scoped to the task outputs 
-  which produce the files. For example, the "upload APK" task will not be considered out-of-date if the APKs have not 
+- Split upload tasks into finer-grained units. Out-of-date checks for these tasks are now scoped to the task outputs
+  which produce the files. For example, the "upload APK" task will not be considered out-of-date if the APKs have not
   changed since being uploaded.
 
 ### Fixed
@@ -47,6 +47,7 @@
 
 - Initial public release.
 
-[unreleased]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.4.1...HEAD
+[unreleased]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/SimpleFinance/gradle-test-lab-plugin/releases/tag/v0.4.0
