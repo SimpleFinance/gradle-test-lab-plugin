@@ -3,7 +3,7 @@ name: snapshot
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   snapshot:
