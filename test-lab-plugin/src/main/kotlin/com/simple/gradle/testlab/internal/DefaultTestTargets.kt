@@ -1,5 +1,6 @@
 package com.simple.gradle.testlab.internal
 
+import com.google.common.annotations.VisibleForTesting
 import com.simple.gradle.testlab.model.TestSize
 import com.simple.gradle.testlab.model.TestTargets
 import org.gradle.api.model.ObjectFactory
@@ -45,19 +46,22 @@ internal open class DefaultTestTargets @Inject constructor(
             annotations.get().format("annotation")
     }
 
-    private fun Set<String>.format(prefix: String): List<String> {
-        val (excludes, includes) = filterNot(String::isBlank)
-            .takeUnless(List<String>::isEmpty)
-            ?.map(String::trim)
-            ?.partition { it.startsWith("!") }
-            ?: return emptyList()
-        return listOfNotNull(
-            excludes
+    companion object {
+        @VisibleForTesting
+        internal fun Set<String>.format(prefix: String): List<String> {
+            val (excludes, includes) = filterNot(String::isBlank)
                 .takeUnless(List<String>::isEmpty)
-                ?.joinToString(",", "not${prefix.capitalize()}") { it.removePrefix("!") },
-            includes
-                .takeUnless(List<String>::isEmpty)
-                ?.joinToString(",", prefix)
-        )
+                ?.map(String::trim)
+                ?.partition { it.startsWith("!") }
+                ?: return emptyList()
+            return listOfNotNull(
+                excludes
+                    .takeUnless(List<String>::isEmpty)
+                    ?.joinToString(",", "not${prefix.capitalize()} ") { it.removePrefix("!") },
+                includes
+                    .takeUnless(List<String>::isEmpty)
+                    ?.joinToString(",", "$prefix ")
+            )
+        }
     }
 }
