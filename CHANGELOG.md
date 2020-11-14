@@ -7,6 +7,10 @@
 - Added a `clientDetails` property to the `testLab` extension and both `instrumentation` and `robo` tests. This is a map 
   of arbitrary keys and values passed along with each test, which can be retrieved via Firebase Cloud Functions after
   the test has completed.
+  
+### Fixed
+
+- Fixed improper formatting of test targets; e.g. "`classcom.foo.Bar`" instead of "`class com.foo.Bar`". 
 
 ## [0.5.0] - 2020-11-13
 
