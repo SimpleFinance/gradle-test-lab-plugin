@@ -1,23 +1,24 @@
 # Changelog
 
-## [unreleased]
+## [0.5.1] - 2020-11-13
 
 ### Added
 
-- Added a `clientDetails` property to the `testLab` extension and both `instrumentation` and `robo` tests. This is a map 
-  of arbitrary keys and values passed along with each test, which can be retrieved via Firebase Cloud Functions after
-  the test has completed.
-  
+- Added a `clientDetails` property to the `testLab` extension and both `instrumentation` and `robo`
+  tests. This is a map of arbitrary keys and values passed along with each test, which can be
+  retrieved via Firebase Cloud Functions after the test has completed.
+
 ### Fixed
 
-- Fixed improper formatting of test targets; e.g. "`classcom.foo.Bar`" instead of "`class com.foo.Bar`". 
+- Fixed improper formatting of test targets; e.g. "`classcom.foo.Bar`" instead of "`class
+  com.foo.Bar`".
 
 ## [0.5.0] - 2020-11-13
 
 ### Added
 
-- Create additional test tasks for app bundles. These are named 'testLab${test}BundleTest'. Existing tests for APKs are
-  not affected.
+- Create additional test tasks for app bundles. These are named `testLab${test}BundleTest`. Existing
+  tests for APKs are not affected.
 - Support for split APKs, which are passed via the `additionalApks` property.
 - Support for additional Robo test options:
   - `script`: File containing scripted actions taken by the Robo test runner.
@@ -38,9 +39,9 @@
 ### Changed
 
 - Require Android Gradle Plugin 4.1 in order to support app bundles using the new AGP DSL.
-- Split upload tasks into finer-grained units. Out-of-date checks for these tasks are now scoped to the task outputs
-  which produce the files. For example, the "upload APK" task will not be considered out-of-date if the APKs have not
-  changed since being uploaded.
+- Split upload tasks into finer-grained units. Out-of-date checks for these tasks are now scoped to
+  the task outputs which produce the files. For example, the "upload APK" task will not be
+  considered out-of-date if the APKs have not changed since being uploaded.
 
 ### Fixed
 
@@ -59,7 +60,8 @@
 
 - Initial public release.
 
-[unreleased]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/SimpleFinance/gradle-test-lab-plugin/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/SimpleFinance/gradle-test-lab-plugin/releases/tag/v0.4.0

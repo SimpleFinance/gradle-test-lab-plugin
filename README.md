@@ -19,7 +19,7 @@ work, but are not supported.
 
 | Plugin version | Gradle version | Android Gradle version |
 | -------------- | -------------- | ---------------------- |
-|          0.5.0 |            6.7 |                  4.1.1 |
+|          0.5.1 |            6.7 |                  4.1.1 |
 |          0.4.0 |            6.5 |                  4.0.0 |
 |          0.3.3 |          5.4.1 |                  3.4.1 |
 |          0.3.2 |            5.3 |                  3.3.2 |
@@ -190,10 +190,10 @@ testLab {
     // Extra values to send with all tests for use with Cloud Functions.
     //
     // For each test, these values will be merged with the test's `clientDetails`,
-    // with the test's values taking priority for identical keys. 
+    // with the test's values taking priority for identical keys.
     //
     // These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
-    // Firebase documentation for more information: 
+    // Firebase documentation for more information:
     // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
     clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
 
@@ -214,7 +214,7 @@ testLab {
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
             targets {
-                
+
                 // Include all tests in the given packages.
                 packages.add("com.my.package.name")
 
@@ -229,7 +229,7 @@ testLab {
                 classes.add("!com.package.Class")
                 classes.add("!com.package.Class#method")
 
-                // Include tests annotated with *all* of the given annotations.               
+                // Include tests annotated with *all* of the given annotations.
                 annotations.add("com.package.Annotation")
 
                 // Exclude tests annotated with *any* of the given annotations.
@@ -240,17 +240,17 @@ testLab {
 
                 // Exclude tests listed in a file located at the given path on the target device.
                 excludeFile.set("/data/local/tmp/exclude.txt")
-                
+
                 // Include tests matching the given regular expression.
                 regex.set("""^com\.package\.(MyClass|OtherClass)#test.+""")
 
                 // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
                 size.set(TestSize.LARGE) // Alternatives: TestSize.MEDIUM, TestSize.SMALL
- 
+
                 // Uniformly distribute test targets among this number of shards. Shards are
                 // executed in parallel across all devices.
                 shardCount.set(10)
- 
+
                 // Add an explicit shard of test targets. Shards are executed in parallel
                 // across all devices.
                 shard {
@@ -325,26 +325,26 @@ testLab {
                 text(resourceName = "username", inputText = "alice")
             }
 
-            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the
             // crawl. Optional.
             script.set(file("robo-script.json"))
-            
+
             // Configures the starting intents used to launch the app for the crawl. Optional.
             startingIntents {
-                
+
                 // Add an intent that starts the main launcher activity.
                 launcherActivity()
 
                 // Add an intent that starts the main launcher activity.
                 launcherActivity {
-                    
+
                     // Timeout in seconds for the intent.
                     timeout.set(10)
                 }
 
                 // Add a starting intent specified by an action, uri, and categories.
                 startActivity {
-                
+
                     // Action name. Required.
                     action.set("anroid.intent.action.VIEW")
 
@@ -395,10 +395,10 @@ testLab {
     // Extra values to send with all tests for use with Cloud Functions.
     //
     // For each test, these values will be merged with the test's `clientDetails`,
-    // with the test's values taking priority for identical keys. 
+    // with the test's values taking priority for identical keys.
     //
     // These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions script. See the
-    // Firebase documentation for more information: 
+    // Firebase documentation for more information:
     // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details]
     clientDetails.put("pull-request", "https://github.com/owner/repo/pulls/1234")
 
@@ -419,7 +419,7 @@ testLab {
             // Test targets to execute. Optional; if empty, all targets in the module will
             // be ran.
             targets {
-                
+
                 // Include all tests in the given packages.
                 packages.add("com.my.package.name")
 
@@ -434,7 +434,7 @@ testLab {
                 classes.add("!com.package.Class")
                 classes.add("!com.package.Class#method")
 
-                // Include tests annotated with *all* of the given annotations.               
+                // Include tests annotated with *all* of the given annotations.
                 annotations.add("com.package.Annotation")
 
                 // Exclude tests annotated with *any* of the given annotations.
@@ -445,17 +445,17 @@ testLab {
 
                 // Exclude tests listed in a file located at the given path on the target device.
                 excludeFile = "/data/local/tmp/exclude.txt"
-                
+
                 // Include tests matching the given regular expression.
                 regex = $/^com\.package\.(MyClass|OtherClass)#test.+/$
 
                 // Include tests annotated with `SmallTest`, `MediumTest`, or `LargeTest` annotations.
                 size = TestSize.LARGE // Alternatives: TestSize.MEDIUM, TestSize.SMALL
- 
+
                 // Uniformly distribute test targets among this number of shards. Shards are
                 // executed in parallel across all devices.
                 shardCount.set(10)
- 
+
                 // Add an explicit shard of test targets. Shards are executed in parallel
                 // across all devices.
                 shard {
@@ -530,10 +530,10 @@ testLab {
                 text("username", "alice")
             }
 
-            // A JSON file with a sequence of actions Robo should perform as a prologue for the 
+            // A JSON file with a sequence of actions Robo should perform as a prologue for the
             // crawl. Optional.
             script = file("robo-script.json")
-            
+
             // Configures the starting intents used to launch the app for the crawl. Optional.
             startingIntents {
 
@@ -588,11 +588,11 @@ additionalApks.from(
 
 // Extra values to send with this test for use with Cloud Functions.
 //
-// These values will be merged with `testLab.clientDetails`, with the values from this 
+// These values will be merged with `testLab.clientDetails`, with the values from this
 // test overriding existing values with identical keys.
 //
-// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions 
-// script. See the Firebase documentation for more information: 
+// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions
+// script. See the Firebase documentation for more information:
 // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details
 clientDetails.put("test-name", name)
 
@@ -692,11 +692,11 @@ additionalApks.from(
 
 // Extra values to send with this test for use with Cloud Functions.
 //
-// These values will be merged with `testLab.clientDetails`, with the values from this 
+// These values will be merged with `testLab.clientDetails`, with the values from this
 // test overriding existing values with identical keys.
 //
-// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions 
-// script. See the Firebase documentation for more information: 
+// These values can be accessed via `testMatrix.clientInfo.details` in a Cloud Functions
+// script. See the Firebase documentation for more information:
 // https://firebase.google.com/docs/test-lab/extend-with-functions#access_client_details
 clientDetails.put("test-name", name)
 
